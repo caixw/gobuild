@@ -22,3 +22,9 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+# osx
+.DS_Store
+
+#vim
+*.swp
