@@ -120,7 +120,7 @@ func autoBuild() {
 		outputName += ".exe"
 	}
 
-	args := []string{"build", "-x"}
+	args := []string{"build"}
 	if len(outputName) > 0 {
 		args = append(args, "-o", outputName)
 	}

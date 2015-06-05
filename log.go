@@ -16,26 +16,30 @@ const (
 	info
 	warn
 	erro
+	max
 )
 
-func (l logLevel) String() string {
-	switch l {
-	case succ:
-		return "SUCC"
-	case info:
-		return "INFO"
-	case warn:
-		return "WARN"
-	case erro:
-		return "ERROR"
-	default:
-		return "<UNKNOWN>"
-	}
+var levelStrings = map[logLevel]string{
+	succ: "SUCC",
+	info: "INFO",
+	warn: "WARN",
+	erro: "ERRO",
+}
+
+var levelColors = map[logLevel]colors.Color{
+	succ: colors.Green,
+	info: colors.Default,
+	warn: colors.Magenta,
+	erro: colors.Red,
 }
 
 func log(level logLevel, msg ...interface{}) {
+	if level < 0 || level >= max {
+		panic("log:无效的level值")
+	}
+
 	data := time.Now().Format("2006-01-02 15:04:05 ")
 	colors.Print(colors.Stdout, colors.Default, colors.Default, data)
-	colors.Print(colors.Stdout, colors.Red, colors.Default, "[", level, "] ")
-	colors.Println(colors.Stdout, colors.Default, colors.Default, msg...)
+	colors.Print(colors.Stdout, levelColors[level], colors.Default, "[", levelStrings[level], "] ")
+	colors.Println(colors.Stdout, levelColors[level], colors.Default, msg...)
 }
