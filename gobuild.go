@@ -61,6 +61,12 @@ var (
 )
 
 func init() {
+	gopath := os.Getenv("GOPATH")
+	if len(gopath) == 0 {
+		log(erro, "未设置环境变量GOPATH")
+		os.Exit(2)
+	}
+
 	// 初始化flag相关设置
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号")
@@ -108,12 +114,21 @@ func main() {
 		return
 	}
 
+	// 获取所有被监视的路径
+	wd, err := os.Getwd()
+	if err != nil {
+		log(erro, "获取当前工作目录时，发生以下错误:", err)
+		return
+	}
+	paths := append(flag.Args(), wd)
+
 	log(info, "初始化监视器...")
-	log(info, "以下路径或是文件将被监视:")
-	// TODO 输出监视文件
-	if err := watcher.Add("./"); err != nil {
-		log(erro, err)
-		os.Exit(2)
+	log(info, "以下路径或是文件将被监视:", paths)
+	for _, path := range paths {
+		if err := watcher.Add(path); err != nil {
+			log(erro, err)
+			os.Exit(2)
+		}
 	}
 
 	autoBuild()
