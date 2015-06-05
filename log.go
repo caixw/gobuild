@@ -16,7 +16,7 @@ const (
 	info
 	warn
 	erro
-	max
+	max // 永远在最后，用于判断logLevel的值有没有超标
 )
 
 var levelStrings = map[logLevel]string{

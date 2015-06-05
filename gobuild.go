@@ -8,6 +8,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/issue9/term/colors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,6 +18,7 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
+// 当前程序的版本号
 const version = "0.1.1.150605"
 
 const usage = `gobuild 用于热编译Go程序。
@@ -96,8 +98,12 @@ func main() {
 	}
 
 	if showVersion {
-		fmt.Println("gobuild:", version)
-		fmt.Println("Go:", runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		colors.Print(colors.Stdout, colors.Green, colors.Default, "gobuild: ")
+		colors.Println(colors.Stdout, colors.Default, colors.Default, version)
+
+		colors.Print(colors.Stdout, colors.Green, colors.Default, "Go: ")
+		goVersion := runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH
+		colors.Println(colors.Stdout, colors.Default, colors.Default, goVersion)
 
 		return
 	}
