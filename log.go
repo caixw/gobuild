@@ -6,12 +6,36 @@ package main
 
 import (
 	"github.com/issue9/term/colors"
+	"time"
 )
 
-var (
-	succ = colors.New(colors.Stdout, colors.Green, colors.Default)
-	info = colors.New(colors.Stdout, colors.Default, colors.Default)
-	def  = colors.New(colors.Stdout, colors.Default, colors.Default)
-	erro = colors.New(colors.Stdout, colors.Red, colors.Default)
-	warn = colors.New(colors.Stdout, colors.Magenta, colors.Default)
+type logLevel int
+
+const (
+	succ logLevel = iota
+	info
+	warn
+	erro
 )
+
+func (l logLevel) String() string {
+	switch l {
+	case succ:
+		return "SUCC"
+	case info:
+		return "INFO"
+	case warn:
+		return "WARN"
+	case erro:
+		return "ERROR"
+	default:
+		return "<UNKNOWN>"
+	}
+}
+
+func log(level logLevel, msg ...interface{}) {
+	data := time.Now().Format("2006-01-02 15:04:05 ")
+	colors.Print(colors.Stdout, colors.Default, colors.Default, data)
+	colors.Print(colors.Stdout, colors.Red, colors.Default, "[", level, "] ")
+	colors.Println(colors.Stdout, colors.Default, colors.Default, msg...)
+}

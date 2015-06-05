@@ -6,6 +6,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -64,22 +65,22 @@ func init() {
 	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件")
 
 	flag.Usage = func() {
-		def.Println(usage)
+		fmt.Println(usage)
 	}
 
 	// 初始化监视器
 	var err error
 	if watcher, err = fsnotify.NewWatcher(); err != nil {
-		erro.Println(err)
+		log(erro, err)
 	}
 	go func() {
 		for {
 			select {
 			case event := <-watcher.Events:
-				info.Println("watcher:", event)
+				log(info, "watcher:", event)
 				autoBuild()
 			case err := <-watcher.Errors:
-				erro.Println(err)
+				log(erro, err)
 			}
 		}
 	}()
@@ -94,14 +95,17 @@ func main() {
 	}
 
 	if showVersion {
-		def.Println("gobuild:", version)
-		def.Println("Go:", runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		fmt.Println("gobuild:", version)
+		fmt.Println("Go:", runtime.Version(), runtime.GOOS, runtime.GOARCH)
 
 		return
 	}
 
+	log(info, "初始化监视器...")
+	log(info, "以下路径或是文件将被监视:")
+	// TODO 输出监视文件
 	if err := watcher.Add("./"); err != nil {
-		erro.Println(err)
+		log(erro, err)
 		os.Exit(2)
 	}
 
@@ -110,7 +114,7 @@ func main() {
 }
 
 func autoBuild() {
-	info.Println("编译代码...")
+	log(info, "编译代码...")
 
 	if len(outputName) > 0 && runtime.GOOS == "windows" {
 		outputName += ".exe"
@@ -129,38 +133,38 @@ func autoBuild() {
 	cmd.Stdout = os.Stdout
 
 	if err := cmd.Run(); err != nil {
-		erro.Println("编译失败:", err)
+		log(erro, "编译失败:", err)
 		return
 	}
 
-	succ.Println("编译成功!")
+	log(succ, "编译成功!")
 	restart(outputName)
 }
 
 var cmd *exec.Cmd
 
 func kill() {
-	info.Println("中止旧进程...")
+	log(info, "中止旧进程...")
 	defer func() {
 		if err := recover(); err != nil {
-			def.Println(err)
+			log(erro, err)
 		}
 	}()
 
 	if cmd != nil && cmd.Process != nil {
 		if err := cmd.Process.Kill(); err != nil {
-			def.Println(err)
+			log(erro, err)
 		}
 	}
 }
 
 func start(outputName string) {
-	info.Println("准备启动进程:", outputName, "...")
+	log(info, "准备启动进程:", outputName, "...")
 
 	if strings.IndexByte(outputName, '/') < 0 && strings.IndexByte(outputName, filepath.Separator) < 0 {
 		wd, err := os.Getwd()
 		if err != nil {
-			erro.Println(err)
+			log(erro, err)
 			return
 		}
 
@@ -171,12 +175,12 @@ func start(outputName string) {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	if err := cmd.Run(); err != nil {
-		erro.Println(err)
+		log(erro, err)
 	}
 }
 
 func restart(outputName string) {
-	info.Println("重启进程...")
+	log(info, "重启进程...")
 
 	kill()
 	start(outputName)
