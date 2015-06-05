@@ -15,7 +15,7 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
-const version = "0.1.0.150604"
+const version = "0.1.1.150605"
 
 const usage = `gobuild 用于热编译Go程序。
 
@@ -57,6 +57,7 @@ var (
 )
 
 func init() {
+	// 初始化flag相关设置
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号")
 	flag.StringVar(&outputName, "o", "", "指定程序名称")
@@ -66,6 +67,7 @@ func init() {
 		def.Println(usage)
 	}
 
+	// 初始化监视器
 	var err error
 	if watcher, err = fsnotify.NewWatcher(); err != nil {
 		erro.Println(err)
@@ -75,6 +77,7 @@ func init() {
 			select {
 			case event := <-watcher.Events:
 				info.Println("watcher:", event)
+				autoBuild()
 			case err := <-watcher.Errors:
 				erro.Println(err)
 			}
@@ -91,31 +94,29 @@ func main() {
 	}
 
 	if showVersion {
-		succ.Print("gobuild:")
-		def.Println(version)
-
-		succ.Print("Go:")
-		def.Println(runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		def.Println("gobuild:", version)
+		def.Println("Go:", runtime.Version(), runtime.GOOS, runtime.GOARCH)
 
 		return
 	}
 
-	autoBuild()
-
 	if err := watcher.Add("./"); err != nil {
 		erro.Println(err)
+		os.Exit(2)
 	}
-	watcher.Close()
+
+	autoBuild()
+	//watcher.Close()
 }
 
 func autoBuild() {
-	info.Println("============开始编译===============")
+	info.Println("编译代码...")
 
 	if len(outputName) > 0 && runtime.GOOS == "windows" {
 		outputName += ".exe"
 	}
 
-	args := []string{"build"}
+	args := []string{"build", "-x"}
 	if len(outputName) > 0 {
 		args = append(args, "-o", outputName)
 	}
@@ -128,12 +129,11 @@ func autoBuild() {
 	cmd.Stdout = os.Stdout
 
 	if err := cmd.Run(); err != nil {
-		erro.Println(err)
-		erro.Println("============编译失败===============")
+		erro.Println("编译失败:", err)
 		return
 	}
-	succ.Println("============编译成功===============")
 
+	succ.Println("编译成功!")
 	restart(outputName)
 }
 
@@ -176,7 +176,7 @@ func start(outputName string) {
 }
 
 func restart(outputName string) {
-	info.Println("重启中...")
+	info.Println("重启进程...")
 
 	kill()
 	start(outputName)
