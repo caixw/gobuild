@@ -2,7 +2,15 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
-// 一个简单的Go语言热编译工具
+// 一个简单的Go语言热编译工具。
+//
+// gobuild会实时监控指定目录下的文件变化(重命名，删除，创建，添加)，
+// 一旦触发，就会调用`go build`编译Go源文件并执行。
+//  // 监视当前目录下的文件，若发生变化，则触发go build -main="*.go"
+//  gobuild
+//
+//  // 监视当前目录和term目录下的文件，若发生变化，则触发go build -main="main.go"
+//  gobuild -main=main.go ~/Go/src/github.com/issue9/term
 package main
 
 import (
@@ -20,7 +28,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.1.1.150606"
+const version = "0.1.2.150607"
 
 var (
 	showHelp    = false
@@ -28,7 +36,7 @@ var (
 	mainFiles   = ""
 	outputName  = ""
 	extString   = "go"
-	exts        []string
+	exts        []string // 当第一个元素为*时，表示所有类型的文件。
 
 	watcher *fsnotify.Watcher
 	wd      string    // 当前工作目录
@@ -73,27 +81,31 @@ func init() {
 			select {
 			case event := <-watcher.Events:
 				if event.Op&fsnotify.Chmod == fsnotify.Chmod {
+					log(ignore, "watcher.Events:忽略CHMOD事件:", event)
 					continue
 				}
 
 				if event.Name == outputName { // 过滤程序本身
+					log(ignore, "watcher.Events:忽略程序本身的改变:", event)
 					continue
 				}
 
 				if !isEnabledExt(event.Name) { // 不需要监视的扩展名
+					log(ignore, "watcher.Events:忽略不被监视的文件:", event)
 					continue
 				}
 
 				if time.Now().Unix()-buildTime <= 1 { // 已经记录
-					log(info, "该监控事件被忽略:", event)
+					log(ignore, "watcher.Events:该监控事件被忽略:", event)
 					continue
 				}
 
 				buildTime = time.Now().Unix()
-				log(info, "watcher.Events:", event)
+				log(info, "watcher.Events:触发编译事件:", event)
+
 				go autoBuild()
 			case err := <-watcher.Errors:
-				log(erro, "watcher.Errors", err)
+				log(warn, "watcher.Errors", err)
 			}
 		}
 	}()
@@ -118,8 +130,9 @@ func main() {
 		return
 	}
 
-	if len(extString) > 0 {
-		exts = strings.Split(extString, ",")
+	exts = strings.Split(extString, ",")
+	if len(exts) != 0 {
+		log(info, "系统将监视以下扩展文件的改变", exts)
 	}
 
 	// 确定编译后的文件名
@@ -154,7 +167,6 @@ func main() {
 }
 
 func autoBuild() {
-
 	log(info, "编译代码...")
 
 	// 初始化goCmd变量
@@ -198,6 +210,14 @@ func restart() {
 
 // path文件是否包含允许的扩展名。
 func isEnabledExt(path string) bool {
+	if len(exts) == 0 {
+		return false
+	}
+
+	if exts[0] == "*" {
+		return true
+	}
+
 	for _, ext := range exts {
 		if strings.HasSuffix(path, ext) {
 			return true

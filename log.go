@@ -16,21 +16,24 @@ const (
 	info
 	warn
 	erro
+	ignore
 	max // 永远在最后，用于判断logLevel的值有没有超标
 )
 
 var levelStrings = map[logLevel]string{
-	succ: "SUCC",
-	info: "INFO",
-	warn: "WARN",
-	erro: "ERRO",
+	succ:   "SUCCESS",
+	info:   "INFO",
+	warn:   "WARINNG",
+	erro:   "ERROR",
+	ignore: "IGNORE",
 }
 
 var levelColors = map[logLevel]colors.Color{
-	succ: colors.Green,
-	info: colors.Default,
-	warn: colors.Magenta,
-	erro: colors.Red,
+	succ:   colors.Green,
+	info:   colors.Blue,
+	warn:   colors.Magenta,
+	erro:   colors.Red,
+	ignore: colors.Default,
 }
 
 func log(level logLevel, msg ...interface{}) {
