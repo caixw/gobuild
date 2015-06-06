@@ -72,6 +72,10 @@ func init() {
 		for {
 			select {
 			case event := <-watcher.Events:
+				if event.Op&fsnotify.Chmod == fsnotify.Chmod {
+					continue
+				}
+
 				if event.Name == outputName { // 过滤程序本身
 					continue
 				}
