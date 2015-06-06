@@ -33,8 +33,6 @@ var (
 	watcher *fsnotify.Watcher
 	wd      string    // 当前工作目录
 	cmd     *exec.Cmd // outputName的命令
-
-	buildTime int64
 )
 
 func init() {
@@ -68,7 +66,9 @@ func init() {
 	if watcher, err = fsnotify.NewWatcher(); err != nil {
 		log(erro, err)
 	}
+
 	go func() {
+		var buildTime int64
 		for {
 			select {
 			case event := <-watcher.Events:
@@ -80,13 +80,14 @@ func init() {
 					continue
 				}
 
-				if buildTime == time.Now().Unix() { // 已经记录
+				if time.Now().Unix()-buildTime <= 1 { // 已经记录
 					log(info, "该监控事件被忽略:", event)
 					continue
 				}
 
+				buildTime = time.Now().Unix()
 				log(info, "watcher.Events:", event)
-				autoBuild()
+				go autoBuild()
 			case err := <-watcher.Errors:
 				log(erro, "watcher.Errors", err)
 			}
@@ -149,7 +150,6 @@ func main() {
 }
 
 func autoBuild() {
-	buildTime = time.Now().Unix()
 
 	log(info, "编译代码...")
 
