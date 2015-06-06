@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/issue9/term/colors"
 	"gopkg.in/fsnotify.v1"
@@ -29,13 +30,11 @@ var (
 	extString   = "go"
 	exts        []string
 
-	watcher *fsnotify.Watcher // 监视器
-	wd      string            // 当前工作目录
-	cmd     *exec.Cmd         // outputName的命令
-	goCmd   *exec.Cmd         // go build的实例
+	watcher *fsnotify.Watcher
+	wd      string    // 当前工作目录
+	cmd     *exec.Cmd // outputName的命令
 
-	// 已经被监控到改变的文件列表
-	watchedFiles = map[string]interface{}{}
+	buildTime int64
 )
 
 func init() {
@@ -77,16 +76,15 @@ func init() {
 					continue
 				}
 
-				if !isEnabled(event.Name) { // 不需要监视的扩展名
+				if !isEnabledExt(event.Name) { // 不需要监视的扩展名
 					continue
 				}
 
-				if _, found := watchedFiles[event.Name]; found { // 已经记录
-					log(succ, "+SKIP+", event)
+				if buildTime == time.Now().Unix() { // 已经记录
+					log(info, "该监控事件被忽略:", event)
 					continue
 				}
 
-				watchedFiles[event.Name] = 5
 				log(info, "watcher.Events:", event)
 				autoBuild()
 			case err := <-watcher.Errors:
@@ -138,15 +136,6 @@ func main() {
 		}
 	}
 
-	// 初始化goCmd变量
-	args := []string{"build", "-o", outputName}
-	if len(mainFiles) > 0 {
-		args = append(args, mainFiles)
-	}
-	goCmd = exec.Command("go", args...)
-	goCmd.Stderr = os.Stderr
-	goCmd.Stdout = os.Stdout
-
 	// 初始化cmd变量
 	cmd = exec.Command(outputName)
 	cmd.Stderr = os.Stderr
@@ -160,10 +149,18 @@ func main() {
 }
 
 func autoBuild() {
-	// 每次进入build阶段时，清空缓存的文件列表
-	watchedFiles = map[string]interface{}{}
+	buildTime = time.Now().Unix()
+
 	log(info, "编译代码...")
 
+	// 初始化goCmd变量
+	args := []string{"build", "-o", outputName}
+	if len(mainFiles) > 0 {
+		args = append(args, mainFiles)
+	}
+	goCmd := exec.Command("go", args...)
+	goCmd.Stderr = os.Stderr
+	goCmd.Stdout = os.Stdout
 	if err := goCmd.Run(); err != nil {
 		log(erro, "编译失败:", err)
 		return
@@ -195,7 +192,8 @@ func restart() {
 	}
 }
 
-func isEnabled(path string) bool {
+// path文件是否包含允许的扩展名。
+func isEnabledExt(path string) bool {
 	for _, ext := range exts {
 		if strings.HasSuffix(path, ext) {
 			return true
