@@ -138,12 +138,6 @@ func main() {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
-	// 将可执行文件从监视器中删除
-	if err := watcher.Remove(outputName); err != nil {
-		log(erro, err)
-		os.Exit(2)
-	}
-
 	// 监视的路径，必定包含当前工作目录
 	paths := append(flag.Args(), wd)
 	log(info, "初始化监视器...")
@@ -162,7 +156,7 @@ func main() {
 func autoBuild() {
 	log(info, "编译代码...")
 
-	args := []string{"build"}
+	args := []string{"build", "-o", outputName}
 	if len(mainFiles) > 0 {
 		args = append(args, mainFiles)
 	}
@@ -177,6 +171,13 @@ func autoBuild() {
 	}
 
 	log(succ, "编译成功!")
+
+	// 将可执行文件从监视器中删除
+	if err := watcher.Remove(outputName); err != nil {
+		log(erro, err)
+		os.Exit(2)
+	}
+
 	restart()
 }
 
