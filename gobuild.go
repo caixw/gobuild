@@ -19,7 +19,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.1.1.150605"
+const version = "0.1.1.150606"
 
 const usage = `gobuild 用于热编译Go程序。
 
@@ -29,7 +29,8 @@ const usage = `gobuild 用于热编译Go程序。
  options:
   -h 显示当前帮助信息；
   -v 显示gobuild和go程序的版本信息；
-  -o 执行编译后的可执行文件名。
+  -o 执行编译后的可执行文件名；
+  -ext 监视的扩展名，默认值为"go"；
   -main 指定需要编译的文件，默认为""。
 
  dependents
@@ -53,13 +54,12 @@ var (
 	showVersion = false
 	mainFiles   = ""
 	outputName  = ""
+	extString   = "go"
+	exts        []string
 
-	watcher *fsnotify.Watcher
-
-	wd string // 当前工作目录
-
-	// outputName的命令
-	cmd *exec.Cmd
+	watcher *fsnotify.Watcher // 监视器
+	wd      string            // 当前工作目录
+	cmd     *exec.Cmd         // outputName的命令
 )
 
 func init() {
@@ -82,6 +82,7 @@ func init() {
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号")
 	flag.StringVar(&outputName, "o", "", "指定输出名称")
+	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展名")
 	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件")
 
 	flag.Usage = func() {
@@ -96,11 +97,15 @@ func init() {
 		for {
 			select {
 			case event := <-watcher.Events:
-				log(info, "watcher.Events:", event)
-				if event.Name == outputName {
+				if event.Name == outputName { // 过滤程序本身
 					continue
 				}
 
+				if !isEnabled(event.Name) { // 不需要监视的扩展名
+					continue
+				}
+
+				log(info, "watcher.Events:", event)
 				autoBuild()
 			case err := <-watcher.Errors:
 				log(erro, "watcher.Errors", err)
@@ -128,6 +133,10 @@ func main() {
 		return
 	}
 
+	if len(extString) > 0 {
+		exts = strings.Split(extString, ",")
+	}
+
 	// 确定编译后的文件名
 	if len(outputName) == 0 {
 		outputName = filepath.Base(wd)
@@ -135,9 +144,7 @@ func main() {
 	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
 		outputName = wd + string(filepath.Separator) + outputName
 	}
-	if runtime.GOOS == "windows" {
-		outputName += ".exe"
-	}
+
 	cmd = exec.Command(outputName)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
@@ -154,6 +161,9 @@ func main() {
 	}
 
 	autoBuild()
+
+	done := make(chan bool)
+	<-done
 }
 
 func autoBuild() {
@@ -199,4 +209,14 @@ func restart() {
 	if err := cmd.Run(); err != nil {
 		log(erro, "启动进程时出错:", err)
 	}
+}
+
+func isEnabled(path string) bool {
+	for _, ext := range exts {
+		if strings.HasSuffix(path, ext) {
+			return true
+		}
+	}
+
+	return false
 }
