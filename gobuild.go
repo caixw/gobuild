@@ -32,6 +32,10 @@ var (
 	watcher *fsnotify.Watcher // 监视器
 	wd      string            // 当前工作目录
 	cmd     *exec.Cmd         // outputName的命令
+	goCmd   *exec.Cmd         // go build的实例
+
+	// 已经被监控到改变的文件列表
+	watchedFiles = map[string]interface{}{}
 )
 
 func init() {
@@ -77,6 +81,12 @@ func init() {
 					continue
 				}
 
+				if _, found := watchedFiles[event.Name]; found { // 已经记录
+					log(succ, "+SKIP+", event)
+					continue
+				}
+
+				watchedFiles[event.Name] = 5
 				log(info, "watcher.Events:", event)
 				autoBuild()
 			case err := <-watcher.Errors:
@@ -117,10 +127,6 @@ func main() {
 		outputName = wd + string(filepath.Separator) + outputName
 	}
 
-	cmd = exec.Command(outputName)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-
 	// 监视的路径，必定包含当前工作目录
 	paths := append(flag.Args(), wd)
 	log(info, "初始化监视器...")
@@ -132,6 +138,21 @@ func main() {
 		}
 	}
 
+	// 初始化goCmd变量
+	args := []string{"build", "-o", outputName}
+	if len(mainFiles) > 0 {
+		args = append(args, mainFiles)
+	}
+	goCmd = exec.Command("go", args...)
+	goCmd.Stderr = os.Stderr
+	goCmd.Stdout = os.Stdout
+
+	// 初始化cmd变量
+	cmd = exec.Command(outputName)
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+
+	// 首次编译程序。
 	autoBuild()
 
 	done := make(chan bool)
@@ -139,16 +160,9 @@ func main() {
 }
 
 func autoBuild() {
+	// 每次进入build阶段时，清空缓存的文件列表
+	watchedFiles = map[string]interface{}{}
 	log(info, "编译代码...")
-
-	args := []string{"build", "-o", outputName}
-	if len(mainFiles) > 0 {
-		args = append(args, mainFiles)
-	}
-
-	goCmd := exec.Command("go", args...)
-	goCmd.Stderr = os.Stderr
-	goCmd.Stdout = os.Stdout
 
 	if err := goCmd.Run(); err != nil {
 		log(erro, "编译失败:", err)
@@ -160,23 +174,21 @@ func autoBuild() {
 	restart()
 }
 
-func kill() {
+// 重启cmd程序
+func restart() {
 	defer func() {
 		if err := recover(); err != nil {
-			log(erro, "kill.defer:", err)
+			log(erro, "restart.defer:", err)
 		}
 	}()
 
+	// kill process
 	if cmd != nil && cmd.Process != nil {
 		log(info, "中止旧进程...")
 		if err := cmd.Process.Kill(); err != nil {
 			log(erro, "kill:", err)
 		}
 	}
-}
-
-func restart() {
-	kill()
 
 	if err := cmd.Run(); err != nil {
 		log(erro, "启动进程时出错:", err)
