@@ -8,13 +8,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/issue9/term/colors"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/issue9/term/colors"
 	"gopkg.in/fsnotify.v1"
 )
 
@@ -96,10 +96,14 @@ func init() {
 		for {
 			select {
 			case event := <-watcher.Events:
-				log(info, "watcher:", event)
+				log(info, "watcher.Events:", event)
+				if event.Name == outputName {
+					continue
+				}
+
 				autoBuild()
 			case err := <-watcher.Errors:
-				log(erro, err)
+				log(erro, "watcher.Errors", err)
 			}
 		}
 	}()
@@ -144,13 +148,12 @@ func main() {
 	log(info, "以下路径或是文件将被监视:", paths)
 	for _, path := range paths {
 		if err := watcher.Add(path); err != nil {
-			log(erro, err)
+			log(erro, "watcher.Add:", err)
 			os.Exit(2)
 		}
 	}
 
 	autoBuild()
-	//watcher.Close()
 }
 
 func autoBuild() {
@@ -161,47 +164,39 @@ func autoBuild() {
 		args = append(args, mainFiles)
 	}
 
-	cmd := exec.Command("go", args...)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	goCmd := exec.Command("go", args...)
+	goCmd.Stderr = os.Stderr
+	goCmd.Stdout = os.Stdout
 
-	if err := cmd.Run(); err != nil {
+	if err := goCmd.Run(); err != nil {
 		log(erro, "编译失败:", err)
 		return
 	}
 
 	log(succ, "编译成功!")
 
-	// 将可执行文件从监视器中删除
-	if err := watcher.Remove(outputName); err != nil {
-		log(erro, err)
-		os.Exit(2)
-	}
-
 	restart()
 }
 
 func kill() {
-	log(info, "中止旧进程...")
 	defer func() {
 		if err := recover(); err != nil {
-			log(erro, err)
+			log(erro, "kill.defer:", err)
 		}
 	}()
 
 	if cmd != nil && cmd.Process != nil {
+		log(info, "中止旧进程...")
 		if err := cmd.Process.Kill(); err != nil {
-			log(erro, err)
+			log(erro, "kill:", err)
 		}
 	}
 }
 
 func restart() {
-	log(info, "重启进程...")
-
 	kill()
 
 	if err := cmd.Run(); err != nil {
-		log(erro, err)
+		log(erro, "启动进程时出错:", err)
 	}
 }
