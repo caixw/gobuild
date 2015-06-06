@@ -29,7 +29,7 @@ const usage = `gobuild 用于热编译Go程序。
  options:
   -h 显示当前帮助信息；
   -v 显示gobuild和go程序的版本信息；
-  -o 指定编译后的文件名；
+  -o 执行编译后的可执行文件名。
   -main 指定需要编译的文件，默认为""。
 
  dependents
@@ -46,31 +46,42 @@ const usage = `gobuild 用于热编译Go程序。
 
  - gobuild dir1 dir2
    监视当前目录及dir1和dir2，若有变动，则重新编译当前目录下的*.go文件；
-
- - gobuild -o="/var/main" -main="main.go" dir1 dir2
-   监视当前目录及dir1和dir2，若有变动，则重新编译当前目录下的main.go文件并保存到/var/main；
 `
 
 var (
 	showHelp    = false
 	showVersion = false
-	outputName  = ""
 	mainFiles   = ""
+	outputName  = ""
 
 	watcher *fsnotify.Watcher
+
+	wd string // 当前工作目录
+
+	// outputName的命令
+	cmd *exec.Cmd
 )
 
 func init() {
+	// 基本环境检测
 	gopath := os.Getenv("GOPATH")
 	if len(gopath) == 0 {
 		log(erro, "未设置环境变量GOPATH")
 		os.Exit(2)
 	}
 
+	// 获取所有被监视的路径
+	var err error
+	wd, err = os.Getwd()
+	if err != nil {
+		log(erro, "获取当前工作目录时，发生以下错误:", err)
+		os.Exit(2)
+	}
+
 	// 初始化flag相关设置
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号")
-	flag.StringVar(&outputName, "o", "", "指定程序名称")
+	flag.StringVar(&outputName, "o", "", "指定输出名称")
 	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件")
 
 	flag.Usage = func() {
@@ -78,7 +89,6 @@ func init() {
 	}
 
 	// 初始化监视器
-	var err error
 	if watcher, err = fsnotify.NewWatcher(); err != nil {
 		log(erro, err)
 	}
@@ -114,14 +124,28 @@ func main() {
 		return
 	}
 
-	// 获取所有被监视的路径
-	wd, err := os.Getwd()
-	if err != nil {
-		log(erro, "获取当前工作目录时，发生以下错误:", err)
-		return
+	// 确定编译后的文件名
+	if len(outputName) == 0 {
+		outputName = filepath.Base(wd)
 	}
-	paths := append(flag.Args(), wd)
+	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
+		outputName = wd + string(filepath.Separator) + outputName
+	}
+	if runtime.GOOS == "windows" {
+		outputName += ".exe"
+	}
+	cmd = exec.Command(outputName)
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
 
+	// 将可执行文件从监视器中删除
+	if err := watcher.Remove(outputName); err != nil {
+		log(erro, err)
+		os.Exit(2)
+	}
+
+	// 监视的路径，必定包含当前工作目录
+	paths := append(flag.Args(), wd)
 	log(info, "初始化监视器...")
 	log(info, "以下路径或是文件将被监视:", paths)
 	for _, path := range paths {
@@ -138,14 +162,7 @@ func main() {
 func autoBuild() {
 	log(info, "编译代码...")
 
-	if len(outputName) > 0 && runtime.GOOS == "windows" {
-		outputName += ".exe"
-	}
-
 	args := []string{"build"}
-	if len(outputName) > 0 {
-		args = append(args, "-o", outputName)
-	}
 	if len(mainFiles) > 0 {
 		args = append(args, mainFiles)
 	}
@@ -160,10 +177,8 @@ func autoBuild() {
 	}
 
 	log(succ, "编译成功!")
-	restart(outputName)
+	restart()
 }
-
-var cmd *exec.Cmd
 
 func kill() {
 	log(info, "中止旧进程...")
@@ -180,30 +195,12 @@ func kill() {
 	}
 }
 
-func start(outputName string) {
-	log(info, "准备启动进程:", outputName, "...")
-
-	if strings.IndexByte(outputName, '/') < 0 && strings.IndexByte(outputName, filepath.Separator) < 0 {
-		wd, err := os.Getwd()
-		if err != nil {
-			log(erro, err)
-			return
-		}
-
-		outputName = wd + string(filepath.Separator) + outputName
-	}
-
-	cmd = exec.Command(outputName)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	if err := cmd.Run(); err != nil {
-		log(erro, err)
-	}
-}
-
-func restart(outputName string) {
+func restart() {
 	log(info, "重启进程...")
 
 	kill()
-	start(outputName)
+
+	if err := cmd.Run(); err != nil {
+		log(erro, err)
+	}
 }
