@@ -24,7 +24,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.2.4.150607"
+const version = "0.2.5.150607"
 
 const usage = `gobuild 用于热编译Go程序。
  

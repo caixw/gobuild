@@ -55,8 +55,20 @@ func newBuilder(mainFiles, outputName string, exts, paths []string) *builder {
 		args = append(args, mainFiles)
 	}
 
+	// 去除无效的扩展名
+	newExts := make([]string, 0, len(exts))
+	for _, ext := range exts {
+		if len(ext) == 0 {
+			continue
+		}
+		if ext[0] != '.' {
+			ext = "." + ext
+		}
+		newExts = append(newExts, ext)
+	}
+
 	b := &builder{
-		exts:      exts,
+		exts:      newExts,
 		appCmd:    appCmd,
 		goCmdArgs: args,
 	}
@@ -127,6 +139,7 @@ func (b *builder) restart() {
 func (b *builder) watch(paths []string) {
 	log(info, "初始化监视器...")
 
+	// 初始化监视器
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log(erro, err)
