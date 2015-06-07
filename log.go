@@ -5,8 +5,9 @@
 package main
 
 import (
-	"github.com/issue9/term/colors"
 	"time"
+
+	"github.com/issue9/term/colors"
 )
 
 type logLevel int
