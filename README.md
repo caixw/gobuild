@@ -9,7 +9,8 @@ gobuild会实时监控指定目录下的文件变化(重命名，删除，创建
  // 监视当前目录下的文件，若发生变化，则触发go build -main="*.go"
  gobuild
 
- // 监视当前目录和term目录下的文件，若发生变化，则触发go build -main="main.go"
+ // 监视当前目录和~/Go/src/github.com/issue9/term目录下的文件，
+ // 若发生变化，则触发go build -main="main.go"
  gobuild -main=main.go ~/Go/src/github.com/issue9/term
 ```
 

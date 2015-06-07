@@ -14,79 +14,91 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"os"
-	"os/exec"
+	"runtime"
+	"strings"
+
+	"github.com/issue9/term/colors"
 )
 
 // 当前程序的版本号
-const version = "0.1.3.150607"
+const version = "0.2.4.150607"
 
-var cmd *exec.Cmd // outputName的命令
-
-func init() {
-	gopath := os.Getenv("GOPATH")
-	if len(gopath) == 0 {
-		log(erro, "未设置环境变量GOPATH")
-		os.Exit(2)
-	}
-}
+const usage = `gobuild 用于热编译Go程序。
+ 
+命令行语法:
+ gobuild [options] [dependents]
+ 
+ options:
+  -h    显示当前帮助信息；
+  -v    显示gobuild和go程序的版本信息；
+  -o    执行编译后的可执行文件名；
+  -ext  需要监视的扩展名，默认值为"go"，区分大小写。
+        若需要监视所有类型文件，请使用*，传递空值代表不监视任何文件；
+  -main 指定需要编译的文件，默认为""。
+ 
+ dependents:
+  指定其它依赖的目录，只能出现在命令的尾部。
+ 
+ 
+常见用法:
+ 
+ gobuild
+   监视当前目录，若有变动，则重新编译当前目录下的*.go文件；
+ 
+ gobuild -main=main.go
+   监视当前目录，若有变动，则重新编译当前目录下的main.go文件；
+ 
+ gobuild -main="main.go" dir1 dir2
+   监视当前目录及dir1和dir2，若有变动，则重新编译当前目录下的main.go文件；
+`
 
 func main() {
-	arg := parseFlag()
-
-	// 监视的路径，必定包含当前工作目录
-	initWatcher(arg)
-
-	// 初始化cmd变量
-	cmd = exec.Command(arg.outputName)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-
-	// 首次编译程序。
-	autoBuild(arg)
-
-	done := make(chan bool)
-	<-done
-}
-
-func autoBuild(arg *args) {
-	log(info, "编译代码...")
-
-	// 初始化goCmd变量
-	args := []string{"build", "-o", arg.outputName}
-	if len(arg.mainFiles) > 0 {
-		args = append(args, arg.mainFiles)
-	}
-	goCmd := exec.Command("go", args...)
-	goCmd.Stderr = os.Stderr
-	goCmd.Stdout = os.Stdout
-	if err := goCmd.Run(); err != nil {
-		log(erro, "编译失败:", err)
+	// 检测基本环境是否满足
+	if gopath := os.Getenv("GOPATH"); len(gopath) == 0 {
+		log(erro, "未设置环境变量GOPATH")
 		return
 	}
 
-	log(succ, "编译成功!")
+	// 初始化flag
+	showHelp := false
+	showVersion := false
+	var mainFiles, outputName, extString string
 
-	restart()
-}
-
-// 重启cmd程序
-func restart() {
-	defer func() {
-		if err := recover(); err != nil {
-			log(erro, "restart.defer:", err)
-		}
-	}()
-
-	// kill process
-	if cmd != nil && cmd.Process != nil {
-		log(info, "中止旧进程...")
-		if err := cmd.Process.Kill(); err != nil {
-			log(erro, "kill:", err)
-		}
+	flag.BoolVar(&showHelp, "h", false, "显示帮助信息")
+	flag.BoolVar(&showVersion, "v", false, "显示版本号")
+	flag.StringVar(&outputName, "o", "", "指定输出名称")
+	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展名")
+	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件")
+	flag.Usage = func() {
+		fmt.Println(usage)
 	}
 
-	if err := cmd.Run(); err != nil {
-		log(erro, "启动进程时出错:", err)
+	flag.Parse()
+
+	if showHelp {
+		flag.Usage()
+		return
 	}
+
+	if showVersion {
+		colors.Print(colors.Stdout, colors.Green, colors.Default, "gobuild: ")
+		colors.Println(colors.Stdout, colors.Default, colors.Default, version)
+		colors.Print(colors.Stdout, colors.Green, colors.Default, "Go: ")
+		goVersion := runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH
+		colors.Println(colors.Stdout, colors.Default, colors.Default, goVersion)
+		return
+	}
+
+	if len(extString) == 0 { // 允许不监视任意文件，便输出一信息来警告
+		log(warn, "将ext设置为空值，意味着不监视任何文件的改变，这将没有任何意义！")
+	}
+
+	b := newBuilder(mainFiles, outputName, strings.Split(extString, ","), flag.Args())
+	b.build()
+
+	done := make(chan bool)
+	<-done
 }
