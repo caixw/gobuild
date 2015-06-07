@@ -97,7 +97,7 @@ func main() {
 	}
 
 	b := newBuilder(mainFiles, outputName, strings.Split(extString, ","), flag.Args())
-	b.build()
+	go b.build()
 
 	done := make(chan bool)
 	<-done

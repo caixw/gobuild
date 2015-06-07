@@ -33,6 +33,7 @@ func newBuilder(mainFiles, outputName string, exts, paths []string) *builder {
 		log(erro, "获取当前工作目录时，发生以下错误:", err)
 		os.Exit(2)
 	}
+
 	// 确定编译后的文件名
 	if len(outputName) == 0 {
 		outputName = filepath.Base(wd)
@@ -49,7 +50,7 @@ func newBuilder(mainFiles, outputName string, exts, paths []string) *builder {
 	appCmd.Stderr = os.Stderr
 	appCmd.Stdout = os.Stdout
 
-	// 初始化goCmd变量
+	// 初始化goCmd的参数
 	args := []string{"build", "-o", outputName}
 	if len(mainFiles) > 0 {
 		args = append(args, mainFiles)
