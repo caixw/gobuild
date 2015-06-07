@@ -6,3 +6,4 @@ go:
 install:
     - go get github.com/issue9/assert
     - go get github.com/issue9/term/colors
+    - go get gopkg.in/fsnotify.v1
