@@ -13,17 +13,16 @@ import (
 )
 
 // 初始化监视器，paths指定需要监视的路径或是文件。
-func initWatcher(paths []string, extString string) {
-	exts := strings.Split(extString, ",")
-	log(info, "以下类型的文件将被忽略:", exts)
+func initWatcher(arg *args) {
+	log(info, "以下类型的文件将被忽略:", arg.exts)
 
 	// path文件是否包含允许的扩展名。
 	isEnabledExt := func(path string) bool {
-		if exts[0] == "*" {
+		if arg.exts[0] == "*" {
 			return true
 		}
 
-		for _, ext := range exts {
+		for _, ext := range arg.exts {
 			if strings.HasSuffix(path, ext) {
 				return true
 			}
@@ -36,6 +35,7 @@ func initWatcher(paths []string, extString string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log(erro, err)
+		os.Exit(2)
 	}
 
 	go func() {
@@ -48,7 +48,7 @@ func initWatcher(paths []string, extString string) {
 					continue
 				}
 
-				if event.Name == outputName { // 过滤程序本身
+				if event.Name == arg.outputName { // 过滤程序本身
 					log(ignore, "watcher.Events:忽略程序本身的改变:", event)
 					continue
 				}
@@ -66,7 +66,7 @@ func initWatcher(paths []string, extString string) {
 				buildTime = time.Now().Unix()
 				log(info, "watcher.Events:触发编译事件:", event)
 
-				go autoBuild()
+				go autoBuild(arg)
 			case err := <-watcher.Errors:
 				log(warn, "watcher.Errors", err)
 			}
@@ -75,8 +75,8 @@ func initWatcher(paths []string, extString string) {
 
 	// 监视的路径，必定包含当前工作目录
 	log(info, "初始化监视器...")
-	log(info, "以下路径或是文件将被监视:", paths)
-	for _, path := range paths {
+	log(info, "以下路径或是文件将被监视:", arg.paths)
+	for _, path := range arg.paths {
 		if err := watcher.Add(path); err != nil {
 			log(erro, "watcher.Add:", err)
 			os.Exit(2)

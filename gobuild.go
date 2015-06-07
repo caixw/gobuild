@@ -14,14 +14,8 @@
 package main
 
 import (
-	"flag"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"runtime"
-	"strings"
-
-	"github.com/issue9/term/colors"
 )
 
 // 当前程序的版本号
@@ -30,7 +24,6 @@ const version = "0.1.3.150607"
 var cmd *exec.Cmd // outputName的命令
 
 func init() {
-	// 基本环境检测
 	gopath := os.Getenv("GOPATH")
 	if len(gopath) == 0 {
 		log(erro, "未设置环境变量GOPATH")
@@ -39,59 +32,30 @@ func init() {
 }
 
 func main() {
-	initFlag()
-
-	if showHelp {
-		flag.Usage()
-		return
-	}
-
-	if showVersion {
-		colors.Print(colors.Stdout, colors.Green, colors.Default, "gobuild: ")
-		colors.Println(colors.Stdout, colors.Default, colors.Default, version)
-
-		colors.Print(colors.Stdout, colors.Green, colors.Default, "Go: ")
-		goVersion := runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH
-		colors.Println(colors.Stdout, colors.Default, colors.Default, goVersion)
-
-		return
-	}
-
-	wd, err := os.Getwd()
-	if err != nil {
-		log(erro, "获取当前工作目录时，发生以下错误:", err)
-		os.Exit(2)
-	}
-	// 确定编译后的文件名
-	if len(outputName) == 0 {
-		outputName = filepath.Base(wd)
-	}
-	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
-		outputName = wd + string(filepath.Separator) + outputName
-	}
+	arg := parseFlag()
 
 	// 监视的路径，必定包含当前工作目录
-	initWatcher(append(flag.Args(), wd), extString)
+	initWatcher(arg)
 
 	// 初始化cmd变量
-	cmd = exec.Command(outputName)
+	cmd = exec.Command(arg.outputName)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
 	// 首次编译程序。
-	autoBuild()
+	autoBuild(arg)
 
 	done := make(chan bool)
 	<-done
 }
 
-func autoBuild() {
+func autoBuild(arg *args) {
 	log(info, "编译代码...")
 
 	// 初始化goCmd变量
-	args := []string{"build", "-o", outputName}
-	if len(mainFiles) > 0 {
-		args = append(args, mainFiles)
+	args := []string{"build", "-o", arg.outputName}
+	if len(arg.mainFiles) > 0 {
+		args = append(args, arg.mainFiles)
 	}
 	goCmd := exec.Command("go", args...)
 	goCmd.Stderr = os.Stderr

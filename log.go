@@ -37,6 +37,7 @@ var levelColors = map[logLevel]colors.Color{
 	ignore: colors.Default,
 }
 
+// 输出日志信息
 func log(level logLevel, msg ...interface{}) {
 	if level < 0 || level >= max {
 		panic("log:无效的level值")
