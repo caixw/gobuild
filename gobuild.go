@@ -17,6 +17,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -35,7 +37,8 @@ const usage = `gobuild 用于热编译Go程序。
   -h    显示当前帮助信息；
   -v    显示gobuild和go程序的版本信息；
   -o    执行编译后的可执行文件名；
-  -ext  需要监视的扩展名，默认值为"go"，区分大小写。
+  -r    是否搜索子目录；
+  -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
         若需要监视所有类型文件，请使用*，传递空值代表不监视任何文件；
   -main 指定需要编译的文件，默认为""。
 
@@ -63,12 +66,12 @@ func main() {
 	}
 
 	// 初始化flag
-	showHelp := false
-	showVersion := false
+	var showHelp, showVersion, recursive bool
 	var mainFiles, outputName, extString string
 
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号")
+	flag.BoolVar(&recursive, "r", true, "是否查找子目录")
 	flag.StringVar(&outputName, "o", "", "指定输出名称")
 	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展名")
 	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件")
@@ -96,9 +99,98 @@ func main() {
 		log(warn, "将ext设置为空值，意味着不监视任何文件的改变，这将没有任何意义！")
 	}
 
-	b := newBuilder(mainFiles, outputName, strings.Split(extString, ","), flag.Args())
+	// 初始化builder实例想着的内容。
+
+	wd, err := os.Getwd()
+	if err != nil {
+		log(erro, "获取当前工作目录时，发生以下错误:", err)
+		return
+	}
+
+	// 初始化goCmd的参数
+	args := []string{"build", "-o", outputName}
+	if len(mainFiles) > 0 {
+		args = append(args, mainFiles)
+	}
+
+	b := &builder{
+		exts:      getExts(extString),
+		appCmd:    getAppCmd(outputName, wd),
+		goCmdArgs: args,
+	}
+
+	b.watch(recursivePath(recursive, append(flag.Args(), wd)))
 	go b.build()
 
 	done := make(chan bool)
 	<-done
+}
+
+func recursivePath(recursive bool, paths []string) []string {
+	if !recursive {
+		return paths
+	}
+
+	ret := []string{}
+
+	walk := func(path string, fi os.FileInfo, err error) error {
+		if err != nil {
+			log(erro, "在遍历监视目录时，发生以下错误:", err)
+		}
+
+		if fi.IsDir() {
+			ret = append(ret, path)
+		}
+		return nil
+	}
+
+	for _, path := range paths {
+		if err := filepath.Walk(path, walk); err != nil {
+			log(erro, "在遍历监视目录时，发生以下错误:", err)
+		}
+	}
+
+	return ret
+}
+
+// 将extString分解成数组，并清理掉无用的内容，比如空字符串
+func getExts(extString string) []string {
+	if len(extString) == 0 {
+		log(warn, "将-ext设置为空，将不会监视任意文件")
+	}
+
+	exts := strings.Split(extString, ",")
+	ret := make([]string, 0, len(exts))
+	for _, ext := range exts {
+		ext = strings.TrimSpace(ext)
+		if len(ext) == 0 {
+			continue
+		}
+		if ext[0] != '.' {
+			ext = "." + ext
+		}
+		ret = append(ret, ext)
+	}
+
+	return ret
+}
+
+func getAppCmd(outputName, wd string) *exec.Cmd {
+	// 确定编译后的文件名
+	if len(outputName) == 0 {
+		outputName = filepath.Base(wd)
+	}
+	if runtime.GOOS == "windows" && !strings.HasSuffix(outputName, ".exe") {
+		outputName += ".exe"
+	}
+	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
+		outputName = wd + string(filepath.Separator) + outputName
+	}
+
+	// 初始化apCmd变量
+	appCmd := exec.Command(outputName)
+	appCmd.Stderr = os.Stderr
+	appCmd.Stdout = os.Stdout
+
+	return appCmd
 }

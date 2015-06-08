@@ -7,8 +7,6 @@ package main
 import (
 	"os"
 	"os/exec"
-	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 
@@ -19,62 +17,6 @@ type builder struct {
 	exts      []string  // 不需要监视的文件扩展名
 	appCmd    *exec.Cmd // 被编译的程序
 	goCmdArgs []string  // 传递给go build的参数
-}
-
-// 初始化一个builder实例。
-//
-// mainFiles 需要被编译的文件名，可以使用通配符；
-// outputName 被编译之后，保存的文件名，可以带路径，windows下若不带".exe"会自动加上；
-// exts 需要被监视的扩展名列表；
-// paths 需要被监视的路径列表，可以是文件，也可以是文件夹。
-func newBuilder(mainFiles, outputName string, exts, paths []string) *builder {
-	wd, err := os.Getwd()
-	if err != nil {
-		log(erro, "获取当前工作目录时，发生以下错误:", err)
-		os.Exit(2)
-	}
-
-	// 确定编译后的文件名
-	if len(outputName) == 0 {
-		outputName = filepath.Base(wd)
-	}
-	if runtime.GOOS == "windows" && !strings.HasSuffix(outputName, ".exe") {
-		outputName += ".exe"
-	}
-	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
-		outputName = wd + string(filepath.Separator) + outputName
-	}
-
-	// 初始化apCmd变量
-	appCmd := exec.Command(outputName)
-	appCmd.Stderr = os.Stderr
-	appCmd.Stdout = os.Stdout
-
-	// 初始化goCmd的参数
-	args := []string{"build", "-o", outputName}
-	if len(mainFiles) > 0 {
-		args = append(args, mainFiles)
-	}
-
-	// 去除无效的扩展名
-	newExts := make([]string, 0, len(exts))
-	for _, ext := range exts {
-		if len(ext) == 0 {
-			continue
-		}
-		if ext[0] != '.' {
-			ext = "." + ext
-		}
-		newExts = append(newExts, ext)
-	}
-
-	b := &builder{
-		exts:      newExts,
-		appCmd:    appCmd,
-		goCmdArgs: args,
-	}
-	b.watch(append(paths, wd))
-	return b
 }
 
 // 确定文件path是否属于被忽略的格式。
