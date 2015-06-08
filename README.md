@@ -8,7 +8,7 @@ gobuild是一个简单的Go代码热编译工具。
 
 #### 命令行语法:
 ```shell
- gobuild [options] [dependents]
+gobuild [options] [dependents]
 
 options:
  -h    显示当前帮助信息；
@@ -37,8 +37,8 @@ dependents:
 
 #### 支持平台:
 
-fsnotify部分调用gopkg.in/fsnotify.v1实现，平台支持也与其相同，目前支持以下平台：
-windows, linux, osx, BSD
+平台支持依赖[colors](https://github.com/issue9/term/colors)与[fsnotify](https://gopkg.in/fsnotify.v1)两个包，
+目前支持以下平台：Windows, Linux, OSX, BSD。
 
 
 
