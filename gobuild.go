@@ -6,11 +6,20 @@
 //
 // gobuild会实时监控指定目录下的文件变化(重命名，删除，创建，添加)，
 // 一旦触发，就会调用`go build`编译Go源文件并执行。
-//  // 监视当前目录下的文件，若发生变化，则触发go build -main="*.go"
-//  gobuild
 //
-//  // 监视当前目录和term目录下的文件，若发生变化，则触发go build -main="main.go"
-//  gobuild -main=main.go ~/Go/src/github.com/issue9/term
+// 命令行语法:
+//  gobuild [options] [dependents]
+//
+// options:可指定以下选项:
+//  -h    显示当前帮助信息；
+//  -v    显示gobuild和go程序的版本信息；
+//  -o    执行编译后的可执行文件名；
+//  -r    是否搜索子目录，默认为true；
+//  -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
+//        若需要监视所有类型文件，请使用*，传递空值代表不监视任何文件；
+//  -main 指定需要编译的文件，默认为""。
+//
+// dependents:指定其它依赖的目录，只能出现在命令的尾部。
 package main
 
 import (
@@ -30,6 +39,9 @@ const version = "0.2.6.150608"
 
 const usage = `gobuild 用于热编译Go程序。
 
+gobuild会实时监控指定目录下的文件变化(重命名，删除，创建，添加)，
+一旦触发，就会重新编译指定的Go源文件。
+
 命令行语法:
  gobuild [options] [dependents]
 
@@ -37,7 +49,7 @@ const usage = `gobuild 用于热编译Go程序。
   -h    显示当前帮助信息；
   -v    显示gobuild和go程序的版本信息；
   -o    执行编译后的可执行文件名；
-  -r    是否搜索子目录；
+  -r    是否搜索子目录，默认为true；
   -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
         若需要监视所有类型文件，请使用*，传递空值代表不监视任何文件；
   -main 指定需要编译的文件，默认为""。
@@ -95,10 +107,6 @@ func main() {
 		return
 	}
 
-	if len(extString) == 0 { // 允许不监视任意文件，便输出一信息来警告
-		log(warn, "将ext设置为空值，意味着不监视任何文件的改变，这将没有任何意义！")
-	}
-
 	// 初始化builder实例想着的内容。
 
 	wd, err := os.Getwd()
@@ -126,6 +134,7 @@ func main() {
 	<-done
 }
 
+// 根据recursive值确定是否递归查找paths每个目录下的子目录。
 func recursivePath(recursive bool, paths []string) []string {
 	if !recursive {
 		return paths
@@ -155,8 +164,8 @@ func recursivePath(recursive bool, paths []string) []string {
 
 // 将extString分解成数组，并清理掉无用的内容，比如空字符串
 func getExts(extString string) []string {
-	if len(extString) == 0 {
-		log(warn, "将-ext设置为空，将不会监视任意文件")
+	if len(extString) == 0 { // 允许不监视任意文件，便输出一信息来警告
+		log(warn, "将ext设置为空值，意味着不监视任何文件的改变！")
 	}
 
 	exts := strings.Split(extString, ",")
@@ -176,7 +185,6 @@ func getExts(extString string) []string {
 }
 
 func getAppCmd(outputName, wd string) *exec.Cmd {
-	// 确定编译后的文件名
 	if len(outputName) == 0 {
 		outputName = filepath.Base(wd)
 	}
@@ -187,10 +195,8 @@ func getAppCmd(outputName, wd string) *exec.Cmd {
 		outputName = wd + string(filepath.Separator) + outputName
 	}
 
-	// 初始化apCmd变量
 	appCmd := exec.Command(outputName)
 	appCmd.Stderr = os.Stderr
 	appCmd.Stdout = os.Stdout
-
 	return appCmd
 }

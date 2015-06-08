@@ -21,6 +21,7 @@ const (
 	max // 永远在最后，用于判断logLevel的值有没有超标
 )
 
+// 每个日志类型的名称。
 var levelStrings = map[logLevel]string{
 	succ:   "SUCCESS",
 	info:   "INFO",
@@ -29,6 +30,7 @@ var levelStrings = map[logLevel]string{
 	ignore: "IGNORE",
 }
 
+// 每个日志类型对应的颜色。
 var levelColors = map[logLevel]colors.Color{
 	succ:   colors.Green,
 	info:   colors.Blue,
@@ -37,7 +39,7 @@ var levelColors = map[logLevel]colors.Color{
 	ignore: colors.Default,
 }
 
-// 输出日志信息
+// 输出指定级别的日志信息。
 func log(level logLevel, msg ...interface{}) {
 	if level < 0 || level >= max {
 		panic("log:无效的level值")
