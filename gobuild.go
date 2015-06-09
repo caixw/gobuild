@@ -35,7 +35,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.2.6.150608"
+const version = "0.2.7.150609"
 
 const usage = `gobuild 用于热编译Go程序。
 
@@ -164,14 +164,11 @@ func recursivePath(recursive bool, paths []string) []string {
 
 // 将extString分解成数组，并清理掉无用的内容，比如空字符串
 func getExts(extString string) []string {
-	if len(extString) == 0 { // 允许不监视任意文件，便输出一信息来警告
-		log(warn, "将ext设置为空值，意味着不监视任何文件的改变！")
-	}
-
 	exts := strings.Split(extString, ",")
 	ret := make([]string, 0, len(exts))
 	for _, ext := range exts {
 		ext = strings.TrimSpace(ext)
+
 		if len(ext) == 0 {
 			continue
 		}
@@ -179,6 +176,13 @@ func getExts(extString string) []string {
 			ext = "." + ext
 		}
 		ret = append(ret, ext)
+	}
+
+	switch {
+	case len(ret) == 0: // 允许不监视任意文件，便输出一信息来警告
+		log(warn, "将ext设置为空值，意味着不监视任何文件的改变！")
+	case len(ret) > 0:
+		log(info, "系统将监视以下类型的文件:", ret)
 	}
 
 	return ret
@@ -194,6 +198,8 @@ func getAppCmd(outputName, wd string) *exec.Cmd {
 	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
 		outputName = wd + string(filepath.Separator) + outputName
 	}
+
+	log(info, "输出文件为:", outputName)
 
 	appCmd := exec.Command(outputName)
 	appCmd.Stderr = os.Stderr
