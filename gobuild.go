@@ -147,7 +147,8 @@ func recursivePath(recursive bool, paths []string) []string {
 			log(erro, "在遍历监视目录时，发生以下错误:", err)
 		}
 
-		if fi.IsDir() {
+		//(BUG):不能监视隐藏目录下的文件
+		if fi.IsDir() && strings.Index(path, "/.") < 0 {
 			ret = append(ret, path)
 		}
 		return nil
