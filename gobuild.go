@@ -4,22 +4,9 @@
 
 // 一个简单的Go语言热编译工具。
 //
-// gobuild会实时监控指定目录下的文件变化(重命名，删除，创建，添加)，
-// 一旦触发，就会调用`go build`编译Go源文件并执行。
-//
-// 命令行语法:
-//  gobuild [options] [dependents]
-//
-// options:可指定以下选项:
-//  -h    显示当前帮助信息；
-//  -v    显示gobuild和go程序的版本信息；
-//  -o    执行编译后的可执行文件名；
-//  -r    是否搜索子目录，默认为true；
-//  -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
-//        若需要监视所有类型文件，请使用*，传递空值代表不监视任何文件；
-//  -main 指定需要编译的文件，默认为""。
-//
-// dependents:指定其它依赖的目录，只能出现在命令的尾部。
+// 监视指定目录(可同时监视多个目录)下文件的变化，触发`go build`指令，
+// 实时编译指定的Go代码并在编译成功时运行该程序。
+// 具体命令格式可使用`gobuild -v`来查看。
 package main
 
 import (
@@ -35,12 +22,9 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.2.7.150609"
+const version = "0.2.8.150612"
 
-const usage = `gobuild 用于热编译Go程序。
-
-gobuild会实时监控指定目录下的文件变化(重命名，删除，创建，添加)，
-一旦触发，就会重新编译指定的Go源文件。
+const usage = `gobuild<https://github.com/caixw/gobuild>是Go的热编译工具，监视文件变化，并编译和运行程序。
 
 命令行语法:
  gobuild [options] [dependents]
