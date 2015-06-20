@@ -24,7 +24,7 @@ import (
 // 当前程序的版本号
 const version = "0.2.8.150612"
 
-const usage = `gobuild<https://github.com/caixw/gobuild>是Go的热编译工具，监视文件变化，并编译和运行程序。
+const usage = `gobuild是Go的热编译工具，监视文件变化，并编译和运行程序。
 
 命令行语法:
  gobuild [options] [dependents]
@@ -52,6 +52,9 @@ const usage = `gobuild<https://github.com/caixw/gobuild>是Go的热编译工具�
 
  gobuild -main="main.go" dir1 dir2
    监视当前目录及dir1和dir2，若有变动，则重新编译当前目录下的main.go文件；
+
+
+源代码采用MIT开源许可证，并发布于github:https://github.com/caixw/gobuild
 `
 
 func main() {
