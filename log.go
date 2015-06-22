@@ -12,6 +12,9 @@ import (
 
 type logLevel int
 
+// 是否不显示被标记为IGNORE的日志内容。
+var showIgnoreLog = false
+
 const (
 	succ logLevel = iota
 	info
@@ -43,6 +46,10 @@ var levelColors = map[logLevel]colors.Color{
 func log(level logLevel, msg ...interface{}) {
 	if level < 0 || level >= max {
 		panic("log:无效的level值")
+	}
+
+	if level == ignore && !showIgnoreLog {
+		return
 	}
 
 	data := time.Now().Format("2006-01-02 15:04:05 ")

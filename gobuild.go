@@ -21,7 +21,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.2.9.150622"
+const version = "0.2.10.150622"
 
 const usage = `gobuild是Go的热编译工具，监视文件变化，并编译和运行程序。
 
@@ -33,6 +33,7 @@ const usage = `gobuild是Go的热编译工具，监视文件变化，并编译�
   -v    显示gobuild和go程序的版本信息；
   -o    执行编译后的可执行文件名；
   -r    是否搜索子目录，默认为true；
+  -i    是否显示被标记为IGNORE的日志内容，默认为false，即不显示；
   -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
         若需要监视所有类型文件，请使用*，传递空值代表不监视任何文件；
   -main 指定需要编译的文件，默认为""。
@@ -70,6 +71,7 @@ func main() {
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号")
 	flag.BoolVar(&recursive, "r", true, "是否查找子目录")
+	flag.BoolVar(&showIgnoreLog, "i", false, "是否显示被标记为IGNORE的日志内容")
 	flag.StringVar(&outputName, "o", "", "指定输出名称")
 	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展名")
 	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件")
