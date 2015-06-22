@@ -13,7 +13,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -22,7 +21,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.2.8.150612"
+const version = "0.2.9.150622"
 
 const usage = `gobuild是Go的热编译工具，监视文件变化，并编译和运行程序。
 
@@ -110,7 +109,7 @@ func main() {
 
 	b := &builder{
 		exts:      getExts(extString),
-		appCmd:    getAppCmd(outputName, wd),
+		appName:   getAppName(outputName, wd),
 		goCmdArgs: args,
 	}
 
@@ -176,7 +175,7 @@ func getExts(extString string) []string {
 	return ret
 }
 
-func getAppCmd(outputName, wd string) *exec.Cmd {
+func getAppName(outputName, wd string) string {
 	if len(outputName) == 0 {
 		outputName = filepath.Base(wd)
 	}
@@ -189,8 +188,5 @@ func getAppCmd(outputName, wd string) *exec.Cmd {
 
 	log(info, "输出文件为:", outputName)
 
-	appCmd := exec.Command(outputName)
-	appCmd.Stderr = os.Stderr
-	appCmd.Stdout = os.Stdout
-	return appCmd
+	return outputName
 }

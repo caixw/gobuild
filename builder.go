@@ -15,7 +15,8 @@ import (
 
 type builder struct {
 	exts      []string  // 不需要监视的文件扩展名
-	appCmd    *exec.Cmd // 被编译的程序
+	appName   string    // 输出的程序文件
+	appCmd    *exec.Cmd // appName的命令行包装引用，方便结束其进程。
 	goCmdArgs []string  // 传递给go build的参数
 }
 
@@ -67,13 +68,18 @@ func (b *builder) restart() {
 
 	// kill process
 	if b.appCmd != nil && b.appCmd.Process != nil {
-		log(info, "中止旧进程...")
+		log(info, "中止旧进程:", b.appName)
 		if err := b.appCmd.Process.Kill(); err != nil {
 			log(erro, "kill:", err)
 		}
+		log(succ, "旧进程被终止!")
 	}
 
-	if err := b.appCmd.Run(); err != nil {
+	log(info, "启动新进程:", b.appName)
+	b.appCmd = exec.Command(b.appName)
+	b.appCmd.Stderr = os.Stderr
+	b.appCmd.Stdout = os.Stdout
+	if err := b.appCmd.Start(); err != nil {
 		log(erro, "启动进程时出错:", err)
 	}
 }
