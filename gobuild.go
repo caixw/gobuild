@@ -21,7 +21,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.2.11.150802"
+const version = "0.2.12.150802"
 
 const usage = `gobuild是Go的热编译工具，监视文件变化，并编译和运行程序。
 
@@ -175,10 +175,7 @@ func getExts(extString string) []string {
 	case len(ret) == 0: // 允许不监视任意文件，但输出一信息来警告
 		log(warn, "将ext设置为空值，意味着不监视任何文件的改变！")
 	case len(ret) > 0:
-		log(info, "系统将监视以下类型的文件:")
-		for _, p := range ret {
-			log(info, p)
-		}
+		log(info, "系统将监视以下类型的文件:", ret)
 	}
 
 	return ret
