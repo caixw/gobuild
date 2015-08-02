@@ -27,9 +27,6 @@ func (b *builder) isIgnore(path string) bool {
 	}
 
 	for _, ext := range b.exts {
-		if len(ext) == 0 {
-			continue
-		}
 		if ext == "*" {
 			return false
 		}
@@ -130,7 +127,7 @@ func (b *builder) watch(paths []string) {
 				go b.build()
 			case err := <-watcher.Errors:
 				log(warn, "watcher.Errors", err)
-			}
+			} // end select
 		}
 	}()
 }

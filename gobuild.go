@@ -21,7 +21,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.2.10.150622"
+const version = "0.2.11.150802"
 
 const usage = `gobuild是Go的热编译工具，监视文件变化，并编译和运行程序。
 
@@ -78,24 +78,18 @@ func main() {
 	flag.Usage = func() {
 		fmt.Println(usage)
 	}
-
 	flag.Parse()
 
-	if showHelp {
+	switch {
+	case showHelp:
 		flag.Usage()
 		return
-	}
-
-	if showVersion {
-		colors.Print(colors.Stdout, colors.Green, colors.Default, "gobuild: ")
-		colors.Println(colors.Stdout, colors.Default, colors.Default, version)
-		colors.Print(colors.Stdout, colors.Green, colors.Default, "Go: ")
-		goVersion := runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH
-		colors.Println(colors.Stdout, colors.Default, colors.Default, goVersion)
+	case showVersion:
+		printVersion()
 		return
 	}
 
-	// 初始化builder实例想着的内容。
+	// 初始化builder实例相关的内容。
 
 	wd, err := os.Getwd()
 	if err != nil {
@@ -120,6 +114,15 @@ func main() {
 
 	done := make(chan bool)
 	<-done
+}
+
+// 输出版本号
+func printVersion() {
+	colors.Print(colors.Stdout, colors.Green, colors.Default, "gobuild: ")
+	colors.Println(colors.Stdout, colors.Default, colors.Default, version)
+	colors.Print(colors.Stdout, colors.Green, colors.Default, "Go: ")
+	goVersion := runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH
+	colors.Println(colors.Stdout, colors.Default, colors.Default, goVersion)
 }
 
 // 根据recursive值确定是否递归查找paths每个目录下的子目录。
@@ -155,6 +158,7 @@ func recursivePath(recursive bool, paths []string) []string {
 func getExts(extString string) []string {
 	exts := strings.Split(extString, ",")
 	ret := make([]string, 0, len(exts))
+
 	for _, ext := range exts {
 		ext = strings.TrimSpace(ext)
 
@@ -168,10 +172,13 @@ func getExts(extString string) []string {
 	}
 
 	switch {
-	case len(ret) == 0: // 允许不监视任意文件，便输出一信息来警告
+	case len(ret) == 0: // 允许不监视任意文件，但输出一信息来警告
 		log(warn, "将ext设置为空值，意味着不监视任何文件的改变！")
 	case len(ret) > 0:
-		log(info, "系统将监视以下类型的文件:", ret)
+		log(info, "系统将监视以下类型的文件:")
+		for _, p := range ret {
+			log(info, p)
+		}
 	}
 
 	return ret

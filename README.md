@@ -41,18 +41,11 @@ dependents:
 目前支持以下平台：Windows, Linux, OSX, BSD。
 
 
-
 ### 安装
 
 ```shell
 go get github.com/caixw/gobuild
 ```
-
-
-### 文档
-
-[![Go Walker](http://gowalker.org/api/v1/badge)](http://gowalker.org/github.com/caixw/gobuild)
-[![GoDoc](https://godoc.org/github.com/caixw/gobuild?status.svg)](https://godoc.org/github.com/caixw/gobuild)
 
 
 ### 版权
