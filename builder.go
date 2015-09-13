@@ -110,7 +110,7 @@ func (b *builder) watch(paths []string) {
 		for {
 			select {
 			case event := <-watcher.Events:
-				if event.Op&fsnotify.Chmod == fsnotify.Chmod {
+				if event.Op & fsnotify.Chmod == fsnotify.Chmod {
 					log(ignore, "watcher.Events:忽略CHMOD事件:", event)
 					continue
 				}
@@ -120,14 +120,27 @@ func (b *builder) watch(paths []string) {
 					continue
 				}
 
-				if time.Now().Unix()-buildTime <= 1 { // 已经记录
+				if time.Now().Unix() - buildTime <= 1 { // 已经记录
 					log(ignore, "watcher.Events:该监控事件被忽略:", event)
 					continue
 				}
 
 				buildTime = time.Now().Unix()
 				log(info, "watcher.Events:触发编译事件:", event)
-
+				goImports := exec.Command("goimports", "-w", "-d", "-e", event.Name)
+				goImports.Stderr = os.Stderr
+				goImports.Stdout = os.Stdout
+				if err := goImports.Run(); err != nil {
+					log(erro, "格式化代码失败:", err)
+				}
+				log(succ, "格式化代码完成!")
+				goLint := exec.Command("golint", event.Name)
+				goLint.Stderr = os.Stderr
+				goLint.Stdout = os.Stdout
+				if err := goLint.Run(); err != nil {
+					log(erro, "代码分析失败:", err)
+				}
+				log(succ, "代码分析完成!")
 				go b.build()
 			case err := <-watcher.Errors:
 				log(warn, "watcher.Errors", err)
