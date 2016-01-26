@@ -5,6 +5,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -81,6 +82,36 @@ func (b *builder) restart() {
 	}
 }
 
+// 过滤掉不需要监视的目录。以下目录会被过滤掉：
+// 整个目录下都没需要监视的文件；
+func (b *builder) filterPaths(paths []string) []string {
+	ret := make([]string, 0, len(paths))
+
+	for _, dir := range paths {
+		fs, err := ioutil.ReadDir(dir)
+		if err != nil {
+			log(erro, err)
+			continue
+		}
+
+		ignore := true
+		for _, f := range fs {
+			if f.IsDir() {
+				continue
+			}
+			if !b.isIgnore(f.Name()) {
+				ignore = false
+				break
+			}
+		}
+		if !ignore {
+			ret = append(ret, dir)
+		}
+	} // end for paths
+
+	return ret
+}
+
 // 开始监视paths中指定的目录或文件。
 func (b *builder) watch(paths []string) {
 	log(info, "初始化监视器...")
@@ -91,6 +122,8 @@ func (b *builder) watch(paths []string) {
 		log(erro, err)
 		os.Exit(2)
 	}
+
+	paths = b.filterPaths(paths)
 
 	log(info, "以下路径或是文件将被监视:")
 	for _, path := range paths {

@@ -21,7 +21,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.3.13.160126"
+const version = "0.4.14.160126"
 
 const usage = `gobuild是Go的热编译工具，监视文件变化，并编译和运行程序。
 
@@ -92,8 +92,6 @@ func main() {
 		return
 	}
 
-	// 初始化builder实例相关的内容。
-
 	wd, err := os.Getwd()
 	if err != nil {
 		log(erro, "获取当前工作目录时，发生以下错误:", err)
@@ -112,7 +110,7 @@ func main() {
 		goCmdArgs: args,
 	}
 
-	b.watch(recursivePath(recursive, append(flag.Args(), wd)))
+	b.watch(recursivePaths(recursive, append(flag.Args(), wd)))
 	go b.build()
 
 	done := make(chan bool)
@@ -129,7 +127,7 @@ func printVersion() {
 }
 
 // 根据recursive值确定是否递归查找paths每个目录下的子目录。
-func recursivePath(recursive bool, paths []string) []string {
+func recursivePaths(recursive bool, paths []string) []string {
 	if !recursive {
 		return paths
 	}

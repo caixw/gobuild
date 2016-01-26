@@ -23,24 +23,24 @@ func TestGetExts(t *testing.T) {
 func TestRecursivePath(t *testing.T) {
 	a := assert.New(t)
 
-	a.Equal(recursivePath(false, []string{"./testdir"}), []string{
+	a.Equal(recursivePaths(false, []string{"./testdir"}), []string{
 		"./testdir",
 	})
 
-	a.Equal(recursivePath(true, []string{"./testdir"}), []string{
+	a.Equal(recursivePaths(true, []string{"./testdir"}), []string{
 		"./testdir",
 		"testdir/testdir1",
 		"testdir/testdir2",
 		"testdir/testdir2/testdir3",
 	})
 
-	a.Equal(recursivePath(true, []string{"./testdir/testdir1", "./testdir/testdir2"}), []string{
+	a.Equal(recursivePaths(true, []string{"./testdir/testdir1", "./testdir/testdir2"}), []string{
 		"./testdir/testdir1",
 		"./testdir/testdir2",
 		"testdir/testdir2/testdir3",
 	})
 
-	a.Equal(recursivePath(true, []string{"./testdir/testdir2"}), []string{
+	a.Equal(recursivePaths(true, []string{"./testdir/testdir2"}), []string{
 		"./testdir/testdir2",
 		"testdir/testdir2/testdir3",
 	})
