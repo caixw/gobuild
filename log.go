@@ -10,13 +10,11 @@ import (
 	"github.com/issue9/term/colors"
 )
 
-type logLevel int
-
 // 是否不显示被标记为IGNORE的日志内容。
 var showIgnoreLog = false
 
 const (
-	succ logLevel = iota
+	succ int = iota
 	info
 	warn
 	erro
@@ -25,7 +23,7 @@ const (
 )
 
 // 每个日志类型的名称。
-var levelStrings = map[logLevel]string{
+var levelStrings = map[int]string{
 	succ:   "SUCCESS",
 	info:   "INFO",
 	warn:   "WARINNG",
@@ -34,7 +32,7 @@ var levelStrings = map[logLevel]string{
 }
 
 // 每个日志类型对应的颜色。
-var levelColors = map[logLevel]colors.Color{
+var levelColors = map[int]colors.Color{
 	succ:   colors.Green,
 	info:   colors.Blue,
 	warn:   colors.Magenta,
@@ -43,7 +41,7 @@ var levelColors = map[logLevel]colors.Color{
 }
 
 // 输出指定级别的日志信息。
-func log(level logLevel, msg ...interface{}) {
+func log(level int, msg ...interface{}) {
 	if level < 0 || level >= max {
 		panic("log:无效的level值")
 	}

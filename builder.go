@@ -92,8 +92,7 @@ func (b *builder) watch(paths []string) {
 		os.Exit(2)
 	}
 
-	// 监视的路径，必定包含当前工作目录
-	log(info, "以下路径或是文件将被监视:", paths)
+	log(info, "以下路径或是文件将被监视:")
 	for _, path := range paths {
 		log(info, path)
 	}
