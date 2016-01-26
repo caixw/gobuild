@@ -54,6 +54,9 @@ const usage = `gobuild是Go的热编译工具，监视文件变化，并编译�
    监视当前目录及dir1和dir2，若有变动，则重新编译当前目录下的main.go文件；
 
 
+NOTE: 不会监视隐藏文件和隐藏目录下的文件。
+
+
 源代码采用MIT开源许可证，并发布于https://github.com/caixw/gobuild
 `
 
@@ -138,7 +141,6 @@ func recursivePath(recursive bool, paths []string) []string {
 			log(erro, "在遍历监视目录时，发生以下错误:", err)
 		}
 
-		//(BUG):不能监视隐藏目录下的文件
 		if fi.IsDir() && strings.Index(path, "/.") < 0 {
 			ret = append(ret, path)
 		}
