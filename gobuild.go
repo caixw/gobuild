@@ -21,7 +21,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.4.14.160126"
+const version = "0.4.15.160216"
 
 const usage = `gobuild是Go的热编译工具，监视文件变化，并编译和运行程序。
 
@@ -31,7 +31,7 @@ const usage = `gobuild是Go的热编译工具，监视文件变化，并编译�
  options:
   -h    显示当前帮助信息；
   -v    显示gobuild和go程序的版本信息；
-  -o    执行编译后的可执行文件名；
+  -o    编译后的可执行文件名；
   -r    是否搜索子目录，默认为true；
   -i    是否显示被标记为IGNORE的日志内容，默认为false，即不显示；
   -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
