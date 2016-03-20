@@ -139,8 +139,12 @@ func recursivePath(recursive bool, paths []string) []string {
 		}
 
 		//(BUG):不能监视隐藏目录下的文件
-		if fi.IsDir() && strings.Index(path, "/.") < 0 {
+		if fi.IsDir() &&
+		strings.Index(path, string(os.PathSeparator) + ".") < 0 &&
+		strings.Index(path, string(os.PathSeparator) + "vendor") < 0 {
 			ret = append(ret, path)
+		}else {
+			//log(info, strings.Index(path, string(os.PathSeparator) + ".") < 0, strings.Index(path, string(os.PathSeparator) + "vendor") < 0, "忽略", path, fi.IsDir(), fi.Name())
 		}
 		return nil
 	}
