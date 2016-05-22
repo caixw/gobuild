@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -17,11 +18,11 @@ import (
 type builder struct {
 	exts      []string  // 不需要监视的文件扩展名
 	appName   string    // 输出的程序文件
-	appCmd    *exec.Cmd // appName的命令行包装引用，方便结束其进程。
-	goCmdArgs []string  // 传递给go build的参数
+	appCmd    *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
+	goCmdArgs []string  // 传递给 go build 的参数
 }
 
-// 确定文件path是否属于被忽略的格式。
+// 确定文件 path 是否属于被忽略的格式。
 func (b *builder) isIgnore(path string) bool {
 	if b.appCmd != nil && b.appCmd.Path == path { // 忽略程序本身的监视
 		return true
@@ -75,6 +76,7 @@ func (b *builder) restart() {
 
 	log(info, "启动新进程:", b.appName)
 	b.appCmd = exec.Command(b.appName)
+	b.appCmd.Dir = filepath.Dir(b.appName) // 确定程序的工作目录
 	b.appCmd.Stderr = os.Stderr
 	b.appCmd.Stdout = os.Stdout
 	if err := b.appCmd.Start(); err != nil {
@@ -112,7 +114,7 @@ func (b *builder) filterPaths(paths []string) []string {
 	return ret
 }
 
-// 开始监视paths中指定的目录或文件。
+// 开始监视 paths 中指定的目录或文件。
 func (b *builder) watch(paths []string) {
 	log(info, "初始化监视器...")
 

@@ -21,19 +21,19 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.4.15.160216"
+const version = "0.5.16.160523"
 
-const usage = `gobuild是Go的热编译工具，监视文件变化，并编译和运行程序。
+const usage = `gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
 
 命令行语法:
  gobuild [options] [dependents]
 
  options:
   -h    显示当前帮助信息；
-  -v    显示gobuild和go程序的版本信息；
-  -o    编译后的可执行文件名；
-  -r    是否搜索子目录，默认为true；
-  -i    是否显示被标记为IGNORE的日志内容，默认为false，即不显示；
+  -v    显示 gobuild 和 Go 程序的版本信息；
+  -o    编译后的可执行文件名，程序的工作目录随之改变；
+  -r    是否搜索子目录，默认为 true；
+  -i    是否显示被标记为 IGNORE 的日志内容，默认为 false，即不显示；
   -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
         若需要监视所有类型文件，请使用*，传递空值代表不监视任何文件；
   -main 指定需要编译的文件，默认为""。
@@ -190,6 +190,12 @@ func getAppName(outputName, wd string) string {
 	}
 	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
 		outputName = wd + string(filepath.Separator) + outputName
+	}
+
+	// 转成绝对路径
+	outputName, err := filepath.Abs(outputName)
+	if err != nil {
+		log(erro, err)
 	}
 
 	log(info, "输出文件为:", outputName)
