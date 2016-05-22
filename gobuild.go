@@ -2,10 +2,10 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
-// 一个简单的Go语言热编译工具。
+// 一个简单的 Go 语言热编译工具。
 //
 // 监视指定目录(可同时监视多个目录)下文件的变化，触发`go build`指令，
-// 实时编译指定的Go代码，并在编译成功时运行该程序。
+// 实时编译指定的 Go 代码，并在编译成功时运行该程序。
 // 具体命令格式可使用`gobuild -v`来查看。
 package main
 
@@ -57,7 +57,7 @@ const usage = `gobuild 是 Go 的热编译工具，监视文件变化，并编�
 NOTE: 不会监视隐藏文件和隐藏目录下的文件。
 
 
-源代码采用MIT开源许可证，并发布于https://github.com/caixw/gobuild
+源代码采用 MIT 开源许可证，并发布于 https://github.com/caixw/gobuild
 `
 
 func main() {
@@ -126,7 +126,7 @@ func printVersion() {
 	colors.Println(colors.Stdout, colors.Default, colors.Default, goVersion)
 }
 
-// 根据recursive值确定是否递归查找paths每个目录下的子目录。
+// 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录。
 func recursivePaths(recursive bool, paths []string) []string {
 	if !recursive {
 		return paths
@@ -154,7 +154,7 @@ func recursivePaths(recursive bool, paths []string) []string {
 	return ret
 }
 
-// 将extString分解成数组，并清理掉无用的内容，比如空字符串
+// 将 extString 分解成数组，并清理掉无用的内容，比如空字符串
 func getExts(extString string) []string {
 	exts := strings.Split(extString, ",")
 	ret := make([]string, 0, len(exts))
