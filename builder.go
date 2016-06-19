@@ -16,7 +16,7 @@ import (
 )
 
 type builder struct {
-	exts      []string  // 不需要监视的文件扩展名
+	exts      []string  // 需要监视的文件扩展名
 	appName   string    // 输出的程序文件
 	appCmd    *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
 	goCmdArgs []string  // 传递给 go build 的参数

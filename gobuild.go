@@ -21,7 +21,7 @@ import (
 )
 
 // 当前程序的版本号
-const version = "0.5.16.160523"
+const version = "0.5.16+20160619"
 
 const usage = `gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
 

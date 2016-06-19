@@ -10,7 +10,7 @@ import (
 	"github.com/issue9/term/colors"
 )
 
-// 是否不显示被标记为IGNORE的日志内容。
+// 是否不显示被标记为 IGNORE 的日志内容。
 var showIgnoreLog = false
 
 const (
@@ -19,7 +19,7 @@ const (
 	warn
 	erro
 	ignore
-	max // 永远在最后，用于判断logLevel的值有没有超标
+	max // 永远在最后，用于判断 logLevel 的值有没有超标
 )
 
 // 每个日志类型的名称。
