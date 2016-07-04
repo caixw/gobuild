@@ -16,49 +16,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-
-	"github.com/issue9/term/colors"
 )
 
 // 当前程序的版本号
-const version = "0.5.17+20160627"
-
-const usage = `gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
-
-命令行语法:
- gobuild [options] [dependents]
-
- options:
-  -h    显示当前帮助信息；
-  -v    显示 gobuild 和 Go 程序的版本信息；
-  -o    编译后的可执行文件名，程序的工作目录随之改变；
-  -r    是否搜索子目录，默认为 true；
-  -i    是否显示被标记为 IGNORE 的日志内容，默认为 false，即不显示；
-  -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
-        若需要监视所有类型文件，请使用*，传递空值代表不监视任何文件；
-  -main 指定需要编译的文件，默认为""。
-
- dependents:
-  指定其它依赖的目录，只能出现在命令的尾部。
-
-
-常见用法:
-
- gobuild
-   监视当前目录，若有变动，则重新编译当前目录下的*.go文件；
-
- gobuild -main=main.go
-   监视当前目录，若有变动，则重新编译当前目录下的main.go文件；
-
- gobuild -main="main.go" dir1 dir2
-   监视当前目录及dir1和dir2，若有变动，则重新编译当前目录下的main.go文件；
-
-
-NOTE: 不会监视隐藏文件和隐藏目录下的文件。
-
-
-源代码采用 MIT 开源许可证，并发布于 https://github.com/caixw/gobuild
-`
+const version = "0.5.18+20160704"
 
 func main() {
 	// 检测基本环境是否满足
@@ -71,16 +32,14 @@ func main() {
 	var showHelp, showVersion, recursive bool
 	var mainFiles, outputName, extString string
 
-	flag.BoolVar(&showHelp, "h", false, "显示帮助信息")
-	flag.BoolVar(&showVersion, "v", false, "显示版本号")
-	flag.BoolVar(&recursive, "r", true, "是否查找子目录")
-	flag.BoolVar(&showIgnoreLog, "i", false, "是否显示被标记为IGNORE的日志内容")
-	flag.StringVar(&outputName, "o", "", "指定输出名称")
-	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展名")
-	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件")
-	flag.Usage = func() {
-		fmt.Println(usage)
-	}
+	flag.BoolVar(&showHelp, "h", false, "显示帮助信息；")
+	flag.BoolVar(&showVersion, "v", false, "显示版本号；")
+	flag.BoolVar(&recursive, "r", true, "是否查找子目录；")
+	flag.BoolVar(&showIgnoreLog, "i", false, "是否显示被标记为 IGNORE 的日志内容；")
+	flag.StringVar(&outputName, "o", "", "指定输出名称，程序的工作目录随之改变；")
+	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展，区分大小写。*表示监视所有类型文件，空值代表不监视任何文件；")
+	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件；")
+	flag.Usage = usage
 	flag.Parse()
 
 	switch {
@@ -88,7 +47,7 @@ func main() {
 		flag.Usage()
 		return
 	case showVersion:
-		printVersion()
+		fmt.Fprintln(os.Stdout, "gobuild", version, "build with", runtime.Version(), runtime.GOOS+"/"+runtime.GOARCH)
 		return
 	}
 
@@ -117,13 +76,37 @@ func main() {
 	<-done
 }
 
-// 输出版本号
-func printVersion() {
-	colors.Print(colors.Stdout, colors.Green, colors.Default, "gobuild: ")
-	colors.Println(colors.Stdout, colors.Default, colors.Default, version)
-	colors.Print(colors.Stdout, colors.Green, colors.Default, "Go: ")
-	goVersion := runtime.Version() + " " + runtime.GOOS + "/" + runtime.GOARCH
-	colors.Println(colors.Stdout, colors.Default, colors.Default, goVersion)
+func usage() {
+	fmt.Fprintln(os.Stdout, `gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
+
+命令行语法：
+ gobuild [options] [dependents]
+
+ options:`)
+
+	flag.CommandLine.SetOutput(os.Stdout)
+	flag.PrintDefaults()
+
+	fmt.Fprintln(os.Stdout, `
+ dependents:
+  指定其它依赖的目录，只能出现在命令的尾部。
+
+
+常见用法:
+
+ gobuild
+   监视当前目录，若有变动，则重新编译当前目录下的*.go文件；
+
+ gobuild -main=main.go
+   监视当前目录，若有变动，则重新编译当前目录下的main.go文件；
+
+ gobuild -main="main.go" dir1 dir2
+   监视当前目录及dir1和dir2，若有变动，则重新编译当前目录下的main.go文件；
+
+
+NOTE: 不会监视隐藏文件和隐藏目录下的文件。
+
+源代码采用 MIT 开源许可证，并发布于 https://github.com/caixw/gobuild`)
 }
 
 // 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录。
