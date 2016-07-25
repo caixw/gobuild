@@ -5,6 +5,7 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	"github.com/issue9/term/colors"
@@ -51,7 +52,7 @@ func log(level int, msg ...interface{}) {
 	}
 
 	date := time.Now().Format("2006-01-02 15:04:05 ")
-	colors.Print(colors.Stdout, colors.Default, colors.Default, date)
-	colors.Print(colors.Stdout, levelColors[level], colors.Default, "[", levelStrings[level], "] ")
-	colors.Println(colors.Stdout, levelColors[level], colors.Default, msg...)
+	colors.Fprint(os.Stdout, colors.Default, colors.Default, date)
+	colors.Fprint(os.Stdout, levelColors[level], colors.Default, "[", levelStrings[level], "] ")
+	colors.Fprintln(os.Stdout, levelColors[level], colors.Default, msg...)
 }
