@@ -12,24 +12,27 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/issue9/term/colors"
 )
 
 // 当前程序的版本号
-const version = "0.5.18+20160704"
+const version = "0.5.19+20160726"
 
 func main() {
 	// 检测基本环境是否满足
 	if gopath := os.Getenv("GOPATH"); len(gopath) == 0 {
-		log(erro, "未设置环境变量GOPATH")
+		erro.Println("未设置环境变量GOPATH")
 		return
 	}
 
 	// 初始化flag
-	var showHelp, showVersion, recursive bool
+	var showHelp, showVersion, recursive, showIgnoreLog bool
 	var mainFiles, outputName, extString string
 
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息；")
@@ -49,15 +52,17 @@ func main() {
 	case showVersion:
 		fmt.Fprintln(os.Stdout, "gobuild", version, "build with", runtime.Version(), runtime.GOOS+"/"+runtime.GOARCH)
 		return
+	case showIgnoreLog:
+		ignore = log.New(&logWriter{out: os.Stderr, color: colors.Default, prefix: "[IGNO]"}, "", log.Ltime)
 	}
 
 	wd, err := os.Getwd()
 	if err != nil {
-		log(erro, "获取当前工作目录时，发生以下错误:", err)
+		erro.Println("获取当前工作目录时，发生以下错误:", err)
 		return
 	}
 
-	// 初始化goCmd的参数
+	// 初始化 goCmd 的参数
 	args := []string{"build", "-o", outputName}
 	if len(mainFiles) > 0 {
 		args = append(args, mainFiles)
@@ -119,7 +124,7 @@ func recursivePaths(recursive bool, paths []string) []string {
 
 	walk := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
-			log(erro, "在遍历监视目录时，发生以下错误:", err)
+			erro.Println("在遍历监视目录时，发生以下错误:", err)
 		}
 
 		if fi.IsDir() && strings.Index(path, "/.") < 0 {
@@ -130,7 +135,7 @@ func recursivePaths(recursive bool, paths []string) []string {
 
 	for _, path := range paths {
 		if err := filepath.Walk(path, walk); err != nil {
-			log(erro, "在遍历监视目录时，发生以下错误:", err)
+			erro.Println("在遍历监视目录时，发生以下错误:", err)
 		}
 	}
 
@@ -156,9 +161,9 @@ func getExts(extString string) []string {
 
 	switch {
 	case len(ret) == 0: // 允许不监视任意文件，但输出一信息来警告
-		log(warn, "将ext设置为空值，意味着不监视任何文件的改变！")
+		warn.Println("将ext设置为空值，意味着不监视任何文件的改变！")
 	case len(ret) > 0:
-		log(info, "系统将监视以下类型的文件:", ret)
+		info.Println("系统将监视以下类型的文件:", ret)
 	}
 
 	return ret
@@ -178,10 +183,10 @@ func getAppName(outputName, wd string) string {
 	// 转成绝对路径
 	outputName, err := filepath.Abs(outputName)
 	if err != nil {
-		log(erro, err)
+		erro.Println(err)
 	}
 
-	log(info, "输出文件为:", outputName)
+	info.Println("输出文件为:", outputName)
 
 	return outputName
 }

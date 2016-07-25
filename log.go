@@ -5,54 +5,30 @@
 package main
 
 import (
+	"io"
+	"io/ioutil"
+	"log"
 	"os"
-	"time"
 
 	"github.com/issue9/term/colors"
 )
 
-// 是否不显示被标记为 IGNORE 的日志内容。
-var showIgnoreLog = false
-
-const (
-	succ int = iota
-	info
-	warn
-	erro
-	ignore
-	max // 永远在最后，用于判断 logLevel 的值有没有超标
+var (
+	succ   = log.New(&logWriter{out: os.Stdout, color: colors.Green, prefix: "[SUCC]"}, "", log.Ltime)
+	info   = log.New(&logWriter{out: os.Stdout, color: colors.Blue, prefix: "[INFO]"}, "", log.Ltime)
+	warn   = log.New(&logWriter{out: os.Stderr, color: colors.Magenta, prefix: "[WARN]"}, "", log.Ltime)
+	erro   = log.New(&logWriter{out: os.Stderr, color: colors.Red, prefix: "[ERRO]"}, "", log.Ltime)
+	ignore = log.New(ioutil.Discard, "", log.Ltime) // 默认情况下不显示此类信息，全部发送到 Discard
 )
 
-// 每个日志类型的名称。
-var levelStrings = map[int]string{
-	succ:   "SUCCESS",
-	info:   "INFO",
-	warn:   "WARINNG",
-	erro:   "ERROR",
-	ignore: "IGNORE",
+// 带色彩输出的控制台。
+type logWriter struct {
+	out    io.Writer
+	color  colors.Color
+	prefix string
 }
 
-// 每个日志类型对应的颜色。
-var levelColors = map[int]colors.Color{
-	succ:   colors.Green,
-	info:   colors.Blue,
-	warn:   colors.Magenta,
-	erro:   colors.Red,
-	ignore: colors.Default,
-}
-
-// 输出指定级别的日志信息。
-func log(level int, msg ...interface{}) {
-	if level < 0 || level >= max {
-		panic("log:无效的level值")
-	}
-
-	if level == ignore && !showIgnoreLog {
-		return
-	}
-
-	date := time.Now().Format("2006-01-02 15:04:05 ")
-	colors.Fprint(os.Stdout, colors.Default, colors.Default, date)
-	colors.Fprint(os.Stdout, levelColors[level], colors.Default, "[", levelStrings[level], "] ")
-	colors.Fprintln(os.Stdout, levelColors[level], colors.Default, msg...)
+func (w *logWriter) Write(bs []byte) (int, error) {
+	colors.Fprint(w.out, w.color, colors.Default, w.prefix)
+	return colors.Fprint(w.out, colors.Default, colors.Default, string(bs))
 }

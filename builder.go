@@ -42,17 +42,17 @@ func (b *builder) isIgnore(path string) bool {
 
 // 开始编译代码
 func (b *builder) build() {
-	log(info, "编译代码...")
+	info.Println("编译代码...")
 
 	goCmd := exec.Command("go", b.goCmdArgs...)
 	goCmd.Stderr = os.Stderr
 	goCmd.Stdout = os.Stdout
 	if err := goCmd.Run(); err != nil {
-		log(erro, "编译失败:", err)
+		erro.Println("编译失败:", err)
 		return
 	}
 
-	log(succ, "编译成功!")
+	succ.Println("编译成功!")
 
 	b.restart()
 }
@@ -61,26 +61,26 @@ func (b *builder) build() {
 func (b *builder) restart() {
 	defer func() {
 		if err := recover(); err != nil {
-			log(erro, "restart.defer:", err)
+			erro.Println("restart.defer:", err)
 		}
 	}()
 
 	// kill process
 	if b.appCmd != nil && b.appCmd.Process != nil {
-		log(info, "中止旧进程:", b.appName)
+		info.Println("中止旧进程:", b.appName)
 		if err := b.appCmd.Process.Kill(); err != nil {
-			log(erro, "kill:", err)
+			erro.Println("kill:", err)
 		}
-		log(succ, "旧进程被终止!")
+		succ.Println("旧进程被终止!")
 	}
 
-	log(info, "启动新进程:", b.appName)
+	info.Println("启动新进程:", b.appName)
 	b.appCmd = exec.Command(b.appName)
 	b.appCmd.Dir = filepath.Dir(b.appName) // 确定程序的工作目录
 	b.appCmd.Stderr = os.Stderr
 	b.appCmd.Stdout = os.Stdout
 	if err := b.appCmd.Start(); err != nil {
-		log(erro, "启动进程时出错:", err)
+		erro.Println("启动进程时出错:", err)
 	}
 }
 
@@ -92,7 +92,7 @@ func (b *builder) filterPaths(paths []string) []string {
 	for _, dir := range paths {
 		fs, err := ioutil.ReadDir(dir)
 		if err != nil {
-			log(erro, err)
+			erro.Println(err)
 			continue
 		}
 
@@ -116,25 +116,25 @@ func (b *builder) filterPaths(paths []string) []string {
 
 // 开始监视 paths 中指定的目录或文件。
 func (b *builder) watch(paths []string) {
-	log(info, "初始化监视器...")
+	info.Println("初始化监视器...")
 
 	// 初始化监视器
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log(erro, err)
+		erro.Println(err)
 		os.Exit(2)
 	}
 
 	paths = b.filterPaths(paths)
 
-	log(info, "以下路径或是文件将被监视:")
+	info.Println("以下路径或是文件将被监视:")
 	for _, path := range paths {
-		log(info, path)
+		info.Println(path)
 	}
 
 	for _, path := range paths {
 		if err := watcher.Add(path); err != nil {
-			log(erro, "watcher.Add:", err)
+			erro.Println("watcher.Add:", err)
 			os.Exit(2)
 		}
 	}
@@ -145,26 +145,26 @@ func (b *builder) watch(paths []string) {
 			select {
 			case event := <-watcher.Events:
 				if event.Op&fsnotify.Chmod == fsnotify.Chmod {
-					log(ignore, "watcher.Events:忽略CHMOD事件:", event)
+					ignore.Println("watcher.Events:忽略CHMOD事件:", event)
 					continue
 				}
 
 				if b.isIgnore(event.Name) { // 不需要监视的扩展名
-					log(ignore, "watcher.Events:忽略不被监视的文件:", event)
+					ignore.Println("watcher.Events:忽略不被监视的文件:", event)
 					continue
 				}
 
 				if time.Now().Unix()-buildTime <= 1 { // 已经记录
-					log(ignore, "watcher.Events:该监控事件被忽略:", event)
+					ignore.Println("watcher.Events:该监控事件被忽略:", event)
 					continue
 				}
 
 				buildTime = time.Now().Unix()
-				log(info, "watcher.Events:触发编译事件:", event)
+				info.Println("watcher.Events:触发编译事件:", event)
 
 				go b.build()
 			case err := <-watcher.Errors:
-				log(warn, "watcher.Errors", err)
+				warn.Println("watcher.Errors", err)
 			} // end select
 		}
 	}()
