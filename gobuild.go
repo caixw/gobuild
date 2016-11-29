@@ -21,8 +21,14 @@ import (
 	"github.com/issue9/term/colors"
 )
 
-// 当前程序的版本号
-const version = "0.5.19+20160726"
+// 当前程序的主要版本号
+const mainVersion = "0.5.20"
+
+// 与版号相关的两个变量，由链接器提供
+var (
+	buildDate  string
+	commitHash string
+)
 
 func main() {
 	// 检测基本环境是否满足
@@ -50,7 +56,16 @@ func main() {
 		flag.Usage()
 		return
 	case showVersion:
+		version := mainVersion
+		if len(buildDate) > 0 {
+			version += ("+" + buildDate)
+		}
 		fmt.Fprintln(os.Stdout, "gobuild", version, "build with", runtime.Version(), runtime.GOOS+"/"+runtime.GOARCH)
+
+		if len(commitHash) > 0 {
+			fmt.Fprintln(os.Stdout, "commitHash:", commitHash)
+
+		}
 		return
 	case showIgnoreLog:
 		ignore = log.New(&logWriter{out: os.Stderr, color: colors.Default, prefix: "[IGNO]"}, "", log.Ltime)
