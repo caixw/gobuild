@@ -1,4 +1,5 @@
 gobuild [![Build Status](https://travis-ci.org/caixw/gobuild.svg?branch=master)](https://travis-ci.org/caixw/gobuild)
+[![Go version](https://img.shields.io/badge/Go-1.4-brightgreen.svg?style=flat)](https://golang.org) 
 ======
 
 gobuild 是一个简单的 Go 代码热编译工具。
@@ -50,4 +51,4 @@ go get github.com/caixw/gobuild
 
 ### 版权
 
-本项目采用 [MIT](http://opensource.org/licenses/MIT) 开源授权许可证，完整的授权说明可在 [LICENSE](LICENSE) 文件中找到。
+本项目采用 [MIT](https://opensource.org/licenses/MIT) 开源授权许可证，完整的授权说明可在 [LICENSE](LICENSE) 文件中找到。

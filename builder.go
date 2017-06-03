@@ -145,7 +145,7 @@ func (b *builder) watch(paths []string) {
 			select {
 			case event := <-watcher.Events:
 				if event.Op&fsnotify.Chmod == fsnotify.Chmod {
-					ignore.Println("watcher.Events:忽略CHMOD事件:", event)
+					ignore.Println("watcher.Events:忽略 CHMOD 事件:", event)
 					continue
 				}
 

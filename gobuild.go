@@ -6,7 +6,7 @@
 //
 // 监视指定目录(可同时监视多个目录)下文件的变化，触发`go build`指令，
 // 实时编译指定的 Go 代码，并在编译成功时运行该程序。
-// 具体命令格式可使用`gobuild -v`来查看。
+// 具体命令格式可使用`gobuild -h`来查看。
 package main
 
 import (
@@ -33,7 +33,7 @@ var (
 func main() {
 	// 检测基本环境是否满足
 	if gopath := os.Getenv("GOPATH"); len(gopath) == 0 {
-		erro.Println("未设置环境变量GOPATH")
+		erro.Println("未设置环境变量 GOPATH")
 		return
 	}
 
@@ -46,7 +46,7 @@ func main() {
 	flag.BoolVar(&recursive, "r", true, "是否查找子目录；")
 	flag.BoolVar(&showIgnoreLog, "i", false, "是否显示被标记为 IGNORE 的日志内容；")
 	flag.StringVar(&outputName, "o", "", "指定输出名称，程序的工作目录随之改变；")
-	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展，区分大小写。*表示监视所有类型文件，空值代表不监视任何文件；")
+	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展，区分大小写。* 表示监视所有类型文件，空值代表不监视任何文件；")
 	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件；")
 	flag.Usage = usage
 	flag.Parse()
@@ -115,13 +115,13 @@ func usage() {
 常见用法:
 
  gobuild
-   监视当前目录，若有变动，则重新编译当前目录下的*.go文件；
+   监视当前目录，若有变动，则重新编译当前目录下的 *.go 文件；
 
  gobuild -main=main.go
-   监视当前目录，若有变动，则重新编译当前目录下的main.go文件；
+   监视当前目录，若有变动，则重新编译当前目录下的 main.go 文件；
 
  gobuild -main="main.go" dir1 dir2
-   监视当前目录及dir1和dir2，若有变动，则重新编译当前目录下的main.go文件；
+   监视当前目录及 dir1 和 dir2，若有变动，则重新编译当前目录下的 main.go 文件；
 
 
 NOTE: 不会监视隐藏文件和隐藏目录下的文件。
@@ -176,7 +176,7 @@ func getExts(extString string) []string {
 
 	switch {
 	case len(ret) == 0: // 允许不监视任意文件，但输出一信息来警告
-		warn.Println("将ext设置为空值，意味着不监视任何文件的改变！")
+		warn.Println("将 ext 设置为空值，意味着不监视任何文件的改变！")
 	case len(ret) > 0:
 		info.Println("系统将监视以下类型的文件:", ret)
 	}
