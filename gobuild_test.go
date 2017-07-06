@@ -50,6 +50,6 @@ func TestSplitArgs(t *testing.T) {
 	a := assert.New(t)
 
 	a.Equal(splitArgs("x=5 y=6"), []string{"x", "5", "y", "6"})
-	a.Equal(splitArgs("xxx=5 yy=6 bool"), []string{"xxx", "5", "yy", "6", "bool"})
+	a.Equal(splitArgs("xxx=5 -yy=6 -bool"), []string{"xxx", "5", "-yy", "6", "-bool"})
 	a.Equal(splitArgs("xxx=5 yy=6 bool="), []string{"xxx", "5", "yy", "6", "bool"})
 }

@@ -22,7 +22,7 @@ import (
 )
 
 // 当前程序的主要版本号
-const mainVersion = "0.6.0"
+const mainVersion = "0.6.1"
 
 // 与版号相关的变量
 var (
@@ -107,11 +107,6 @@ func splitArgs(args string) []string {
 
 	for index = 0; index < len(args); index++ {
 		b := args[index]
-		if b == '-' {
-			start = index + 1
-			continue
-		}
-
 		if b == ' ' {
 			if state != ' ' {
 				ret = append(ret, args[start:index])
