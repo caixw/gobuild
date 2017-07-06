@@ -22,30 +22,38 @@ import (
 )
 
 // 当前程序的主要版本号
-const mainVersion = "0.5.20"
+const mainVersion = "0.6.0"
 
-// 与版号相关的两个变量，由链接器提供
+// 与版号相关的变量
 var (
-	buildDate  string
-	commitHash string
+	buildDate  string // 由链接器提供此值。
+	commitHash string // 由链接器提供此值。
+	version    string
 )
 
-func main() {
+func init() {
+	version = mainVersion
+	if len(buildDate) > 0 {
+		version += ("+" + buildDate)
+	}
+
 	// 检测基本环境是否满足
 	if gopath := os.Getenv("GOPATH"); len(gopath) == 0 {
 		erro.Println("未设置环境变量 GOPATH")
 		return
 	}
+}
 
-	// 初始化flag
+func main() {
 	var showHelp, showVersion, recursive, showIgnoreLog bool
-	var mainFiles, outputName, extString string
+	var mainFiles, outputName, extString, appArgs string
 
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息；")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号；")
 	flag.BoolVar(&recursive, "r", true, "是否查找子目录；")
 	flag.BoolVar(&showIgnoreLog, "i", false, "是否显示被标记为 IGNORE 的日志内容；")
 	flag.StringVar(&outputName, "o", "", "指定输出名称，程序的工作目录随之改变；")
+	flag.StringVar(&appArgs, "x", "", "传递给编译程序的参数；")
 	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展，区分大小写。* 表示监视所有类型文件，空值代表不监视任何文件；")
 	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件；")
 	flag.Usage = usage
@@ -56,10 +64,6 @@ func main() {
 		flag.Usage()
 		return
 	case showVersion:
-		version := mainVersion
-		if len(buildDate) > 0 {
-			version += ("+" + buildDate)
-		}
 		fmt.Fprintln(os.Stdout, "gobuild", version, "build with", runtime.Version(), runtime.GOOS+"/"+runtime.GOARCH)
 
 		if len(commitHash) > 0 {
@@ -86,14 +90,56 @@ func main() {
 	b := &builder{
 		exts:      getExts(extString),
 		appName:   getAppName(outputName, wd),
+		appArgs:   splitArgs(appArgs),
 		goCmdArgs: args,
 	}
 
 	b.watch(recursivePaths(recursive, append(flag.Args(), wd)))
 	go b.build()
 
-	done := make(chan bool)
-	<-done
+	<-make(chan bool)
+}
+
+func splitArgs(args string) []string {
+	ret := make([]string, 0, 10)
+	var state byte
+	var start, index int
+
+	for index = 0; index < len(args); index++ {
+		b := args[index]
+		if b == '-' {
+			start = index + 1
+			continue
+		}
+
+		if b == ' ' {
+			if state != ' ' {
+				ret = append(ret, args[start:index])
+				state = ' '
+			}
+			start = index + 1
+			continue
+		}
+
+		if b == '=' {
+			if state != '=' {
+				ret = append(ret, args[start:index])
+				state = '='
+			}
+			start = index + 1
+			continue
+		}
+
+		state = 0
+	} // end for
+
+	if start < len(args) {
+		ret = append(ret, args[start:len(args)])
+	}
+
+	info.Println("给程序传递了以下参数：", ret)
+
+	return ret
 }
 
 func usage() {
