@@ -136,6 +136,7 @@ func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
 
 	for _, path := range paths {
 		if err := watcher.Add(path); err != nil {
+			watcher.Close()
 			return nil, err
 		}
 	}
