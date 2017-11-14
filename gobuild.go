@@ -22,7 +22,7 @@ import (
 )
 
 // 当前程序的主要版本号
-const mainVersion = "0.6.2"
+const mainVersion = "0.6.3"
 
 // 与版号相关的变量
 var (
@@ -94,7 +94,14 @@ func main() {
 		goCmdArgs: args,
 	}
 
-	b.watch(recursivePaths(recursive, append(flag.Args(), wd)))
+	w, err := b.initWatcher(recursivePaths(recursive, append(flag.Args(), wd)))
+	if err != nil {
+		erro.Println(err)
+		return
+	}
+	defer w.Close()
+
+	b.watch(w)
 	go b.build()
 
 	<-make(chan bool)

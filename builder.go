@@ -118,15 +118,13 @@ func (b *builder) filterPaths(paths []string) []string {
 	return ret
 }
 
-// 开始监视 paths 中指定的目录或文件。
-func (b *builder) watch(paths []string) {
+func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
 	info.Println("初始化监视器...")
 
 	// 初始化监视器
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		erro.Println(err)
-		os.Exit(2)
+		return nil, err
 	}
 
 	paths = b.filterPaths(paths)
@@ -138,11 +136,15 @@ func (b *builder) watch(paths []string) {
 
 	for _, path := range paths {
 		if err := watcher.Add(path); err != nil {
-			erro.Println("watcher.Add:", err)
-			os.Exit(2)
+			return nil, err
 		}
 	}
 
+	return watcher, nil
+}
+
+// 开始监视 paths 中指定的目录或文件。
+func (b *builder) watch(watcher *fsnotify.Watcher) {
 	go func() {
 		var buildTime time.Time
 		for {
@@ -168,6 +170,7 @@ func (b *builder) watch(paths []string) {
 
 				go b.build()
 			case err := <-watcher.Errors:
+				watcher.Close()
 				warn.Println("watcher.Errors", err)
 			} // end select
 		}
