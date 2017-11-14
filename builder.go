@@ -15,6 +15,9 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
+// 监视器的更新频率，只有文件更新的时长超过此值，才会被更新
+const watcherFrequency = 1 * time.Second
+
 type builder struct {
 	exts      []string  // 需要监视的文件扩展名
 	appName   string    // 输出的程序文件
@@ -141,7 +144,7 @@ func (b *builder) watch(paths []string) {
 	}
 
 	go func() {
-		var buildTime int64
+		var buildTime time.Time
 		for {
 			select {
 			case event := <-watcher.Events:
@@ -155,12 +158,12 @@ func (b *builder) watch(paths []string) {
 					continue
 				}
 
-				if time.Now().Unix()-buildTime <= 1 { // 已经记录
+				if time.Now().Sub(buildTime) <= watcherFrequency { // 已经记录
 					ignore.Println("watcher.Events:该监控事件被忽略:", event)
 					continue
 				}
 
-				buildTime = time.Now().Unix()
+				buildTime = time.Now()
 				info.Println("watcher.Events:触发编译事件:", event)
 
 				go b.build()

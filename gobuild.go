@@ -22,7 +22,7 @@ import (
 )
 
 // 当前程序的主要版本号
-const mainVersion = "0.6.1"
+const mainVersion = "0.6.2"
 
 // 与版号相关的变量
 var (
