@@ -1,13 +1,16 @@
 language: go
+
+os:
+  - linux
+  - osx
+
 go:
-    - tip
-    - 1.9
-    - 1.8
-    - 1.7
-    - 1.6
-    - 1.5
-    - 1.4
+  - tip
+  - "1.10"
+  - 1.9
+  - 1.8
+
 install:
-    - go get github.com/issue9/assert
-    - go get github.com/issue9/term/colors
-    - go get gopkg.in/fsnotify.v1
+  - go get github.com/issue9/assert
+  - go get github.com/issue9/term/colors
+  - go get gopkg.in/fsnotify.v1
