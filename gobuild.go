@@ -22,7 +22,7 @@ import (
 )
 
 // 当前程序的主要版本号
-const mainVersion = "0.6.4"
+const mainVersion = "0.6.5"
 
 // 与版号相关的变量
 var (
@@ -35,12 +35,6 @@ func init() {
 	version = mainVersion
 	if len(buildDate) > 0 {
 		version += ("+" + buildDate)
-	}
-
-	// 检测基本环境是否满足
-	if gopath := os.Getenv("GOPATH"); len(gopath) == 0 {
-		erro.Println("未设置环境变量 GOPATH")
-		return
 	}
 }
 
