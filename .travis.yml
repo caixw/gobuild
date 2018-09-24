@@ -14,8 +14,7 @@ install:
   - go get github.com/issue9/term/colors
   - go get gopkg.in/fsnotify.v1
 
-script:
-  -env GO111MODULE=on go test -v -coverprofile=coverage.txt -covermode=atomic $(go list ./...)
+script: GO111MODULE=on go test -v -coverprofile=coverage.txt -covermode=atomic $(go list ./...)
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
