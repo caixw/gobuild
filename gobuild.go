@@ -5,7 +5,6 @@
 package gobuild // import "github.com/caixw/gobuild"
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,15 +12,16 @@ import (
 	"strings"
 )
 
-// Build 执行热编译操作，针对当前工作目录。
+// Build 执行热编译服务。
 //
 // logs 日志输出通道
 // mainFiles 为 go build 最后的文件参数，可以为空，表示当前目录；
 // outputName 指定可执行文件输出的文件路径，为空表示默认值；
 // exts 指定监视的文件扩展名，为空表示不监视任何文件，* 表示监视所有文件；
 // recursive 是否监视子目录；
-// appArgs 传递给程序的参数。
-func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, appArgs string) error {
+// appArgs 传递给程序的参数；
+// dir 表示需要监视的目录，无论如何，当前目录都会被监视。
+func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, appArgs string, dir ...string) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -72,7 +72,7 @@ func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, a
 		Message: fmt.Sprint("输出文件为:", b.appName),
 	}
 
-	paths, err := recursivePaths(recursive, append(flag.Args(), wd))
+	paths, err := recursivePaths(recursive, append(dir, wd))
 	if err != nil {
 		return err
 	}

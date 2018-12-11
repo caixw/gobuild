@@ -65,7 +65,7 @@ func main() {
 		return
 	}
 
-	err := gobuild.Build(logs, mainFiles, outputName, extString, recursive, appArgs)
+	err := gobuild.Build(logs, mainFiles, outputName, extString, recursive, appArgs, flag.Args()...)
 	if err != nil {
 		erro.Println(err)
 	}
