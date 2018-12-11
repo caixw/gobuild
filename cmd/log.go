@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/caixw/gobuild"
 	"github.com/issue9/term/colors"
 )
 
@@ -20,6 +21,29 @@ var (
 	erro   = log.New(&logWriter{out: os.Stderr, color: colors.Red, prefix: "[ERRO]"}, "", log.Ltime)
 	ignore = log.New(ioutil.Discard, "", log.Ltime) // 默认情况下不显示此类信息，全部发送到 Discard
 )
+
+var logs = make(chan *gobuild.Log, 100)
+
+func init() {
+	go func() {
+		for log := range logs {
+			switch log.Type {
+			case gobuild.LogTypeError:
+				erro.Println(log.Message)
+			case gobuild.LogTypeIgnore:
+				ignore.Println(log.Message)
+			case gobuild.LogTypeInfo:
+				info.Println(log.Message)
+			case gobuild.LogTypeSuccess:
+				succ.Println(log.Message)
+			case gobuild.LogTypeWarn:
+				warn.Println(log.Message)
+			default:
+				panic("无效的日志类型")
+			}
+		}
+	}()
+}
 
 // 带色彩输出的控制台。
 type logWriter struct {

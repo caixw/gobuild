@@ -67,7 +67,7 @@ func main() {
 		ignore = log.New(&logWriter{out: os.Stderr, color: colors.Default, prefix: "[IGNO]"}, "", log.Ltime)
 	}
 
-	err := gobuild.Build(mainFiles, outputName, extString, recursive, appArgs, info, succ, warn, erro, ignore)
+	err := gobuild.Build(logs, mainFiles, outputName, extString, recursive, appArgs)
 	if err != nil {
 		erro.Println(err)
 	}

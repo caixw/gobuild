@@ -6,7 +6,7 @@ package gobuild // import "github.com/caixw/gobuild"
 
 import (
 	"flag"
-	"log"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -14,13 +14,7 @@ import (
 )
 
 // Build 执行热编译操作
-func Build(mainFiles, outputName, exts string, recursive bool, appArgs string, in, su, wa, er, ign *log.Logger) error {
-	info = in
-	succ = su
-	erro = er
-	warn = wa
-	ignore = ign
-
+func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, appArgs string) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -32,14 +26,50 @@ func Build(mainFiles, outputName, exts string, recursive bool, appArgs string, i
 		args = append(args, mainFiles)
 	}
 
-	b := &builder{
-		exts:      getExts(exts),
-		appName:   getAppName(outputName, wd),
-		appArgs:   splitArgs(appArgs),
-		goCmdArgs: args,
+	appName, err := getAppName(outputName, wd)
+	if err != nil {
+		return err
 	}
 
-	w, err := b.initWatcher(recursivePaths(recursive, append(flag.Args(), wd)))
+	b := &builder{
+		exts:      getExts(exts),
+		appName:   appName,
+		appArgs:   splitArgs(appArgs),
+		goCmdArgs: args,
+		logs:      logs,
+	}
+
+	// 输出提示信息
+	logs <- &Log{
+		Type:    LogTypeInfo,
+		Message: fmt.Sprint("给程序传递了以下参数：", b.appArgs),
+	}
+
+	// 提示扩展名
+	switch {
+	case len(b.exts) == 0: // 允许不监视任意文件，但输出一信息来警告
+		logs <- &Log{
+			Type:    LogTypeWarn,
+			Message: "将 ext 设置为空值，意味着不监视任何文件的改变！",
+		}
+	case len(b.exts) > 0:
+		logs <- &Log{
+			Type:    LogTypeInfo,
+			Message: fmt.Sprint("系统将监视以下类型的文件:", b.exts),
+		}
+	}
+
+	// 提示 appName
+	logs <- &Log{
+		Type:    LogTypeInfo,
+		Message: fmt.Sprint("输出文件为:", b.appName),
+	}
+
+	paths, err := recursivePaths(recursive, append(flag.Args(), wd))
+	if err != nil {
+		return err
+	}
+	w, err := b.initWatcher(paths)
 	if err != nil {
 		return err
 	}
@@ -84,22 +114,20 @@ func splitArgs(args string) []string {
 		ret = append(ret, args[start:len(args)])
 	}
 
-	info.Println("给程序传递了以下参数：", ret)
-
 	return ret
 }
 
 // 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录。
-func recursivePaths(recursive bool, paths []string) []string {
+func recursivePaths(recursive bool, paths []string) ([]string, error) {
 	if !recursive {
-		return paths
+		return paths, nil
 	}
 
 	ret := []string{}
 
 	walk := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
-			erro.Println("在遍历监视目录时，发生以下错误:", err)
+			return err
 		}
 
 		if fi.IsDir() && strings.Index(path, "/.") < 0 {
@@ -110,11 +138,11 @@ func recursivePaths(recursive bool, paths []string) []string {
 
 	for _, path := range paths {
 		if err := filepath.Walk(path, walk); err != nil {
-			erro.Println("在遍历监视目录时，发生以下错误:", err)
+			return nil, err
 		}
 	}
 
-	return ret
+	return ret, nil
 }
 
 // 将 extString 分解成数组，并清理掉无用的内容，比如空字符串
@@ -134,17 +162,10 @@ func getExts(extString string) []string {
 		ret = append(ret, ext)
 	}
 
-	switch {
-	case len(ret) == 0: // 允许不监视任意文件，但输出一信息来警告
-		warn.Println("将 ext 设置为空值，意味着不监视任何文件的改变！")
-	case len(ret) > 0:
-		info.Println("系统将监视以下类型的文件:", ret)
-	}
-
 	return ret
 }
 
-func getAppName(outputName, wd string) string {
+func getAppName(outputName, wd string) (string, error) {
 	if len(outputName) == 0 {
 		outputName = filepath.Base(wd)
 	}
@@ -158,10 +179,8 @@ func getAppName(outputName, wd string) string {
 	// 转成绝对路径
 	outputName, err := filepath.Abs(outputName)
 	if err != nil {
-		erro.Println(err)
+		return "", err
 	}
 
-	info.Println("输出文件为:", outputName)
-
-	return outputName
+	return outputName, nil
 }
