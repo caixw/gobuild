@@ -75,8 +75,3 @@ func newWriter(out io.Writer, color colors.Color, prefix string) *logWriter {
 		prefix: prefix,
 	}
 }
-
-func (w *logWriter) Write(bs []byte) (int, error) {
-	colors.Fprint(w.out, w.color, colors.Default, w.prefix)
-	return colors.Fprint(w.out, colors.Default, colors.Default, string(bs))
-}
