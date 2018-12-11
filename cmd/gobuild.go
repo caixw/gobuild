@@ -12,12 +12,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 
 	"github.com/caixw/gobuild"
-	"github.com/issue9/term/colors"
 )
 
 const mainVersion = "0.7.0"
@@ -34,16 +32,18 @@ func init() {
 	if len(buildDate) > 0 {
 		version += ("+" + buildDate)
 	}
+
+	go printLogs()
 }
 
 func main() {
-	var showHelp, showVersion, recursive, showIgnoreLog bool
+	var showHelp, showVersion, recursive bool
 	var mainFiles, outputName, extString, appArgs string
 
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息；")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号；")
 	flag.BoolVar(&recursive, "r", true, "是否查找子目录；")
-	flag.BoolVar(&showIgnoreLog, "i", false, "是否显示被标记为 IGNORE 的日志内容；")
+	flag.BoolVar(&showIgnore, "i", false, "是否显示被标记为 IGNORE 的日志内容；")
 	flag.StringVar(&outputName, "o", "", "指定输出名称，程序的工作目录随之改变；")
 	flag.StringVar(&appArgs, "x", "", "传递给编译程序的参数；")
 	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展，区分大小写。* 表示监视所有类型文件，空值代表不监视任何文件；")
@@ -63,8 +63,6 @@ func main() {
 
 		}
 		return
-	case showIgnoreLog:
-		ignore = log.New(&logWriter{out: os.Stderr, color: colors.Default, prefix: "[IGNO]"}, "", log.Ltime)
 	}
 
 	err := gobuild.Build(logs, mainFiles, outputName, extString, recursive, appArgs)
