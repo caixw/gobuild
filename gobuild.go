@@ -14,21 +14,28 @@ import (
 )
 
 // Build 执行热编译操作
+//
+// logs 日志输出通道
+// mainFiles 为 go build 最后的文件参数，可以为空，表示当前目录；
+// outputName 指定可执行文件输出的文件路径，为空表示默认值；
+// exts 指定监视的文件扩展名，为空表示监视所有文件；
+// recursive 是否监视子目录；
+// appArgs 传递给程序的参数。
 func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, appArgs string) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	// 初始化 goCmd 的参数
-	args := []string{"build", "-o", outputName}
-	if len(mainFiles) > 0 {
-		args = append(args, mainFiles)
-	}
-
 	appName, err := getAppName(outputName, wd)
 	if err != nil {
 		return err
+	}
+
+	// 初始化 goCmd 的参数
+	args := []string{"build", "-o", appName}
+	if len(mainFiles) > 0 {
+		args = append(args, mainFiles)
 	}
 
 	b := &builder{
