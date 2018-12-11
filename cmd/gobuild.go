@@ -65,7 +65,15 @@ func main() {
 		return
 	}
 
-	err := gobuild.Build(logs, mainFiles, outputName, extString, recursive, appArgs, flag.Args()...)
+	args := flag.Args()
+	if len(args) == 0 {
+		wd, err := os.Getwd()
+		if err != nil {
+			erro.Println(err)
+		}
+		args = []string{wd}
+	}
+	err := gobuild.Build(logs, mainFiles, outputName, extString, recursive, appArgs, args...)
 	if err != nil {
 		erro.Println(err)
 	}

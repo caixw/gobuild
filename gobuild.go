@@ -5,6 +5,7 @@
 package gobuild // import "github.com/caixw/gobuild"
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -20,12 +21,16 @@ import (
 // exts 指定监视的文件扩展名，为空表示不监视任何文件，* 表示监视所有文件；
 // recursive 是否监视子目录；
 // appArgs 传递给程序的参数；
-// dir 表示需要监视的目录，无论如何，当前目录都会被监视。
+// dir 表示需要监视的目录，至少指定一个目录，第一个目录被当作子目录，将编译其下的文件。
 func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, appArgs string, dir ...string) error {
-	wd, err := os.Getwd()
+	if len(dir) < 1 {
+		return errors.New("参数 dir 至少指定一个")
+	}
+	wd, err := filepath.Abs(dir[0])
 	if err != nil {
 		return err
 	}
+	dir[0] = wd
 
 	appName, err := getAppName(outputName, wd)
 	if err != nil {
@@ -72,7 +77,7 @@ func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, a
 		Message: fmt.Sprint("输出文件为:", b.appName),
 	}
 
-	paths, err := recursivePaths(recursive, append(dir, wd))
+	paths, err := recursivePaths(recursive, dir)
 	if err != nil {
 		return err
 	}
