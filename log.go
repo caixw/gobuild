@@ -6,7 +6,6 @@ package gobuild
 
 import (
 	"io"
-	"log"
 	"os"
 
 	"github.com/issue9/term/colors"
@@ -25,29 +24,28 @@ const (
 	LogTypeWarn
 	LogTypeError
 	LogTypeIgnore
+	logTypeSize
 )
 
 // ConsoleLogs 将日志输出到控制台
 type ConsoleLogs struct {
-	Logs   chan *Log
-	ignore bool // 是否忽略 ignore 通道的日志
-	succ   *log.Logger
-	info   *log.Logger
-	warn   *log.Logger
-	erro   *log.Logger
-	igno   *log.Logger
+	Logs    chan *Log
+	ignore  bool // 是否忽略 ignore 通道的日志
+	writers map[int8]*logWriter
 }
 
 // NewConsoleLogs 声明 ConsoleLogs 实例
 func NewConsoleLogs(ignore bool) *ConsoleLogs {
 	logs := &ConsoleLogs{
-		succ:   log.New(newWriter(os.Stdout, colors.Green, "[SUCC]"), "", log.Ltime),
-		info:   log.New(newWriter(os.Stdout, colors.Blue, "[INFO]"), "", log.Ltime),
-		warn:   log.New(newWriter(os.Stderr, colors.Magenta, "[WARN]"), "", log.Ltime),
-		erro:   log.New(newWriter(os.Stderr, colors.Red, "[ERRO]"), "", log.Ltime),
-		igno:   log.New(newWriter(os.Stderr, colors.Default, "[IGNO]"), "", log.Ltime),
 		Logs:   make(chan *Log, 100),
 		ignore: ignore,
+		writers: map[int8]*logWriter{
+			LogTypeSuccess: newWriter(os.Stdout, colors.Green, "[SUCC]"),
+			LogTypeInfo:    newWriter(os.Stdout, colors.Blue, "[INFO]"),
+			LogTypeWarn:    newWriter(os.Stderr, colors.Magenta, "[WARN]"),
+			LogTypeError:   newWriter(os.Stderr, colors.Red, "[ERRO]"),
+			LogTypeIgnore:  newWriter(os.Stderr, colors.Default, "[IGNO]"),
+		},
 	}
 
 	go logs.output()
@@ -57,22 +55,9 @@ func NewConsoleLogs(ignore bool) *ConsoleLogs {
 
 func (logs *ConsoleLogs) output() {
 	for log := range logs.Logs {
-		switch log.Type {
-		case LogTypeError:
-			logs.erro.Println(log.Message)
-		case LogTypeIgnore:
-			if !logs.ignore {
-				logs.igno.Println(log.Message)
-			}
-		case LogTypeInfo:
-			logs.info.Println(log.Message)
-		case LogTypeSuccess:
-			logs.succ.Println(log.Message)
-		case LogTypeWarn:
-			logs.warn.Println(log.Message)
-		default:
-			panic("无效的日志类型")
-		}
+		w := logs.writers[log.Type]
+		colors.Fprint(w.out, w.color, colors.Default, w.prefix)
+		colors.Fprintln(w.out, colors.Default, colors.Default, log.Message)
 	}
 }
 
@@ -83,7 +68,7 @@ type logWriter struct {
 	prefix string
 }
 
-func newWriter(out io.Writer, color colors.Color, prefix string) io.Writer {
+func newWriter(out io.Writer, color colors.Color, prefix string) *logWriter {
 	return &logWriter{
 		out:    out,
 		color:  color,
