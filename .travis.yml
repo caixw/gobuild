@@ -7,14 +7,13 @@ os:
 go:
   - tip
   - 1.11
-  - "1.10"
 
 install:
   - go get github.com/issue9/assert
   - go get github.com/issue9/term/colors
   - go get gopkg.in/fsnotify.v1
 
-script: GO111MODULE=on go test -v -coverprofile=coverage.txt -covermode=atomic $(go list ./...)
+script: GO111MODULE=on go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

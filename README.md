@@ -1,5 +1,5 @@
 gobuild [![Build Status](https://travis-ci.org/caixw/gobuild.svg?branch=master)](https://travis-ci.org/caixw/gobuild)
-[![Go version](https://img.shields.io/badge/Go-1.4-brightgreen.svg?style=flat)](https://golang.org) 
+[![Go version](https://img.shields.io/badge/Go-1.11-brightgreen.svg?style=flat)](https://golang.org) 
 ======
 
 gobuild 是一个简单的 Go 代码热编译工具。

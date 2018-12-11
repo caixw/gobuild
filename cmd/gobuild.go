@@ -32,12 +32,10 @@ func init() {
 	if len(buildDate) > 0 {
 		version += ("+" + buildDate)
 	}
-
-	go printLogs()
 }
 
 func main() {
-	var showHelp, showVersion, recursive bool
+	var showHelp, showVersion, recursive, showIgnore bool
 	var mainFiles, outputName, extString, appArgs string
 
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息；")
@@ -65,17 +63,19 @@ func main() {
 		return
 	}
 
+	logs := gobuild.NewConsoleLogs(showIgnore)
+
 	args := flag.Args()
 	if len(args) == 0 {
 		wd, err := os.Getwd()
 		if err != nil {
-			erro.Println(err)
+			panic(err)
 		}
 		args = []string{wd}
 	}
-	err := gobuild.Build(logs, mainFiles, outputName, extString, recursive, appArgs, args...)
+	err := gobuild.Build(logs.Logs, mainFiles, outputName, extString, recursive, appArgs, args...)
 	if err != nil {
-		erro.Println(err)
+		panic(err)
 	}
 }
 
