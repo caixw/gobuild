@@ -17,11 +17,11 @@ import (
 var showIgnore bool
 
 var (
-	succ   = log.New(&logWriter{out: os.Stdout, color: colors.Green, prefix: "[SUCC]"}, "", log.Ltime)
-	info   = log.New(&logWriter{out: os.Stdout, color: colors.Blue, prefix: "[INFO]"}, "", log.Ltime)
-	warn   = log.New(&logWriter{out: os.Stderr, color: colors.Magenta, prefix: "[WARN]"}, "", log.Ltime)
-	erro   = log.New(&logWriter{out: os.Stderr, color: colors.Red, prefix: "[ERRO]"}, "", log.Ltime)
-	ignore = log.New(&logWriter{out: os.Stderr, color: colors.Default, prefix: "[IGNO]"}, "", log.Ltime)
+	succ   = log.New(newWriter(os.Stdout, colors.Green, "[SUCC]"), "", log.Ltime)
+	info   = log.New(newWriter(os.Stdout, colors.Blue, "[INFO]"), "", log.Ltime)
+	warn   = log.New(newWriter(os.Stderr, colors.Magenta, "[WARN]"), "", log.Ltime)
+	erro   = log.New(newWriter(os.Stderr, colors.Red, "[ERRO]"), "", log.Ltime)
+	ignore = log.New(newWriter(os.Stderr, colors.Default, "[IGNO]"), "", log.Ltime)
 
 	logs = make(chan *gobuild.Log, 100)
 )
@@ -52,6 +52,14 @@ type logWriter struct {
 	out    io.Writer
 	color  colors.Color
 	prefix string
+}
+
+func newWriter(out io.Writer, color colors.Color, prefix string) io.Writer {
+	return &logWriter{
+		out:    out,
+		color:  color,
+		prefix: prefix,
+	}
 }
 
 func (w *logWriter) Write(bs []byte) (int, error) {

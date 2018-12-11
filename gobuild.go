@@ -13,12 +13,12 @@ import (
 	"strings"
 )
 
-// Build 执行热编译操作
+// Build 执行热编译操作，针对当前工作目录。
 //
 // logs 日志输出通道
 // mainFiles 为 go build 最后的文件参数，可以为空，表示当前目录；
 // outputName 指定可执行文件输出的文件路径，为空表示默认值；
-// exts 指定监视的文件扩展名，为空表示监视所有文件；
+// exts 指定监视的文件扩展名，为空表示不监视任何文件，* 表示监视所有文件；
 // recursive 是否监视子目录；
 // appArgs 传递给程序的参数。
 func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, appArgs string) error {
@@ -173,14 +173,16 @@ func getExts(extString string) []string {
 }
 
 func getAppName(outputName, wd string) (string, error) {
-	if len(outputName) == 0 {
+	if outputName == "" {
 		outputName = filepath.Base(wd)
 	}
 	if runtime.GOOS == "windows" && !strings.HasSuffix(outputName, ".exe") {
 		outputName += ".exe"
 	}
+
+	// 没有分隔符，表示仅有一个文件名，需要加上 wd
 	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
-		outputName = wd + string(filepath.Separator) + outputName
+		outputName = filepath.Join(wd, outputName)
 	}
 
 	// 转成绝对路径
