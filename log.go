@@ -32,6 +32,7 @@ type ConsoleLogs struct {
 	Logs    chan *Log
 	ignore  bool // 是否忽略 ignore 通道的日志
 	writers map[int8]*logWriter
+	stop    chan struct{}
 }
 
 // NewConsoleLogs 声明 ConsoleLogs 实例
@@ -53,11 +54,21 @@ func NewConsoleLogs(ignore bool) *ConsoleLogs {
 	return logs
 }
 
+// Stop 停止输出
+func (logs *ConsoleLogs) Stop() {
+	logs.stop <- struct{}{}
+}
+
 func (logs *ConsoleLogs) output() {
-	for log := range logs.Logs {
-		w := logs.writers[log.Type]
-		colors.Fprint(w.out, w.color, colors.Default, w.prefix)
-		colors.Fprintln(w.out, colors.Default, colors.Default, log.Message)
+	for {
+		select {
+		case log := <-logs.Logs:
+			w := logs.writers[log.Type]
+			colors.Fprint(w.out, w.color, colors.Default, w.prefix)
+			colors.Fprintln(w.out, colors.Default, colors.Default, log.Message)
+		case <-logs.stop:
+			return
+		}
 	}
 }
 

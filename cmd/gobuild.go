@@ -18,7 +18,7 @@ import (
 	"github.com/caixw/gobuild"
 )
 
-const mainVersion = "0.7.0"
+const mainVersion = "0.7.1"
 
 // 与版号相关的变量
 var (
@@ -65,18 +65,17 @@ func main() {
 
 	logs := gobuild.NewConsoleLogs(showIgnore)
 
-	args := flag.Args()
-	if len(args) == 0 {
-		wd, err := os.Getwd()
-		if err != nil {
-			panic(err)
-		}
-		args = []string{wd}
-	}
-	err := gobuild.Build(logs.Logs, mainFiles, outputName, extString, recursive, appArgs, args...)
+	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
+	dirs := append([]string{wd}, flag.Args()...)
+
+	err = gobuild.Build(logs.Logs, mainFiles, outputName, extString, recursive, appArgs, dirs...)
+	if err != nil {
+		panic(err)
+	}
+	logs.Stop()
 }
 
 func usage() {
