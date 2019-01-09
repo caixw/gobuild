@@ -25,33 +25,63 @@ func TestGetExts(t *testing.T) {
 func TestRecursivePath(t *testing.T) {
 	a := assert.New(t)
 
-	paths, err := recursivePaths(false, []string{"./testdir"})
-	a.NotError(err).
-		Equal(paths, []string{
+	if runtime.GOOS != "windows" {
+		paths, err := recursivePaths(false, []string{"./testdir"})
+		a.NotError(err).
+			Equal(paths, []string{
+				"./testdir",
+			})
+
+		paths, err = recursivePaths(true, []string{"./testdir"})
+		a.NotError(err).Equal(paths, []string{
 			"./testdir",
-		})
-
-	paths, err = recursivePaths(true, []string{"./testdir"})
-	a.NotError(err).Equal(paths, []string{
-		"./testdir",
-		"testdir/testdir1",
-		"testdir/testdir2",
-		"testdir/testdir2/testdir3",
-	})
-
-	paths, err = recursivePaths(true, []string{"./testdir/testdir1", "./testdir/testdir2"})
-	a.NotError(err).
-		Equal(paths, []string{
-			"./testdir/testdir1",
-			"./testdir/testdir2",
+			"testdir/testdir1",
+			"testdir/testdir2",
 			"testdir/testdir2/testdir3",
 		})
 
-	paths, err = recursivePaths(true, []string{"./testdir/testdir2"})
-	a.NotError(err).Equal(paths, []string{
-		"./testdir/testdir2",
-		"testdir/testdir2/testdir3",
-	})
+		paths, err = recursivePaths(true, []string{"./testdir/testdir1", "./testdir/testdir2"})
+		a.NotError(err).
+			Equal(paths, []string{
+				"./testdir/testdir1",
+				"./testdir/testdir2",
+				"testdir/testdir2/testdir3",
+			})
+
+		paths, err = recursivePaths(true, []string{"./testdir/testdir2"})
+		a.NotError(err).Equal(paths, []string{
+			"./testdir/testdir2",
+			"testdir/testdir2/testdir3",
+		})
+	} else {
+		paths, err := recursivePaths(false, []string{"./testdir"})
+		a.NotError(err).
+			Equal(paths, []string{
+				"./testdir",
+			})
+
+		paths, err = recursivePaths(true, []string{"./testdir"})
+		a.NotError(err).Equal(paths, []string{
+			"./testdir",
+			"testdir\\testdir1",
+			"testdir\\testdir2",
+			"testdir\\testdir2\\testdir3",
+		})
+
+		paths, err = recursivePaths(true, []string{"./testdir/testdir1", "./testdir/testdir2"})
+		a.NotError(err).
+			Equal(paths, []string{
+				".\\testdir\\testdir1",
+				".\\testdir\\testdir2",
+				"testdir\\testdir2\\testdir3",
+			})
+
+		paths, err = recursivePaths(true, []string{"./testdir/testdir2"})
+		a.NotError(err).Equal(paths, []string{
+			".\\testdir\\testdir2",
+			"testdir\\testdir2\\testdir3",
+		})
+	}
 }
 
 func TestSplitArgs(t *testing.T) {
@@ -78,10 +108,10 @@ func TestGetAppName(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		a.True(strings.HasSuffix(name, "testdir/a"), name)
 	} else {
-		a.True(strings.HasSuffix(name, "testdir/a.exe"), name)
+		a.True(strings.HasSuffix(name, "testdir\\a.exe"), name)
 	}
 
 	name, err = getAppName("a.exe", "./testdir")
 	a.NotError(err).
-		True(strings.HasSuffix(name, "testdir/a.exe"), name)
+		True(strings.HasSuffix(name, "testdir\\a.exe"), name)
 }
