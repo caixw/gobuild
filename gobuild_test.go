@@ -112,6 +112,10 @@ func TestGetAppName(t *testing.T) {
 	}
 
 	name, err = getAppName("a.exe", "./testdir")
-	a.NotError(err).
-		True(strings.HasSuffix(name, "testdir\\a.exe"), name)
+	a.NotError(err)
+	if runtime.GOOS != "windows" {
+		a.True(strings.HasSuffix(name, "testdir/a.exe"), name)
+	} else {
+		a.True(strings.HasSuffix(name, "testdir\\a.exe"), name)
+	}
 }
