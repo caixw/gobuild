@@ -1,6 +1,5 @@
 gobuild
 [![Build Status](https://travis-ci.org/caixw/gobuild.svg?branch=master)](https://travis-ci.org/caixw/gobuild)
-[![Build status](https://ci.appveyor.com/api/projects/status/9ux7lbx30k6n5xlr?svg=true)](https://ci.appveyor.com/project/caixw/gobuild)
 [![Go version](https://img.shields.io/badge/Go-1.11-brightgreen.svg?style=flat)](https://golang.org) 
 ======
 
