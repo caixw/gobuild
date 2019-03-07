@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 
@@ -181,8 +180,10 @@ func getAppName(outputName, wd string) (string, error) {
 	if outputName == "" {
 		outputName = filepath.Base(wd)
 	}
-	if runtime.GOOS == "windows" && !strings.HasSuffix(outputName, ".exe") {
-		outputName += ".exe"
+
+	goexe := os.Getenv("GOEXE")
+	if goexe != "" && !strings.HasSuffix(outputName, goexe) {
+		outputName += goexe
 	}
 
 	// 没有分隔符，表示仅有一个文件名，需要加上 wd
