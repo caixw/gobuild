@@ -2,7 +2,8 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
-package gobuild // import "github.com/caixw/gobuild"
+// Package gobuild 提供了对 Go 语言热编译的支持
+package gobuild
 
 import (
 	"errors"

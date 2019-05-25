@@ -1,7 +1,3 @@
-github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
-github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
-github.com/golang/sys v0.0.0-20180905080454-ebe1bf3edb33 h1:GJexUf2QgFNvMR9sjJ1iqs+2TxZqJko+Muhnu04tPuU=
-github.com/golang/sys v0.0.0-20180905080454-ebe1bf3edb33/go.mod h1:5JyrLPvD/ZdaYkT7IqKhsP5xt7aLjA99KXRtk4EIYDk=
 github.com/issue9/assert v1.3.1 h1:L8pRpbnzMIPFJqrMKR/oG03uWrtVeZyYBpI2U2Jx1JE=
 github.com/issue9/assert v1.3.1/go.mod h1:9Ger+iz8X7r1zMYYwEhh++2wMGWcNN2oVI+zIQXxcio=
 github.com/issue9/assert v1.3.2 h1:IaTa37u4m1fUuTH9K9ldO5IONKVDXjLiUO1T9vj0OF0=
