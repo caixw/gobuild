@@ -24,11 +24,10 @@ const mainVersion = "0.7.1"
 var (
 	buildDate  string // 由链接器提供此值。
 	commitHash string // 由链接器提供此值。
-	version    string
+	version    = mainVersion
 )
 
 func init() {
-	version = mainVersion
 	if len(buildDate) > 0 {
 		version += ("+" + buildDate)
 	}

@@ -15,13 +15,13 @@ import (
 
 // Build 执行热编译服务。
 //
-// logs 日志输出通道
+// logs 编译是的各类事件输出通道；
 // mainFiles 为 go build 最后的文件参数，可以为空，表示当前目录；
 // outputName 指定可执行文件输出的文件路径，为空表示默认值；
 // exts 指定监视的文件扩展名，为空表示不监视任何文件，* 表示监视所有文件；
 // recursive 是否监视子目录；
 // appArgs 传递给程序的参数；
-// dir 表示需要监视的目录，至少指定一个目录，第一个目录被当作子目录，将编译其下的文件。
+// dir 表示需要监视的目录，至少指定一个目录，第一个目录被当作主目录，将编译其下的文件。
 func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, appArgs string, dir ...string) error {
 	if len(dir) < 1 {
 		return errors.New("参数 dir 至少指定一个")
