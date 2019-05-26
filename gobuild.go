@@ -46,6 +46,7 @@ func Build(logs chan *Log, mainFiles, outputName, exts string, recursive bool, a
 	b := &builder{
 		exts:      getExts(exts),
 		appName:   appName,
+		wd:        filepath.Dir(appName),
 		appArgs:   splitArgs(appArgs),
 		goCmdArgs: args,
 		logs:      logs,

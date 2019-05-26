@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -22,6 +21,7 @@ const watcherFrequency = 1 * time.Second
 type builder struct {
 	exts      []string  // 需要监视的文件扩展名
 	appName   string    // 输出的程序文件
+	wd        string    // 工作目录
 	appCmd    *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
 	appArgs   []string  // 传递给 appCmd 的参数
 	goCmdArgs []string  // 传递给 go build 的参数
@@ -89,7 +89,7 @@ func (b *builder) restart() {
 
 	b.log(LogTypeInfo, "启动新进程:", b.appName)
 	b.appCmd = exec.Command(b.appName, b.appArgs...)
-	b.appCmd.Dir = filepath.Dir(b.appName) // 确定程序的工作目录
+	b.appCmd.Dir = b.wd
 	b.appCmd.Stderr = os.Stderr
 	b.appCmd.Stdout = os.Stdout
 	if err := b.appCmd.Start(); err != nil {
