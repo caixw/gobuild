@@ -77,9 +77,13 @@ func TestRecursivePath(t *testing.T) {
 func TestSplitArgs(t *testing.T) {
 	a := assert.New(t)
 
-	a.Equal(splitArgs("x=5 y=6"), []string{"x", "5", "y", "6"})
+	a.Equal(splitArgs("x=5    y=6"), []string{"x", "5", "y", "6"})
 	a.Equal(splitArgs("xxx=5 -yy=6 -bool"), []string{"xxx", "5", "-yy", "6", "-bool"})
-	a.Equal(splitArgs("xxx=5 yy=6 bool="), []string{"xxx", "5", "yy", "6", "bool"})
+	a.Equal(splitArgs("xxx=5 yy=6  bool="), []string{"xxx", "5", "yy", "6", "bool"})
+	a.Equal(splitArgs(`aa=1 bb "xxx=5 yy=6 bool="`), []string{"aa", "1", "bb", "xxx=5 yy=6 bool="})
+	a.Equal(splitArgs(`aa=1 bb "x"`), []string{"aa", "1", "bb", "x"})
+	a.Equal(splitArgs(`aa=1 bb ""`), []string{"aa", "1", "bb", ""})
+	a.Equal(splitArgs(`  ""`), []string{""})
 }
 
 func TestGetAppName(t *testing.T) {

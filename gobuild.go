@@ -101,25 +101,46 @@ func splitArgs(args string) []string {
 
 	for index = 0; index < len(args); index++ {
 		b := args[index]
-		if b == ' ' {
+		switch b {
+		case ' ':
+			if state == '"' {
+				break
+			}
+
 			if state != ' ' {
 				ret = append(ret, args[start:index])
 				state = ' '
 			}
 			start = index + 1
-			continue
-		}
+		case '=':
+			if state == '"' {
+				break
+			}
 
-		if b == '=' {
 			if state != '=' {
 				ret = append(ret, args[start:index])
 				state = '='
 			}
 			start = index + 1
-			continue
-		}
+			state = 0
+		case '"':
+			if state == '"' {
+				ret = append(ret, args[start:index])
+				state = 0
+				start = index + 1
+				break
+			}
 
-		state = 0
+			if start != index {
+				ret = append(ret, args[start:index])
+			}
+			state = '"'
+			start = index + 1
+		default:
+			if state == ' ' {
+				state = 0
+			}
+		}
 	} // end for
 
 	if start < len(args) {
