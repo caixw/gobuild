@@ -82,8 +82,8 @@ func TestSplitArgs(t *testing.T) {
 	a.Equal(splitArgs("xxx=5 yy=6  bool="), []string{"xxx", "5", "yy", "6", "bool"})
 	a.Equal(splitArgs(`aa=1 bb "xxx=5 yy=6 bool="`), []string{"aa", "1", "bb", "xxx=5 yy=6 bool="})
 	a.Equal(splitArgs(`aa=1 bb "x"`), []string{"aa", "1", "bb", "x"})
-	a.Equal(splitArgs(`aa=1 bb ""`), []string{"aa", "1", "bb", ""})
-	a.Equal(splitArgs(`  ""`), []string{""})
+	a.Equal(splitArgs(`aa=1 bb ""`), []string{"aa", "1", "bb"})
+	a.Equal(splitArgs(`  ""`), []string{})
 }
 
 func TestGetAppName(t *testing.T) {

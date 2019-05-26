@@ -108,7 +108,7 @@ func splitArgs(args string) []string {
 			}
 
 			if state != ' ' {
-				ret = append(ret, args[start:index])
+				ret = appendArg(ret, args[start:index])
 				state = ' '
 			}
 			start = index + 1
@@ -118,36 +118,46 @@ func splitArgs(args string) []string {
 			}
 
 			if state != '=' {
-				ret = append(ret, args[start:index])
+				ret = appendArg(ret, args[start:index])
 				state = '='
 			}
 			start = index + 1
 			state = 0
 		case '"':
 			if state == '"' {
-				ret = append(ret, args[start:index])
+				ret = appendArg(ret, args[start:index])
 				state = 0
 				start = index + 1
 				break
 			}
 
 			if start != index {
-				ret = append(ret, args[start:index])
+				ret = appendArg(ret, args[start:index])
 			}
 			state = '"'
 			start = index + 1
 		default:
 			if state == ' ' {
 				state = 0
+				start = index
 			}
 		}
 	} // end for
 
 	if start < len(args) {
-		ret = append(ret, args[start:len(args)])
+		ret = appendArg(ret, args[start:len(args)])
 	}
 
 	return ret
+}
+
+func appendArg(args []string, arg string) []string {
+	arg = strings.TrimSpace(arg)
+	if arg == "" {
+		return args
+	}
+
+	return append(args, arg)
 }
 
 // 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录。
