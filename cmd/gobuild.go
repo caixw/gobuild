@@ -18,7 +18,7 @@ import (
 	"github.com/caixw/gobuild"
 )
 
-const mainVersion = "0.7.1"
+const mainVersion = "0.7.4"
 
 // 与版号相关的变量
 var (
@@ -70,7 +70,7 @@ func main() {
 	}
 	dirs := append([]string{wd}, flag.Args()...)
 
-	err = gobuild.Build(logs.Logs, mainFiles, outputName, extString, recursive, appArgs, dirs...)
+	err = gobuild.Build(logs.Logs, mainFiles, outputName, nil, extString, recursive, appArgs, dirs...)
 	if err != nil {
 		panic(err)
 	}
