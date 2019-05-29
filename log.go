@@ -63,7 +63,7 @@ func (logs *ConsoleLogs) output() {
 	for {
 		select {
 		case log := <-logs.Logs:
-			if !logs.showIgnore {
+			if !logs.showIgnore && log.Type == LogTypeIgnore {
 				continue
 			}
 
