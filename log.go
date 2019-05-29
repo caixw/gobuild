@@ -19,7 +19,7 @@ type Log struct {
 
 // 日志类型
 const (
-	LogTypeSuccess int8 = iota + 1
+	LogTypeSuccess int8 = iota
 	LogTypeInfo
 	LogTypeWarn
 	LogTypeError
@@ -37,15 +37,19 @@ type ConsoleLogs struct {
 
 // NewConsoleLogs 声明 ConsoleLogs 实例
 func NewConsoleLogs(showIgnore bool) *ConsoleLogs {
+	return newConsoleLogs(showIgnore, os.Stderr, os.Stdout)
+}
+
+func newConsoleLogs(showIgnore bool, err, out io.Writer) *ConsoleLogs {
 	logs := &ConsoleLogs{
 		Logs:       make(chan *Log, 100),
 		showIgnore: showIgnore,
 		writers: map[int8]*logWriter{
-			LogTypeSuccess: newWriter(os.Stdout, colors.Green, "[SUCC]"),
-			LogTypeInfo:    newWriter(os.Stdout, colors.Blue, "[INFO]"),
-			LogTypeWarn:    newWriter(os.Stderr, colors.Magenta, "[WARN]"),
-			LogTypeError:   newWriter(os.Stderr, colors.Red, "[ERRO]"),
-			LogTypeIgnore:  newWriter(os.Stderr, colors.Default, "[IGNO]"),
+			LogTypeSuccess: newWriter(out, colors.Green, "[SUCC]"),
+			LogTypeInfo:    newWriter(out, colors.Blue, "[INFO]"),
+			LogTypeWarn:    newWriter(err, colors.Magenta, "[WARN]"),
+			LogTypeError:   newWriter(err, colors.Red, "[ERRO]"),
+			LogTypeIgnore:  newWriter(out, colors.Default, "[IGNO]"),
 		},
 	}
 
