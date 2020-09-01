@@ -1,13 +1,14 @@
 gobuild
 [![Build Status](https://travis-ci.org/caixw/gobuild.svg?branch=master)](https://travis-ci.org/caixw/gobuild)
-[![Go version](https://img.shields.io/badge/Go-1.11-brightgreen.svg?style=flat)](https://golang.org) 
+[![Go version](https://img.shields.io/badge/Go-1.13-brightgreen.svg?style=flat)](https://golang.org)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/caixw/gobuild)](https://pkg.go.dev/github.com/caixw/gobuild)
 ======
 
 gobuild 是一个简单的 Go 代码热编译工具。
 会实时监控指定目录下的文件变化(重命名，删除，创建，添加)，并编译和运行程序。
 
-
 #### 命令行语法:
+
 ```shell
 gobuild [options] [dependents]
 
@@ -26,8 +27,8 @@ dependents:
  指定其它依赖的目录，只能出现在命令的尾部。
 ```
 
-
 #### 常见用法:
+
 ```shell
  // 监视当前目录下的文件，若发生变化，则触发 go build -main="*.go"
  gobuild
@@ -37,20 +38,20 @@ dependents:
  gobuild -main=main.go ~/Go/src/github.com/issue9/term
 ```
 
+支持平台
+---
 
-#### 支持平台:
-
-平台支持依赖 [colors](https://github.com/issue9/term) 与 [fsnotify](https://gopkg.in/fsnotify.v1) 两个包，
+平台支持依赖 [colors](https://github.com/issue9/term) 与 [fsnotify](github.com/fsnotify/fsnotify) 两个包，
 目前支持以下平台：windows, linux, macOS, BSD。
 
-
-### 安装
+安装
+---
 
 ```shell
 go get github.com/caixw/gobuild
 ```
 
-
-### 版权
+版权
+---
 
 本项目采用 [MIT](https://opensource.org/licenses/MIT) 开源授权许可证，完整的授权说明可在 [LICENSE](LICENSE) 文件中找到。
