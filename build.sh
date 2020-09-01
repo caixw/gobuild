@@ -1,8 +1,6 @@
 #!/bin/sh
-#
-# Copyright 2017 by caixw, All rights reserved.
-# Use of this source code is governed by a MIT
-# license that can be found in the LICENSE file.
+
+# SPDX-License-Identifier: MIT
 
 cd `dirname $0`
 builddate=`date -u '+%Y%m%d'`

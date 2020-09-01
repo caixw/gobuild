@@ -1,5 +1,5 @@
 gobuild
-[![Build Status](https://travis-ci.org/caixw/gobuild.svg?branch=master)](https://travis-ci.org/caixw/gobuild)
+[![Test](https://github.com/caixw/gobuild/workflows/Test/badge.svg)](https://github.com/caixw/gobuild/actions?query=workflow%3ATest)
 [![Go version](https://img.shields.io/badge/Go-1.13-brightgreen.svg?style=flat)](https://golang.org)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/caixw/gobuild)](https://pkg.go.dev/github.com/caixw/gobuild)
 ======
