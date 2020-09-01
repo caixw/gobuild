@@ -47,8 +47,14 @@ dependents:
 安装
 ---
 
+常用平台可以从 <https://github.com/caixw/gobuild/releases> 下载，并将二进制文件放入 `PATH` 即可。
+
+如果水存在你当前平台的二进制，可以自己编译：
+
 ```shell
 go get github.com/caixw/gobuild
+cd gobuild
+./build.shh
 ```
 
 版权

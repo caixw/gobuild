@@ -20,6 +20,3 @@ _test
 *.swp
 .vscode/
 .idea/
-
-# app
-gobuild

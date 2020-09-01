@@ -1,0 +1,35 @@
+name: Release
+on:
+  create:
+    tags:
+      - 'v*'
+      - '!v*-alpha'
+      - '!v*-beta'
+
+jobs:
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.x
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: release
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: release
+        env:
+          # 如果需要操作其它仓库，比如将 brew 写入其它仓库中，
+          # 则不能使用默认的 GITHUB_TOKEN，需要自行创建。
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

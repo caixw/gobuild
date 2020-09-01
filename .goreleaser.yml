@@ -1,0 +1,50 @@
+project_name: gobuild
+
+release:
+  github:
+    owner: caixw
+    name: gobuild
+  name_template: '{{.Tag}}'
+
+builds:
+  - id: gobuild
+
+    goos:
+    - darwin
+    - linux
+    - windows
+
+    goarch:
+    - amd64
+
+    main: ./cmd/gobuild
+
+    binary: gobuild
+
+    ldflags:
+      - -s -w -X main.commitHash={{.Commit}} -X main.buildDate={{time "20060102"}}
+
+archives:
+  - builds:
+    - gobuild
+    replacements:
+      darwin: macOS
+    format_overrides:
+    - goos: windows
+      format: zip
+    files:
+    - licence*
+    - LICENCE*
+    - license*
+    - LICENSE*
+    - readme*
+    - README*
+    - changelog*
+    - CHANGELOG*
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+changelog:
+  skip: true
