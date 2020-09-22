@@ -70,8 +70,8 @@ func (logs *ConsoleLogs) output() {
 			}
 
 			w := logs.writers[log.Type]
-			colors.Fprint(w.out, w.color, colors.Default, w.prefix)
-			colors.Fprintln(w.out, colors.Default, colors.Default, log.Message)
+			colors.Fprint(w.out, colors.Normal, w.color, colors.Default, w.prefix)
+			colors.Fprintln(w.out, colors.Normal, colors.Default, colors.Default, log.Message)
 		case <-logs.stop:
 			return
 		}

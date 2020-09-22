@@ -16,7 +16,7 @@ import (
 	"github.com/caixw/gobuild"
 )
 
-const mainVersion = "0.7.4"
+const mainVersion = "0.8.2"
 
 // 与版号相关的变量
 var (

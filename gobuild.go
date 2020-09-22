@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// Build 执行热编译服务。
+// Build 执行热编译服务
 //
 // logs 编译是的各类事件输出通道；
 // mainFiles 为 go build 最后的文件参数，可以为空，表示当前目录；
@@ -164,7 +164,7 @@ func splitArgs(args string) []string {
 	} // end for
 
 	if start < len(args) {
-		ret = appendArg(ret, args[start:len(args)])
+		ret = appendArg(ret, args[start:])
 	}
 
 	return ret
