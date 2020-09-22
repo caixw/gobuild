@@ -41,7 +41,7 @@ dependents:
 支持平台
 ---
 
-平台支持依赖 [colors](https://github.com/issue9/term) 与 [fsnotify](github.com/fsnotify/fsnotify) 两个包，
+平台支持依赖 [colors](https://github.com/issue9/term/v2) 与 [fsnotify](github.com/fsnotify/fsnotify) 两个包，
 目前支持以下平台：windows, linux, macOS, BSD。
 
 安装

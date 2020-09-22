@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/issue9/term/colors"
+	"github.com/issue9/term/v2/colors"
 )
 
 // Log 日志类型
