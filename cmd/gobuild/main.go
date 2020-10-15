@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// 一个简单的 Go 语言热编译工具。
+// 一个简单的 Go 语言热编译工具
 //
 // 监视指定目录(可同时监视多个目录)下文件的变化，触发`go build`指令，
 // 实时编译指定的 Go 代码，并在编译成功时运行该程序。
@@ -20,14 +20,18 @@ const mainVersion = "0.8.2"
 
 // 与版号相关的变量
 var (
-	buildDate  string // 由链接器提供此值。
-	commitHash string // 由链接器提供此值。
+	buildDate  string // 由链接器提供此值
+	commitHash string // 由链接器提供此值
 	version    = mainVersion
 )
 
 func init() {
 	if len(buildDate) > 0 {
 		version += ("+" + buildDate)
+	}
+
+	if commitHash != "" {
+		version += ("." + commitHash)
 	}
 }
 
@@ -51,16 +55,10 @@ func main() {
 		flag.Usage()
 		return
 	case showVersion:
-		fmt.Fprintln(os.Stdout, "gobuild", version, "build with", runtime.Version(), runtime.GOOS+"/"+runtime.GOARCH)
-
-		if len(commitHash) > 0 {
-			fmt.Fprintln(os.Stdout, "commitHash:", commitHash)
-
-		}
+		fmt.Fprintln(os.Stdout, "gobuild", version)
+		fmt.Fprintln(os.Stdout, "build with", runtime.Version(), runtime.GOOS+"/"+runtime.GOARCH)
 		return
 	}
-
-	logs := gobuild.NewConsoleLogs(showIgnore)
 
 	wd, err := os.Getwd()
 	if err != nil {
@@ -68,11 +66,13 @@ func main() {
 	}
 	dirs := append([]string{wd}, flag.Args()...)
 
+	logs := gobuild.NewConsoleLogs(showIgnore)
+	defer logs.Stop()
+
 	err = gobuild.Build(logs.Logs, mainFiles, outputName, nil, extString, recursive, appArgs, dirs...)
 	if err != nil {
 		panic(err)
 	}
-	logs.Stop()
 }
 
 func usage() {
