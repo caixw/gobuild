@@ -163,7 +163,7 @@ func recursivePaths(recursive bool, paths []string) ([]string, error) {
 			return err
 		}
 
-		if fi.IsDir() && strings.Index(path, "/.") < 0 {
+		if fi.IsDir() && (strings.Index(path, "/.") < 0 || strings.Index(path, "\\.") < 0) { // 非隐藏的目录
 			ret = append(ret, path)
 		}
 		return nil
