@@ -11,6 +11,17 @@ import (
 	"github.com/issue9/assert"
 )
 
+func TestOptions_sanitize(t *testing.T) {
+	a := assert.New(t)
+
+	opt := &Options{}
+	a.Error(opt.sanitize())
+
+	opt.Dirs = []string{"./"}
+	a.NotError(opt.sanitize()).
+		Equal(opt.WatcherFrequency, MinWatcherFrequency)
+}
+
 func pathsEqual(a *assert.Assertion, paths1, paths2 []string) {
 	a.Equal(len(paths1), len(paths2))
 

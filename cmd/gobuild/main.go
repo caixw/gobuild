@@ -57,7 +57,7 @@ func main() {
 		return
 	case showVersion:
 		fmt.Fprintln(os.Stdout, "gobuild", version)
-		fmt.Fprintln(os.Stdout, "build with", runtime.Version(), runtime.GOOS+"/"+runtime.GOARCH)
+		fmt.Fprintln(os.Stdout, "build with", runtime.Version())
 		return
 	}
 

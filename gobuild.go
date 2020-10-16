@@ -4,6 +4,7 @@
 package gobuild
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io/ioutil"
@@ -25,6 +26,11 @@ type builder struct {
 	goCmdArgs   []string  // 传递给 go build 的参数
 	logs        chan *Log
 	watcherFreq time.Duration
+
+	// 退出标记
+	exit chan struct{}
+
+	env string // 当前系统的环境信息
 }
 
 // Build 执行热编译服务
@@ -33,15 +39,12 @@ func Build(ctx context.Context, logs chan *Log, opt *Options) error {
 		return err
 	}
 
-	b := &builder{
-		exts:        opt.exts,
-		appName:     opt.appName,
-		wd:          filepath.Dir(opt.appName),
-		appArgs:     opt.appArgs,
-		goCmdArgs:   opt.goCmdArgs,
-		logs:        logs,
-		watcherFreq: opt.WatcherFrequency,
+	b, err := opt.newBuilder(logs)
+	if err != nil {
+		return err
 	}
+
+	b.log(LogTypeInfo, fmt.Sprintf("当前环境参数如下：%s", b.env))
 
 	b.log(LogTypeInfo, fmt.Sprint("给程序传递了以下参数：", b.appArgs)) // 输出提示信息
 
@@ -62,8 +65,30 @@ func Build(ctx context.Context, logs chan *Log, opt *Options) error {
 
 	go b.watch(ctx, w)
 
-	<-make(chan bool)
-	return nil
+	<-b.exit
+	return context.Canceled
+}
+
+func (opt *Options) newBuilder(logs chan *Log) (*builder, error) {
+	b := &builder{
+		exts:        opt.exts,
+		appName:     opt.appName,
+		wd:          filepath.Dir(opt.appName),
+		appArgs:     opt.appArgs,
+		goCmdArgs:   opt.goCmdArgs,
+		logs:        logs,
+		watcherFreq: opt.WatcherFrequency,
+		exit:        make(chan struct{}, 1),
+	}
+
+	var buf bytes.Buffer
+	cmd := exec.Command("go", "version")
+	cmd.Stdout = &buf
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+	b.env = strings.TrimSpace(strings.TrimPrefix(buf.String(), "go version "))
+	return b, nil
 }
 
 func (b *builder) log(typ int8, msg ...interface{}) {
@@ -176,9 +201,9 @@ func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
 
 	paths = b.filterPaths(paths)
 
-	b.log(LogTypeInfo, "以下路径或是文件将被监视:")
+	b.log(LogTypeIgnore, "以下路径或是文件将被监视:")
 	for _, path := range paths {
-		b.log(LogTypeInfo, path)
+		b.log(LogTypeIgnore, path)
 	}
 
 	for _, path := range paths {
@@ -198,6 +223,8 @@ func (b *builder) watch(ctx context.Context, watcher *fsnotify.Watcher) {
 		select {
 		case <-ctx.Done():
 			b.log(LogTypeInfo, context.Canceled)
+
+			b.exit <- struct{}{}
 			return
 		case event := <-watcher.Events:
 			if event.Op&fsnotify.Chmod == fsnotify.Chmod {
