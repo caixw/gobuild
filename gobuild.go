@@ -4,103 +4,50 @@
 package gobuild
 
 import (
-	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
+
+	"github.com/fsnotify/fsnotify"
 )
 
+// 监视器的更新频率，只有文件更新的时长超过此值，才会被更新
+const watcherFrequency = 1 * time.Second
+
+type builder struct {
+	exts      []string  // 需要监视的文件扩展名
+	appName   string    // 输出的程序文件
+	wd        string    // 工作目录
+	appCmd    *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
+	appArgs   []string  // 传递给 appCmd 的参数
+	goCmdArgs []string  // 传递给 go build 的参数
+	logs      chan *Log
+}
+
 // Build 执行热编译服务
-//
-// logs 编译是的各类事件输出通道；
-// mainFiles 为 go build 最后的文件参数，可以为空，表示当前目录；
-// outputName 指定可执行文件输出的文件路径，为空表示默认值，
-// 若不带路径信息，会附加在 dir 的第一个路径上；
-// exts 指定监视的文件扩展名，为空表示不监视任何文件，* 表示监视所有文件；
-// recursive 是否监视子目录；
-// appArgs 传递给程序的参数；
-// flags 传递各个工具的参数，大致有以下向个，具体可参考 go build 的 xxflags 系列参数。
-//  - asm   --> asmflags
-//  - gccgo --> gccgoflags
-//  - gc    --> gcflags
-//  - ld    --> ldflags
-// dir 表示需要监视的目录，至少指定一个目录，第一个目录被当作主目录，将编译其下的文件。
-//
-// 工作路径：如果 outputName 带路径信息，则会使用该文件所在目录作为工作目录，
-// 如果未指定或是仅是一个文件名，则采用 dir 中的第一个参数作为其工作目录。
-func Build(logs chan *Log,
-	mainFiles string,
-	outputName string,
-	flags map[string]string,
-	exts string,
-	recursive bool,
-	appArgs string,
-	dir ...string) error {
-	if len(dir) < 1 {
-		return errors.New("参数 dir 至少指定一个")
-	}
-	wd, err := filepath.Abs(dir[0])
-	if err != nil {
-		return err
-	}
-	dir[0] = wd
-
-	appName, err := getAppName(outputName, wd)
-	if err != nil {
+func Build(logs chan *Log, opt *Options) error {
+	if err := opt.sanitize(); err != nil {
 		return err
 	}
 
-	// 初始化 goCmd 的参数
-	args := []string{"build", "-o", appName}
-	for k, v := range flags {
-		args = append(args, "-"+k+"flags", v)
-	}
-	args = append(args, "-v")
-	if len(mainFiles) > 0 {
-		args = append(args, mainFiles)
-	}
+	b := opt.buildBuilder(logs)
 
-	b := &builder{
-		exts:      getExts(exts),
-		appName:   appName,
-		wd:        filepath.Dir(appName),
-		appArgs:   splitArgs(appArgs),
-		goCmdArgs: args,
-		logs:      logs,
-	}
+	b.log(LogTypeInfo, fmt.Sprint("给程序传递了以下参数：", b.appArgs)) // 输出提示信息
 
-	// 输出提示信息
-	logs <- &Log{
-		Type:    LogTypeInfo,
-		Message: fmt.Sprint("给程序传递了以下参数：", b.appArgs),
-	}
-
-	// 提示扩展名
-	switch {
+	switch { // 提示扩展名
 	case len(b.exts) == 0: // 允许不监视任意文件，但输出一信息来警告
-		logs <- &Log{
-			Type:    LogTypeWarn,
-			Message: "将 ext 设置为空值，意味着不监视任何文件的改变！",
-		}
+		b.log(LogTypeWarn, "将 ext 设置为空值，意味着不监视任何文件的改变！")
 	case len(b.exts) > 0:
-		logs <- &Log{
-			Type:    LogTypeInfo,
-			Message: fmt.Sprint("系统将监视以下类型的文件:", b.exts),
-		}
+		b.log(LogTypeInfo, fmt.Sprint("系统将监视以下类型的文件:", b.exts))
 	}
 
-	// 提示 appName
-	logs <- &Log{
-		Type:    LogTypeInfo,
-		Message: fmt.Sprint("输出文件为:", b.appName),
-	}
+	b.log(LogTypeInfo, fmt.Sprint("输出文件为:", b.appName)) // 提示 appName
 
-	paths, err := recursivePaths(recursive, dir)
-	if err != nil {
-		return err
-	}
-	w, err := b.initWatcher(paths)
+	w, err := b.initWatcher(opt.paths)
 	if err != nil {
 		return err
 	}
@@ -113,140 +60,172 @@ func Build(logs chan *Log,
 	return nil
 }
 
-func splitArgs(args string) []string {
-	ret := make([]string, 0, 10)
-	var state byte
-	var start, index int
+func (opt *Options) buildBuilder(logs chan *Log) *builder {
+	return &builder{
+		exts:      opt.exts,
+		appName:   opt.appName,
+		wd:        filepath.Dir(opt.appName),
+		appArgs:   opt.appArgs,
+		goCmdArgs: opt.goCmdArgs,
+		logs:      logs,
+	}
+}
 
-	for index = 0; index < len(args); index++ {
-		b := args[index]
-		switch b {
-		case ' ':
-			if state == '"' {
+func (b *builder) log(typ int8, msg ...interface{}) {
+	b.logs <- &Log{
+		Type:    typ,
+		Message: fmt.Sprint(msg...),
+	}
+}
+
+// 确定文件 path 是否属于被忽略的格式。
+func (b *builder) isIgnore(path string) bool {
+	if b.appCmd != nil && b.appCmd.Path == path { // 忽略程序本身的监视
+		return true
+	}
+
+	for _, ext := range b.exts {
+		if ext == "*" {
+			return false
+		}
+		if strings.HasSuffix(path, ext) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// 开始编译代码
+func (b *builder) build() {
+	b.log(LogTypeInfo, "编译代码...")
+
+	goCmd := exec.Command("go", b.goCmdArgs...)
+	goCmd.Stderr = os.Stderr
+	goCmd.Stdout = os.Stdout
+	if err := goCmd.Run(); err != nil {
+		b.log(LogTypeError, "编译失败:", err)
+		return
+	}
+
+	b.log(LogTypeSuccess, "编译成功!")
+
+	b.restart()
+}
+
+// 重启被编译的程序
+func (b *builder) restart() {
+	defer func() {
+		if err := recover(); err != nil {
+			b.log(LogTypeError, "restart.defer:", err)
+		}
+	}()
+
+	// kill process
+	if b.appCmd != nil && b.appCmd.Process != nil {
+		b.log(LogTypeInfo, "中止旧进程:", b.appName)
+		if err := b.appCmd.Process.Kill(); err != nil {
+			b.log(LogTypeError, "kill:", err)
+		}
+		b.log(LogTypeSuccess, "旧进程被终止!")
+	}
+
+	b.log(LogTypeInfo, "启动新进程:", b.appName)
+	b.appCmd = exec.Command(b.appName, b.appArgs...)
+	b.appCmd.Dir = b.wd
+	b.appCmd.Stderr = os.Stderr
+	b.appCmd.Stdout = os.Stdout
+	if err := b.appCmd.Start(); err != nil {
+		b.log(LogTypeError, "启动进程时出错:", err)
+	}
+}
+
+// 过滤掉不需要监视的目录。以下目录会被过滤掉：
+// 整个目录下都没需要监视的文件；
+func (b *builder) filterPaths(paths []string) []string {
+	ret := make([]string, 0, len(paths))
+
+	for _, dir := range paths {
+		fs, err := ioutil.ReadDir(dir)
+		if err != nil {
+			b.log(LogTypeError, err)
+			continue
+		}
+
+		ignore := true
+		for _, f := range fs {
+			if f.IsDir() {
+				continue
+			}
+			if !b.isIgnore(f.Name()) {
+				ignore = false
 				break
-			}
-
-			if state != ' ' {
-				ret = appendArg(ret, args[start:index])
-				state = ' '
-			}
-			start = index + 1
-		case '=':
-			if state == '"' {
-				break
-			}
-
-			if state != '=' {
-				ret = appendArg(ret, args[start:index])
-				state = '='
-			}
-			start = index + 1
-			state = 0
-		case '"':
-			if state == '"' {
-				ret = appendArg(ret, args[start:index])
-				state = 0
-				start = index + 1
-				break
-			}
-
-			if start != index {
-				ret = appendArg(ret, args[start:index])
-			}
-			state = '"'
-			start = index + 1
-		default:
-			if state == ' ' {
-				state = 0
-				start = index
 			}
 		}
-	} // end for
-
-	if start < len(args) {
-		ret = appendArg(ret, args[start:])
-	}
+		if !ignore {
+			ret = append(ret, dir)
+		}
+	} // end for paths
 
 	return ret
 }
 
-func appendArg(args []string, arg string) []string {
-	arg = strings.TrimSpace(arg)
-	if arg == "" {
-		return args
+func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
+	b.log(LogTypeInfo, "初始化监视器...")
+
+	// 初始化监视器
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return nil, err
 	}
 
-	return append(args, arg)
-}
+	paths = b.filterPaths(paths)
 
-// 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录。
-func recursivePaths(recursive bool, paths []string) ([]string, error) {
-	if !recursive {
-		return paths, nil
-	}
-
-	ret := []string{}
-
-	walk := func(path string, fi os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if fi.IsDir() && strings.Index(path, "/.") < 0 {
-			ret = append(ret, path)
-		}
-		return nil
+	b.log(LogTypeInfo, "以下路径或是文件将被监视:")
+	for _, path := range paths {
+		b.log(LogTypeInfo, path)
 	}
 
 	for _, path := range paths {
-		if err := filepath.Walk(path, walk); err != nil {
+		if err := watcher.Add(path); err != nil {
+			watcher.Close()
 			return nil, err
 		}
 	}
 
-	return ret, nil
+	return watcher, nil
 }
 
-// 将 extString 分解成数组，并清理掉无用的内容，比如空字符串
-func getExts(extString string) []string {
-	exts := strings.Split(extString, ",")
-	ret := make([]string, 0, len(exts))
+// 开始监视 paths 中指定的目录或文件。
+func (b *builder) watch(watcher *fsnotify.Watcher) {
+	go func() {
+		var buildTime time.Time
+		for {
+			select {
+			case event := <-watcher.Events:
+				if event.Op&fsnotify.Chmod == fsnotify.Chmod {
+					b.log(LogTypeIgnore, "watcher.Events:忽略 CHMOD 事件:", event)
+					continue
+				}
 
-	for _, ext := range exts {
-		ext = strings.TrimSpace(ext)
+				if b.isIgnore(event.Name) { // 不需要监视的扩展名
+					b.log(LogTypeIgnore, "watcher.Events:忽略不被监视的文件:", event)
+					continue
+				}
 
-		if len(ext) == 0 {
-			continue
+				if time.Now().Sub(buildTime) <= watcherFrequency { // 已经记录
+					b.log(LogTypeIgnore, "watcher.Events:该监控事件被忽略:", event)
+					continue
+				}
+
+				buildTime = time.Now()
+				b.log(LogTypeInfo, "watcher.Events:触发编译事件:", event)
+
+				go b.build()
+			case err := <-watcher.Errors:
+				watcher.Close()
+				b.log(LogTypeWarn, "watcher.Errors", err)
+			} // end select
 		}
-		if ext[0] != '.' {
-			ext = "." + ext
-		}
-		ret = append(ret, ext)
-	}
-
-	return ret
-}
-
-func getAppName(outputName, wd string) (string, error) {
-	if outputName == "" {
-		outputName = filepath.Base(wd)
-	}
-
-	goexe := os.Getenv("GOEXE")
-	if goexe != "" && !strings.HasSuffix(outputName, goexe) {
-		outputName += goexe
-	}
-
-	// 没有分隔符，表示仅有一个文件名，需要加上 wd
-	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
-		outputName = filepath.Join(wd, outputName)
-	}
-
-	// 转成绝对路径
-	outputName, err := filepath.Abs(outputName)
-	if err != nil {
-		return "", err
-	}
-
-	return outputName, nil
+	}()
 }

@@ -36,17 +36,17 @@ func init() {
 }
 
 func main() {
-	var showHelp, showVersion, recursive, showIgnore bool
-	var mainFiles, outputName, extString, appArgs string
+	var showHelp, showVersion, showIgnore bool
+	opt := &gobuild.Options{}
 
 	flag.BoolVar(&showHelp, "h", false, "显示帮助信息；")
 	flag.BoolVar(&showVersion, "v", false, "显示版本号；")
-	flag.BoolVar(&recursive, "r", true, "是否查找子目录；")
+	flag.BoolVar(&opt.Recursive, "r", true, "是否查找子目录；")
 	flag.BoolVar(&showIgnore, "i", false, "是否显示被标记为 IGNORE 的日志内容；")
-	flag.StringVar(&outputName, "o", "", "指定输出名称，程序的工作目录随之改变；")
-	flag.StringVar(&appArgs, "x", "", "传递给编译程序的参数；")
-	flag.StringVar(&extString, "ext", "go", "指定监视的文件扩展，区分大小写。* 表示监视所有类型文件，空值代表不监视任何文件；")
-	flag.StringVar(&mainFiles, "main", "", "指定需要编译的文件；")
+	flag.StringVar(&opt.OutputName, "o", "", "指定输出名称，程序的工作目录随之改变；")
+	flag.StringVar(&opt.AppArgs, "x", "", "传递给编译程序的参数；")
+	flag.StringVar(&opt.Exts, "ext", "go", "指定监视的文件扩展，区分大小写。* 表示监视所有类型文件，空值代表不监视任何文件；")
+	flag.StringVar(&opt.MainFiles, "main", "", "指定需要编译的文件；")
 	flag.Usage = usage
 	flag.Parse()
 
@@ -60,17 +60,20 @@ func main() {
 		return
 	}
 
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(err)
+	if flag.NArg() == 0 {
+		wd, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+		opt.Dirs = []string{wd}
+	} else {
+		opt.Dirs = flag.Args()
 	}
-	dirs := append([]string{wd}, flag.Args()...)
 
 	logs := gobuild.NewConsoleLogs(showIgnore)
 	defer logs.Stop()
 
-	err = gobuild.Build(logs.Logs, mainFiles, outputName, nil, extString, recursive, appArgs, dirs...)
-	if err != nil {
+	if err := gobuild.Build(logs.Logs, opt); err != nil {
 		panic(err)
 	}
 }

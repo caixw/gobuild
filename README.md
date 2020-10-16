@@ -30,18 +30,18 @@ dependents:
 #### 常见用法:
 
 ```shell
- // 监视当前目录下的文件，若发生变化，则触发 go build -main="*.go"
- gobuild
+# 监视当前目录下的文件，若发生变化，则触发 go build -main="*.go"
+gobuild
 
- // 监视当前目录和 ~/Go/src/github.com/issue9/term 目录下的文件，
- // 若发生变化，则触发 go build -main="main.go"
- gobuild -main=main.go ~/Go/src/github.com/issue9/term
+# 监视当前目录和 ~/Go/src/github.com/issue9/term 目录下的文件，
+# 若发生变化，则触发 go build -main="main.go"
+gobuild -main=main.go ~/Go/src/github.com/issue9/term
 ```
 
 支持平台
 ---
 
-平台支持依赖 [colors](https://github.com/issue9/term/v2) 与 [fsnotify](github.com/fsnotify/fsnotify) 两个包，
+平台支持依赖 [colors](https://github.com/issue9/term/v2) 与 [fsnotify](github.com/fsnotify/fsnotify) 两个模块，
 目前支持以下平台：windows, linux, macOS, BSD。
 
 安装
@@ -54,7 +54,7 @@ dependents:
 ```shell
 go get github.com/caixw/gobuild
 cd gobuild
-./build.shh
+./build.sh
 ```
 
 版权
