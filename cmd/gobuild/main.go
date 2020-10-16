@@ -8,6 +8,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -16,7 +17,7 @@ import (
 	"github.com/caixw/gobuild"
 )
 
-const mainVersion = "0.8.2"
+const mainVersion = "0.9.0"
 
 // 与版号相关的变量
 var (
@@ -73,7 +74,7 @@ func main() {
 	logs := gobuild.NewConsoleLogs(showIgnore)
 	defer logs.Stop()
 
-	if err := gobuild.Build(logs.Logs, opt); err != nil {
+	if err := gobuild.Build(context.Background(), logs.Logs, opt); err != nil {
 		panic(err)
 	}
 }

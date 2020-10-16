@@ -55,7 +55,9 @@ type Options struct {
 	// 监视器的更新频率，只有文件更新的时长超过此值，才会被定义为更新。
 	// 防止文件频繁修改导致的频繁编译调用。
 	//
-	// 此值不能小于 MinWatcherFrequency
+	// 此值不能小于 MinWatcherFrequency。
+	//
+	// 默认值为 MinWatcherFrequency 表示的值。
 	WatcherFrequency time.Duration
 
 	// 传递给 go 命令的参数

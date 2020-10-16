@@ -4,6 +4,7 @@
 package gobuild
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -27,12 +28,20 @@ type builder struct {
 }
 
 // Build 执行热编译服务
-func Build(logs chan *Log, opt *Options) error {
+func Build(ctx context.Context, logs chan *Log, opt *Options) error {
 	if err := opt.sanitize(); err != nil {
 		return err
 	}
 
-	b := opt.buildBuilder(logs)
+	b := &builder{
+		exts:        opt.exts,
+		appName:     opt.appName,
+		wd:          filepath.Dir(opt.appName),
+		appArgs:     opt.appArgs,
+		goCmdArgs:   opt.goCmdArgs,
+		logs:        logs,
+		watcherFreq: opt.WatcherFrequency,
+	}
 
 	b.log(LogTypeInfo, fmt.Sprint("给程序传递了以下参数：", b.appArgs)) // 输出提示信息
 
@@ -51,23 +60,10 @@ func Build(logs chan *Log, opt *Options) error {
 	}
 	defer w.Close()
 
-	b.watch(w)
-	go b.build()
+	go b.watch(ctx, w)
 
 	<-make(chan bool)
 	return nil
-}
-
-func (opt *Options) buildBuilder(logs chan *Log) *builder {
-	return &builder{
-		exts:        opt.exts,
-		appName:     opt.appName,
-		wd:          filepath.Dir(opt.appName),
-		appArgs:     opt.appArgs,
-		goCmdArgs:   opt.goCmdArgs,
-		logs:        logs,
-		watcherFreq: opt.WatcherFrequency,
-	}
 }
 
 func (b *builder) log(typ int8, msg ...interface{}) {
@@ -77,7 +73,7 @@ func (b *builder) log(typ int8, msg ...interface{}) {
 	}
 }
 
-// 确定文件 path 是否属于被忽略的格式。
+// 确定文件 path 是否属于被忽略的格式
 func (b *builder) isIgnore(path string) bool {
 	if b.appCmd != nil && b.appCmd.Path == path { // 忽略程序本身的监视
 		return true
@@ -164,7 +160,7 @@ func (b *builder) filterPaths(paths []string) []string {
 		if !ignore {
 			ret = append(ret, dir)
 		}
-	} // end for paths
+	}
 
 	return ret
 }
@@ -196,35 +192,36 @@ func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
 }
 
 // 开始监视 paths 中指定的目录或文件。
-func (b *builder) watch(watcher *fsnotify.Watcher) {
-	go func() {
-		var buildTime time.Time
-		for {
-			select {
-			case event := <-watcher.Events:
-				if event.Op&fsnotify.Chmod == fsnotify.Chmod {
-					b.log(LogTypeIgnore, "watcher.Events:忽略 CHMOD 事件:", event)
-					continue
-				}
+func (b *builder) watch(ctx context.Context, watcher *fsnotify.Watcher) {
+	var buildTime time.Time
+	for {
+		select {
+		case <-ctx.Done():
+			b.log(LogTypeInfo, "ctx done!")
+			return
+		case event := <-watcher.Events:
+			if event.Op&fsnotify.Chmod == fsnotify.Chmod {
+				b.log(LogTypeIgnore, "watcher.Events:忽略 CHMOD 事件:", event)
+				continue
+			}
 
-				if b.isIgnore(event.Name) { // 不需要监视的扩展名
-					b.log(LogTypeIgnore, "watcher.Events:忽略不被监视的文件:", event)
-					continue
-				}
+			if b.isIgnore(event.Name) { // 不需要监视的扩展名
+				b.log(LogTypeIgnore, "watcher.Events:忽略不被监视的文件:", event)
+				continue
+			}
 
-				if time.Now().Sub(buildTime) <= b.watcherFreq { // 已经记录
-					b.log(LogTypeIgnore, "watcher.Events:该监控事件被忽略:", event)
-					continue
-				}
+			if time.Now().Sub(buildTime) <= b.watcherFreq { // 已经记录
+				b.log(LogTypeIgnore, "watcher.Events:该监控事件被忽略:", event)
+				continue
+			}
 
-				buildTime = time.Now()
-				b.log(LogTypeInfo, "watcher.Events:触发编译事件:", event)
+			buildTime = time.Now()
+			b.log(LogTypeInfo, "watcher.Events:触发编译事件:", event)
 
-				go b.build()
-			case err := <-watcher.Errors:
-				watcher.Close()
-				b.log(LogTypeWarn, "watcher.Errors", err)
-			} // end select
-		}
-	}()
+			go b.build()
+		case err := <-watcher.Errors:
+			watcher.Close()
+			b.log(LogTypeWarn, "watcher.Errors", err)
+		} // end select
+	}
 }
