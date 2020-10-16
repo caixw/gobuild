@@ -15,17 +15,15 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-// 监视器的更新频率，只有文件更新的时长超过此值，才会被更新
-const watcherFrequency = 1 * time.Second
-
 type builder struct {
-	exts      []string  // 需要监视的文件扩展名
-	appName   string    // 输出的程序文件
-	wd        string    // 工作目录
-	appCmd    *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
-	appArgs   []string  // 传递给 appCmd 的参数
-	goCmdArgs []string  // 传递给 go build 的参数
-	logs      chan *Log
+	exts        []string  // 需要监视的文件扩展名
+	appName     string    // 输出的程序文件
+	wd          string    // 工作目录
+	appCmd      *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
+	appArgs     []string  // 传递给 appCmd 的参数
+	goCmdArgs   []string  // 传递给 go build 的参数
+	logs        chan *Log
+	watcherFreq time.Duration
 }
 
 // Build 执行热编译服务
@@ -62,12 +60,13 @@ func Build(logs chan *Log, opt *Options) error {
 
 func (opt *Options) buildBuilder(logs chan *Log) *builder {
 	return &builder{
-		exts:      opt.exts,
-		appName:   opt.appName,
-		wd:        filepath.Dir(opt.appName),
-		appArgs:   opt.appArgs,
-		goCmdArgs: opt.goCmdArgs,
-		logs:      logs,
+		exts:        opt.exts,
+		appName:     opt.appName,
+		wd:          filepath.Dir(opt.appName),
+		appArgs:     opt.appArgs,
+		goCmdArgs:   opt.goCmdArgs,
+		logs:        logs,
+		watcherFreq: opt.WatcherFrequency,
 	}
 }
 
@@ -213,7 +212,7 @@ func (b *builder) watch(watcher *fsnotify.Watcher) {
 					continue
 				}
 
-				if time.Now().Sub(buildTime) <= watcherFrequency { // 已经记录
+				if time.Now().Sub(buildTime) <= b.watcherFreq { // 已经记录
 					b.log(LogTypeIgnore, "watcher.Events:该监控事件被忽略:", event)
 					continue
 				}

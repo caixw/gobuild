@@ -7,7 +7,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
+
+// MinWatcherFrequency 监视器更新频率的最小值
+const MinWatcherFrequency = 1 * time.Second
 
 // Options 热编译的选项
 type Options struct {
@@ -48,6 +52,12 @@ type Options struct {
 	Dirs  []string
 	paths []string
 
+	// 监视器的更新频率，只有文件更新的时长超过此值，才会被定义为更新。
+	// 防止文件频繁修改导致的频繁编译调用。
+	//
+	// 此值不能小于 MinWatcherFrequency
+	WatcherFrequency time.Duration
+
 	// 传递给 go 命令的参数
 	goCmdArgs []string
 }
@@ -72,6 +82,12 @@ func (opt *Options) sanitize() error {
 
 	if opt.paths, err = recursivePaths(opt.Recursive, opt.Dirs); err != nil {
 		return err
+	}
+
+	if opt.WatcherFrequency == 0 {
+		opt.WatcherFrequency = MinWatcherFrequency
+	} else if opt.WatcherFrequency < MinWatcherFrequency {
+		return errors.New("watcherFrequency 值过小")
 	}
 
 	// 初始化 goCmd 的参数
