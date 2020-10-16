@@ -105,11 +105,11 @@ func (b *builder) build() {
 
 	b.log(LogTypeSuccess, "编译成功!")
 
-	b.restart()
+	b.restartApp()
 }
 
 // 重启被编译的程序
-func (b *builder) restart() {
+func (b *builder) restartApp() {
 	defer func() {
 		if err := recover(); err != nil {
 			b.log(LogTypeError, "restart.defer:", err)
@@ -197,7 +197,7 @@ func (b *builder) watch(ctx context.Context, watcher *fsnotify.Watcher) {
 	for {
 		select {
 		case <-ctx.Done():
-			b.log(LogTypeInfo, "ctx done!")
+			b.log(LogTypeInfo, context.Canceled)
 			return
 		case event := <-watcher.Events:
 			if event.Op&fsnotify.Chmod == fsnotify.Chmod {
