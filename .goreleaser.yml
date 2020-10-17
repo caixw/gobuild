@@ -21,6 +21,9 @@ builds:
 
     binary: gobuild
 
+    flags:
+      - -trimpath
+
     ldflags:
       - -s -w -X main.commitHash={{.Commit}} -X main.buildDate={{time "20060102"}}
 
