@@ -52,7 +52,7 @@ gobuild -main=main.go ~/Go/src/github.com/issue9/term
 如果水存在你当前平台的二进制，可以自己编译：
 
 ```shell
-go get github.com/caixw/gobuild
+git clone https://github.com/caixw/gobuild.git
 cd gobuild
 ./build.sh
 ```
