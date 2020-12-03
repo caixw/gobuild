@@ -49,7 +49,7 @@ gobuild -main=main.go ~/Go/src/github.com/issue9/term
 
 常用平台可以从 <https://github.com/caixw/gobuild/releases> 下载，并将二进制文件放入 `PATH` 即可。
 
-如果水存在你当前平台的二进制，可以自己编译：
+如果不存在你当前平台的二进制，可以自己编译：
 
 ```shell
 git clone https://github.com/caixw/gobuild.git
