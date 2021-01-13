@@ -22,7 +22,6 @@ const (
 	LogTypeWarn
 	LogTypeError
 	LogTypeIgnore
-	logTypeSize
 )
 
 // ConsoleLogs 将日志输出到控制台
