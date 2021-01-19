@@ -63,6 +63,8 @@ func Build(ctx context.Context, logs chan *Log, opt *Options) error {
 	}
 	defer w.Close()
 
+	go b.build() // 第一次主动编译程序，后续的才是监视变化。
+
 	go b.watch(ctx, w)
 
 	<-b.exit
