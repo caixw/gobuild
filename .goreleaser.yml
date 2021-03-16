@@ -7,43 +7,48 @@ release:
   name_template: '{{.Tag}}'
 
 builds:
-  - id: gobuild
+- id: gobuild
 
-    goos:
-    - darwin
-    - linux
-    - windows
+  goos:
+  - darwin
+  - linux
+  - windows
 
-    goarch:
-    - amd64
+  goarch:
+  - amd64
+  - arm64
 
-    main: ./cmd/gobuild
+  ignore:
+  - goos: windows
+    goarch: arm64
 
-    binary: gobuild
+  main: ./cmd/gobuild
 
-    flags:
-      - -trimpath
+  binary: gobuild
 
-    ldflags:
-      - -s -w -X main.commitHash={{.Commit}} -X main.buildDate={{time "20060102"}}
+  flags:
+  - -trimpath
+
+  ldflags:
+  - -s -w -X main.commitHash={{.Commit}} -X main.buildDate={{time "20060102"}}
 
 archives:
-  - builds:
-    - gobuild
-    replacements:
-      darwin: macOS
-    format_overrides:
-    - goos: windows
-      format: zip
-    files:
-    - licence*
-    - LICENCE*
-    - license*
-    - LICENSE*
-    - readme*
-    - README*
-    - changelog*
-    - CHANGELOG*
+- builds:
+  - gobuild
+  replacements:
+    darwin: macOS
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+  - licence*
+  - LICENCE*
+  - license*
+  - LICENSE*
+  - readme*
+  - README*
+  - changelog*
+  - CHANGELOG*
 
 checksum:
   name_template: checksums.txt
