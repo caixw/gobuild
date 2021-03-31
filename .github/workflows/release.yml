@@ -29,7 +29,5 @@ jobs:
           version: latest
           args: release
         env:
-          # 如果需要操作其它仓库，比如将 brew 写入其它仓库中，
-          # 则不能使用默认的 GITHUB_TOKEN，需要自行创建。
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.HOMEBREW }}
 

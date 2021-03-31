@@ -47,6 +47,13 @@ gobuild -main=main.go ~/Go/src/github.com/issue9/term
 安装
 ---
 
+macOS 和 linux 用户可以直接使用 brew 进行安装：
+
+```shell
+brew tap caixw/caixw
+brew install caixw/caixw/gobuild
+```
+
 常用平台可以从 <https://github.com/caixw/gobuild/releases> 下载，并将二进制文件放入 `PATH` 即可。
 
 如果不存在你当前平台的二进制，可以自己编译：

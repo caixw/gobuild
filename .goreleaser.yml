@@ -32,6 +32,20 @@ builds:
   ldflags:
   - -s -w -X main.commitHash={{.Commit}} -X main.buildDate={{time "20060102"}}
 
+brews:
+- tap:
+    owner: caixw
+    name: homebrew-caixw
+  url_template: "https://github.com/caixw/gobuild/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+  folder: Formula
+  homepage: "https://github.com/caixw/gobuild"
+  description: Go 热编译工具
+  license: MIT
+
 archives:
 - builds:
   - gobuild
