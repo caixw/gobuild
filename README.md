@@ -1,8 +1,8 @@
 gobuild
 [![Test](https://github.com/caixw/gobuild/workflows/Test/badge.svg)](https://github.com/caixw/gobuild/actions?query=workflow%3ATest)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/caixw/gobuild)](https://pkg.go.dev/github.com/caixw/gobuild)
-![Go version](https://img.shields.io/github/go-mod/go-version/issue9/web)
-![License](https://img.shields.io/github/license/issue9/web)
+![Go version](https://img.shields.io/github/go-mod/go-version/caixw/gobuild)
+![License](https://img.shields.io/github/license/caixw/gobuild)
 ======
 
 gobuild 是一个简单的 Go 代码热编译工具。
