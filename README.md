@@ -1,7 +1,8 @@
 gobuild
 [![Test](https://github.com/caixw/gobuild/workflows/Test/badge.svg)](https://github.com/caixw/gobuild/actions?query=workflow%3ATest)
-[![Go version](https://img.shields.io/badge/Go-1.13-brightgreen.svg?style=flat)](https://golang.org)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/caixw/gobuild)](https://pkg.go.dev/github.com/caixw/gobuild)
+![Go version](https://img.shields.io/github/go-mod/go-version/issue9/web)
+![License](https://img.shields.io/github/license/issue9/web)
 ======
 
 gobuild 是一个简单的 Go 代码热编译工具。
@@ -50,8 +51,8 @@ gobuild -main=main.go ~/Go/src/github.com/issue9/term
 macOS 和 linux 用户可以直接使用 brew 进行安装：
 
 ```shell
-brew tap caixw/caixw
-brew install caixw/caixw/gobuild
+brew tap caixw/brew
+brew install caixw/brew/gobuild
 ```
 
 常用平台可以从 <https://github.com/caixw/gobuild/releases> 下载，并将二进制文件放入 `PATH` 即可。
