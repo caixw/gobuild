@@ -30,7 +30,7 @@ builds:
   - -trimpath
 
   ldflags:
-  - -s -w -X main.commitHash={{.FullCommit}} main.version={{.Tag}} -X main.buildDate={{time "20060102"}}
+  - -s -w -X main.commitHash={{.FullCommit}} -X main.version={{.Tag}} -X main.buildDate={{time "20060102"}}
 
 brews:
 - tap:
