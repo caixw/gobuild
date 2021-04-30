@@ -17,13 +17,11 @@ import (
 	"github.com/caixw/gobuild"
 )
 
-const mainVersion = "0.9.4"
-
 // 与版号相关的变量
 var (
 	buildDate  string // 由链接器提供此值
 	commitHash string // 由链接器提供此值
-	version    = mainVersion
+	version    = "0.9.6"
 )
 
 func init() {
