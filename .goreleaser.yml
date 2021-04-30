@@ -35,7 +35,7 @@ builds:
 brews:
 - tap:
     owner: caixw
-    name: homebrew-caixw
+    name: homebrew-brew
   url_template: "https://github.com/caixw/gobuild/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
   commit_author:
