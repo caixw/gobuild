@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 )
 
 func TestLogs(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 	erro := new(bytes.Buffer)
 	out := new(bytes.Buffer)
 

@@ -239,7 +239,7 @@ func (b *builder) watch(ctx context.Context, watcher *fsnotify.Watcher) {
 				continue
 			}
 
-			if time.Now().Sub(buildTime) <= b.watcherFreq { // 已经记录
+			if time.Since(buildTime) <= b.watcherFreq { // 已经记录
 				b.log(LogTypeIgnore, "watcher.Events:该监控事件被忽略:", event)
 				continue
 			}

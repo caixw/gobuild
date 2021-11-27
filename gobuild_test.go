@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 )
 
 func TestBuild(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	opt := &Options{Dirs: []string{"./testdir"}}
 	a.NotError(opt.sanitize())
@@ -28,7 +28,7 @@ func TestBuild(t *testing.T) {
 }
 
 func TestOptions_newBuilder(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	opt := &Options{Dirs: []string{"./"}}
 	a.NotError(opt.sanitize())

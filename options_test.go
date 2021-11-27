@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 )
 
 func TestOptions_sanitize(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	opt := &Options{}
 	a.Error(opt.sanitize())
@@ -40,7 +40,7 @@ LOOP:
 }
 
 func TestGetExts(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	a.Equal(getExts(""), []string{})
 	a.Equal(getExts(",, ,"), []string{})
@@ -50,7 +50,7 @@ func TestGetExts(t *testing.T) {
 }
 
 func TestGetAppName(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 	goexe := os.Getenv("GOEXE")
 
 	name, err := getAppName("", "./testdir")
@@ -64,7 +64,7 @@ func TestGetAppName(t *testing.T) {
 }
 
 func TestRecursivePath(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	paths, err := recursivePaths(false, []string{"./testdir"})
 	a.NotError(err)
@@ -98,7 +98,7 @@ func TestRecursivePath(t *testing.T) {
 }
 
 func TestSplitArgs(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	a.Equal(splitArgs("x=5    y=6"), []string{"x", "5", "y", "6"})
 	a.Equal(splitArgs("xxx=5 -yy=6 -bool"), []string{"xxx", "5", "-yy", "6", "-bool"})
