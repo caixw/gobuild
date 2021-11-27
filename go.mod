@@ -6,4 +6,4 @@ require (
 	github.com/issue9/term/v2 v2.1.5
 )
 
-go 1.13
+go 1.14
