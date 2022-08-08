@@ -20,7 +20,7 @@ const MinWatcherFrequency = 1 * time.Second
 type Options struct {
 	// 指定本地化的输出对象
 	//
-	// 如果为空，可以为空，表示原样输出，不具备本地化的功能。
+	// 如果为空，表示原样输出，不具备本地化的功能。
 	Printer *message.Printer
 
 	// 为 go build 最后的文件参数
