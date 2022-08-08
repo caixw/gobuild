@@ -42,11 +42,11 @@ func newConsoleLogs(showIgnore bool, err, out io.Writer) *ConsoleLogs {
 		Logs:       make(chan *Log, 100),
 		showIgnore: showIgnore,
 		writers: map[int8]*logWriter{
-			LogTypeSuccess: newWriter(out, colors.Green, "[SUCC]"),
-			LogTypeInfo:    newWriter(out, colors.Blue, "[INFO]"),
-			LogTypeWarn:    newWriter(err, colors.Magenta, "[WARN]"),
-			LogTypeError:   newWriter(err, colors.Red, "[ERRO]"),
-			LogTypeIgnore:  newWriter(out, colors.Default, "[IGNO]"),
+			LogTypeSuccess: newWriter(out, colors.Green, "[SUCC] "),
+			LogTypeInfo:    newWriter(out, colors.Blue, "[INFO] "),
+			LogTypeWarn:    newWriter(err, colors.Magenta, "[WARN] "),
+			LogTypeError:   newWriter(err, colors.Red, "[ERRO] "),
+			LogTypeIgnore:  newWriter(out, colors.Default, "[IGNO] "),
 		},
 	}
 

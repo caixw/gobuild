@@ -8,6 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 // MinWatcherFrequency 监视器更新频率的最小值
@@ -15,11 +18,19 @@ const MinWatcherFrequency = 1 * time.Second
 
 // Options 热编译的选项
 type Options struct {
-	// 为 go build 最后的文件参数，可以为空，表示当前目录。
+	// 指定本地化的输出对象
+	//
+	// 如果为空，可以为空，表示原样输出，不具备本地化的功能。
+	Printer *message.Printer
+
+	// 为 go build 最后的文件参数
+	//
+	// 可以为空，表示当前目录。
 	MainFiles string
 
-	// 指定可执行文件输出的文件路径，为空表示默认值，
-	// 若不带路径信息，会附加在 Dirs 的第一个路径上；
+	// 指定可执行文件输出的文件路径
+	//
+	// 为空表示默认值，若不带路径信息，会附加在 Dirs 的第一个路径上；
 	//
 	// windows 系统无须指定 .exe 扩展名，会自行添加。
 	//
@@ -27,14 +38,18 @@ type Options struct {
 	OutputName string
 	appName    string
 
-	// 传递各个工具的参数，大致有以下几个，具体可参考 go build 的 xxflags 系列参数。
+	// 传递各个工具的参数
+	//
+	// 大致有以下几个，具体可参考 go build 的 xxflags 系列参数。
 	//  - asm   --> asmflags
 	//  - gccgo --> gccgoflags
 	//  - gc    --> gcflags
 	//  - ld    --> ldflags
 	Flags map[string]string
 
-	// 指定监视的文件扩展名，为空表示不监视任何文件，* 表示监视所有文件
+	// 指定监视的文件扩展名
+	//
+	// 为空表示不监视任何文件，* 表示监视所有文件
 	Exts string
 	exts []string
 
@@ -45,15 +60,17 @@ type Options struct {
 	// 是否监视子目录
 	Recursive bool
 
-	// 表示需要监视的目录，至少指定一个目录，
-	// 第一个目录被当作主目录，将编译其下的文件作为执行主体。
+	// 表示需要监视的目录
+	//
+	// 至少指定一个目录，第一个目录被当作主目录，将编译其下的文件作为执行主体。
 	//
 	// 如果 OutputName 中未指定目录的话，第一个目录会被当作工作目录使用。
 	Dirs  []string
 	paths []string
 
-	// 监视器的更新频率，只有文件更新的时长超过此值，才会被定义为更新。
-	// 防止文件频繁修改导致的频繁编译调用。
+	// 监视器的更新频率
+	//
+	// 只有文件更新的时长超过此值，才会被定义为更新。防止文件频繁修改导致的频繁编译调用。
 	//
 	// 此值不能小于 MinWatcherFrequency。
 	//
@@ -65,7 +82,11 @@ type Options struct {
 }
 
 func (opt *Options) sanitize() error {
-	if len(opt.Dirs) < 1 {
+	if opt.Printer == nil {
+		opt.Printer = message.NewPrinter(language.Und)
+	}
+
+	if len(opt.Dirs) == 0 {
 		return errors.New("参数 dir 至少指定一个")
 	}
 	wd, err := filepath.Abs(opt.Dirs[0])

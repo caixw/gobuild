@@ -15,7 +15,8 @@ func TestOptions_sanitize(t *testing.T) {
 	a := assert.New(t, false)
 
 	opt := &Options{}
-	a.Error(opt.sanitize())
+	a.Error(opt.sanitize()).
+		NotNil(opt.Printer)
 
 	opt.Dirs = []string{"./"}
 	a.NotError(opt.sanitize()).
