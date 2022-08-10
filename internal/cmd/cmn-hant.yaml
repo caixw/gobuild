@@ -47,45 +47,38 @@ messages:
   message:
     msg: 獲取本地環境出錯：%s
 
-- key: >
-    gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
-
-    命令行语法：
-    gobuild [options] [dependents]
-
-    options:
-
-    %s
-
-    dependents:
-      指定其它依赖的目录，只能出现在命令的尾部。
-
-
-    常见用法:
-
-    gobuild
-      监视当前目录，若有变动，则重新编译当前目录下的 *.go 文件；
-
-    gobuild -main=main.go
-      监视当前目录，若有变动，则重新编译当前目录下的 main.go 文件；
-
-    gobuild -main="main.go" dir1 dir2
-      监视当前目录及 dir1 和 dir2，若有变动，则重新编译当前目录下的 main.go 文件；
-
-
-    NOTE: 不会监视隐藏文件和隐藏目录下的文件。
-
-    源代码采用 MIT 开源许可证，并发布于 https://github.com/caixw/gobuild
+- key: 显示帮助信息
   message:
-    msg: >
+    msg: 顯示幫助信息
+
+- key: 显示版本信息
+  message:
+    msg: 顯示版本信息
+
+- key: 未指定模块名称
+  message:
+    msg: 未指定模塊名稱
+
+- key: 未找到子命令 %s
+  message:
+    msg: 未找到子命令 %s
+
+- key: gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
+  message:
+    msg: |
       gobuild 是 Go 的熱編譯工具，監視文件變化，並編譯和運行程序。
 
-      命令行語法：
-      gobuild [options] [dependents]
+- key: 源代码采用 MIT 开源许可证，并发布于 %s
+  message:
+    msg: 源代碼採用 MIT 開源許可證發佈於 %s
 
-      options:
+- key: 热编译代码
+  message:
+    msg: |
+      熱編譯代碼
 
-      %s
+      語法：
+      gobuild watch [options] [dependents]
 
       dependents:
         指定其它依賴的目錄，只能出現在命令的尾部。
@@ -93,16 +86,33 @@ messages:
 
       常見用法:
 
-      gobuild
+      gobuild watch
         監視當前目錄，若有變動，則重新編譯當前目錄下的 *.go 文件；
 
-      gobuild -main=main.go
+      gobuild watch -main=main.go
         監視當前目錄，若有變動，則重新編譯當前目錄下的 main.go 文件；
 
-      gobuild -main="main.go" dir1 dir2
+      gobuild watch -main="main.go" dir1 dir2
         監視當前目錄及 dir1 和 dir2，若有變動，則重新編譯當前目錄下的 main.go 文件；
-
 
       NOTE: 不會監視隱藏文件和隱藏目錄下的文件。
 
-      源代碼采用 MIT 開源許可證，並發布於 https://github.com/caixw/gobuild
+- key: 包含的子命令：
+  message:
+    msg: 包含的子命令：
+
+- key: 可用选项：
+  message:
+    msg: 可用選項：
+
+- key: 初始化项目
+  message:
+    msg: |
+      初始化項目
+
+      語法：
+      gobuild init {mod}
+
+      mod
+        為 go.mod 中的模塊名稱，其最後一個目錄元素也將作為文件名稱在當前目錄下創建，
+        同時還會創建 go.mod 文件和 .gobuild.yaml 文件，以及在 cmd 子目錄的程序入口 main 方法。

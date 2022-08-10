@@ -3,100 +3,41 @@
 package cmd
 
 import (
-	"bytes"
-	"context"
-	"flag"
-	"fmt"
+	"embed"
 	"os"
-	"runtime"
-	"strings"
-	"time"
 
+	"github.com/issue9/cmdopt"
 	"github.com/issue9/localeutil"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
 	"gopkg.in/yaml.v3"
 
-	"github.com/caixw/gobuild"
-	"github.com/caixw/gobuild/internal/local"
 	"github.com/caixw/gobuild/locales"
-	"github.com/caixw/gobuild/log"
 )
 
-// 与版号相关的变量
-var (
-	buildDate  string // 由链接器提供此值
-	commitHash string // 由链接器提供此值
-	version    = "0.10.0"
-)
+//go:embed *.yaml
+var localeFS embed.FS
 
-func init() {
-	if len(buildDate) > 0 {
-		version += ("+" + buildDate)
-	}
+const url = "https://github.com/caixw/gobuild"
 
-	if commitHash != "" {
-		version += ("." + commitHash)
-	}
-}
-
-func Exec() {
+func Exec() error {
 	p := getPrinter()
-
-	var showHelp, showVersion, showIgnore bool
-	var exts string
-	var freq int
-	opt := &gobuild.WatchOptions{Printer: p}
-
-	flag.BoolVar(&showHelp, "h", false, p.Sprintf("显示帮助信息"))
-	flag.BoolVar(&showVersion, "v", false, p.Sprintf("显示版本号"))
-	flag.BoolVar(&opt.Recursive, "r", true, p.Sprintf("是否查找子目录"))
-	flag.BoolVar(&showIgnore, "i", false, p.Sprintf("是否显示被标记为 IGNORE 的日志内容"))
-	flag.StringVar(&opt.OutputName, "o", "", p.Sprintf("指定输出名称，程序的工作目录随之改变"))
-	flag.StringVar(&opt.AppArgs, "x", "", p.Sprintf("传递给编译程序的参数"))
-	flag.IntVar(&freq, "freq", 1, p.Sprintf("监视器的更新频率"))
-	flag.StringVar(&exts, "ext", "go", p.Sprintf("指定监视的文件扩展，区分大小写"))
-	flag.StringVar(&opt.MainFiles, "main", "", p.Sprintf("指定需要编译的文件"))
-	flag.Usage = func() {
-		bs := &bytes.Buffer{}
-		flag.CommandLine.SetOutput(bs)
-		flag.PrintDefaults()
-		fmt.Fprintln(os.Stdout, p.Sprintf(usage, bs.String()))
-	}
-	flag.Parse()
-	opt.Exts = strings.Split(exts, ",")
-	opt.WatcherFrequency = time.Duration(freq) * time.Second
-
-	switch {
-	case showHelp:
-		flag.Usage()
-		return
-	case showVersion:
-		fmt.Fprintf(os.Stdout, "gobuild %s build with %s\n", version, runtime.Version())
-		if v, err := local.GoVersion(); err != nil {
-			fmt.Fprintln(os.Stdout, p.Sprintf("获取本地环境出错：%s", err.Error()))
-		} else {
-			fmt.Fprintln(os.Stdout, p.Sprintf("本地环境 %s", v))
-		}
-		return
+	o := &cmdopt.CmdOpt{
+		Output:        os.Stdout,
+		Header:        p.Sprintf("gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。"),
+		Footer:        p.Sprintf("源代码采用 MIT 开源许可证，并发布于 %s", url),
+		CommandsTitle: p.Sprintf("包含的子命令："),
+		OptionsTitle:  p.Sprintf("可用选项："),
+		NotFound: func(string) string {
+			return p.Sprintf("未找到子命令 %s")
+		},
 	}
 
-	if flag.NArg() == 0 {
-		wd, err := os.Getwd()
-		if err != nil {
-			panic(err)
-		}
-		opt.Dirs = []string{wd}
-	} else {
-		opt.Dirs = flag.Args()
-	}
-
-	logs := log.NewConsole(showIgnore)
-	defer logs.Stop()
-
-	if err := gobuild.Watch(context.Background(), logs.Logs, opt); err != nil {
-		panic(err)
-	}
+	initVersion(o, p)
+	initWatch(o, p)
+	initInit(o, p)
+	o.Help("help", p.Sprintf("显示帮助信息"))
+	return o.Exec(os.Args[1:])
 }
 
 func getPrinter() *message.Printer {

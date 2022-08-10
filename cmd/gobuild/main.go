@@ -10,5 +10,7 @@ package main
 import "github.com/caixw/gobuild/internal/cmd"
 
 func main() {
-	cmd.Exec()
+	if err := cmd.Exec(); err != nil {
+		panic(err)
+	}
 }
