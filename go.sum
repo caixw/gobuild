@@ -9,6 +9,8 @@ github.com/issue9/errwrap v0.2.1/go.mod h1:hjjkt9S/owgy48er68ACFfA6YPDO/xax18QE3
 github.com/issue9/localeutil v0.12.2 h1:fSDQtTMlAI/7YHIKfLnu0+keB4niHNaa3LEqOlV7Wls=
 github.com/issue9/localeutil v0.12.2/go.mod h1:YA7O0DLw6ZvH0efBxsBPKvBHnXabaq0tShv3/YVgHEY=
 github.com/issue9/sliceutil v0.7.1/go.mod h1:8e+l2bD67pBUtV8cVnGChE/Ltlq8czcDLR1pOGCC2tE=
+github.com/issue9/source v0.1.2 h1:Y70bsJOy9ks5MjY9O/3UnYsEu0a6lkzVm2AHQsqOl9c=
+github.com/issue9/source v0.1.2/go.mod h1:HPkW33uwl4Kew44lERZ1jzV9Hr+a9Z32IaxgQPJKuPY=
 github.com/issue9/term/v3 v3.0.0 h1:MJ0eavCCqZ9lv2souDyCkSDeVo3XM9auqFVE0s2Esos=
 github.com/issue9/term/v3 v3.0.0/go.mod h1:D/UzioFydVy7DKLRit8ttJdGDkAa1Ni5fA9ZDWVD3lw=
 golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=

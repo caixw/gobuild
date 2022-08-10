@@ -12,7 +12,10 @@ import (
 	"github.com/issue9/assert/v2"
 )
 
-var _ xml.Unmarshaler = &Flags{}
+var (
+	_ xml.Marshaler   = Flags{}
+	_ xml.Unmarshaler = &Flags{}
+)
 
 func TestOptions_sanitize(t *testing.T) {
 	a := assert.New(t, false)
