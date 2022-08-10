@@ -3,7 +3,9 @@
 package watch
 
 import (
+	"encoding/xml"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,15 +20,17 @@ const MinWatcherFrequency = 1 * time.Second
 
 // Options 热编译的选项
 type Options struct {
+	XMLName struct{} `xml:"gobuild" json:"-" yaml:"-"`
+
 	// 指定本地化的输出对象
 	//
 	// 如果为空，表示原样输出，不具备本地化的功能。
-	Printer *message.Printer
+	Printer *message.Printer `xml:"-" json:"-" yaml:"-"`
 
 	// 为 go build 最后的文件参数
 	//
 	// 可以为空，表示当前目录。
-	MainFiles string
+	MainFiles string `xml:"main" json:"main" yaml:"main"`
 
 	// 指定可执行文件输出的文件路径
 	//
@@ -35,7 +39,7 @@ type Options struct {
 	// windows 系统无须指定 .exe 扩展名，会自行添加。
 	//
 	// 如果带路径信息，则会使用该文件所在目录作为工作目录。
-	OutputName string
+	OutputName string `xml:"output" json:"output" yaml:"output"`
 	appName    string
 
 	// 传递各个工具的参数
@@ -45,27 +49,26 @@ type Options struct {
 	//  - gccgo --> gccgoflags
 	//  - gc    --> gcflags
 	//  - ld    --> ldflags
-	Flags map[string]string
+	Flags Flags `xml:"flags" json:"flags" yaml:"flags"`
 
 	// 指定监视的文件扩展名
 	//
-	// 为空表示不监视任何文件，* 表示监视所有文件
-	Exts string
-	exts []string
+	// 为空表示不监视任何文件
+	Exts []string `xml:"exts" json:"exts" yaml:"exts"`
 
 	// 传递给编译成功后的程序的参数
-	AppArgs string
+	AppArgs string `xml:"args" yaml:"args" json:"args"`
 	appArgs []string
 
 	// 是否监视子目录
-	Recursive bool
+	Recursive bool `xml:"recursive" yaml:"recursive" json:"recursive"`
 
 	// 表示需要监视的目录
 	//
 	// 至少指定一个目录，第一个目录被当作主目录，将编译其下的文件作为执行主体。
 	//
 	// 如果 OutputName 中未指定目录的话，第一个目录会被当作工作目录使用。
-	Dirs  []string
+	Dirs  []string `xml:"dirs" yaml:"dirs" json:"dirs"`
 	paths []string
 
 	// 监视器的更新频率
@@ -75,10 +78,32 @@ type Options struct {
 	// 此值不能小于 MinWatcherFrequency。
 	//
 	// 默认值为 MinWatcherFrequency 表示的值。
-	WatcherFrequency time.Duration
+	WatcherFrequency time.Duration `xml:"freq" yaml:"freq" json:"freq"`
 
 	// 传递给 go 命令的参数
 	goCmdArgs []string
+}
+
+type Flags map[string]string
+
+type xmlFlagEntry struct {
+	XMLName xml.Name
+	Value   string `xml:",chardata"`
+}
+
+func (f *Flags) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
+	*f = Flags{}
+
+	for {
+		e := xmlFlagEntry{}
+		if err := d.Decode(&e); err == io.EOF {
+			break
+		} else if err != nil {
+			return err
+		}
+		(*f)[e.XMLName.Local] = e.Value
+	}
+	return nil
 }
 
 func (opt *Options) sanitize() error {
@@ -99,7 +124,7 @@ func (opt *Options) sanitize() error {
 		return err
 	}
 
-	opt.exts = getExts(opt.Exts)
+	opt.sanitizeExts()
 
 	opt.appArgs = splitArgs(opt.AppArgs)
 
@@ -127,24 +152,20 @@ func (opt *Options) sanitize() error {
 	return nil
 }
 
-// 将 extString 分解成数组，并清理掉无用的内容，比如空字符串
-func getExts(extString string) []string {
-	exts := strings.Split(extString, ",")
-	ret := make([]string, 0, len(exts))
-
-	for _, ext := range exts {
+func (opt *Options) sanitizeExts() {
+	exts := make([]string, 0, len(opt.Exts))
+	for _, ext := range opt.Exts {
 		ext = strings.TrimSpace(ext)
-
 		if len(ext) == 0 {
 			continue
 		}
+
 		if ext[0] != '.' {
 			ext = "." + ext
 		}
-		ret = append(ret, ext)
+		exts = append(exts, ext)
 	}
-
-	return ret
+	opt.Exts = exts
 }
 
 func getAppName(outputName, wd string) (string, error) {

@@ -83,3 +83,7 @@ messages:
 - key: watcher.Errors：%s
   message:
     msg: 监视器错误：%s
+
+- key: context canceled
+  message:
+    msg: 用户取消

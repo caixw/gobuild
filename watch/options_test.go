@@ -3,6 +3,7 @@
 package watch
 
 import (
+	"encoding/xml"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/issue9/assert/v2"
 )
+
+var _ xml.Unmarshaler = &Flags{}
 
 func TestOptions_sanitize(t *testing.T) {
 	a := assert.New(t, false)
@@ -40,14 +43,16 @@ LOOP:
 	}
 }
 
-func TestGetExts(t *testing.T) {
+func TestOptions_sanitizeExts(t *testing.T) {
 	a := assert.New(t, false)
 
-	a.Equal(getExts(""), []string{})
-	a.Equal(getExts(",, ,"), []string{})
-	a.Equal(getExts(",.go, ,.php,"), []string{".go", ".php"})
-	a.Equal(getExts(",go,.php,"), []string{".go", ".php"})
-	a.Equal(getExts(",go , .php,"), []string{".go", ".php"})
+	opt := &Options{}
+	opt.sanitizeExts()
+	a.Empty(opt.Exts)
+
+	opt = &Options{Exts: []string{".go", " ", "java", " .php"}}
+	opt.sanitizeExts()
+	a.Equal(opt.Exts, []string{".go", ".java", ".php"})
 }
 
 func TestGetAppName(t *testing.T) {

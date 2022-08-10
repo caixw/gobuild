@@ -33,7 +33,7 @@ type builder struct {
 
 func (opt *Options) newBuilder(logs chan<- *log.Log) (*builder, error) {
 	b := &builder{
-		exts:        opt.exts,
+		exts:        opt.Exts,
 		appName:     opt.appName,
 		wd:          filepath.Dir(opt.appName),
 		appArgs:     opt.appArgs,
