@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-package gobuild
+// Package log 输出的日志管理
+package log
 
 import (
 	"io"
@@ -9,44 +10,43 @@ import (
 	"github.com/issue9/term/v3/colors"
 )
 
-// Log 日志类型
+// 日志类型
+const (
+	Success int8 = iota
+	Info
+	Warn
+	Error
+	Ignore
+)
+
 type Log struct {
 	Type    int8
 	Message string
 }
 
-// 日志类型
-const (
-	LogTypeSuccess int8 = iota
-	LogTypeInfo
-	LogTypeWarn
-	LogTypeError
-	LogTypeIgnore
-)
-
-// ConsoleLogs 将日志输出到控制台
-type ConsoleLogs struct {
+// Console 将日志输出到控制台
+type Console struct {
 	Logs       chan *Log
 	showIgnore bool
 	writers    map[int8]*logWriter
 	stop       chan struct{}
 }
 
-// NewConsoleLogs 声明 ConsoleLogs 实例
-func NewConsoleLogs(showIgnore bool) *ConsoleLogs {
+// NewConsole 声明 ConsoleLogs 实例
+func NewConsole(showIgnore bool) *Console {
 	return newConsoleLogs(showIgnore, os.Stderr, os.Stdout)
 }
 
-func newConsoleLogs(showIgnore bool, err, out io.Writer) *ConsoleLogs {
-	logs := &ConsoleLogs{
+func newConsoleLogs(showIgnore bool, err, out io.Writer) *Console {
+	logs := &Console{
 		Logs:       make(chan *Log, 100),
 		showIgnore: showIgnore,
 		writers: map[int8]*logWriter{
-			LogTypeSuccess: newWriter(out, colors.Green, "[SUCC] "),
-			LogTypeInfo:    newWriter(out, colors.Blue, "[INFO] "),
-			LogTypeWarn:    newWriter(err, colors.Magenta, "[WARN] "),
-			LogTypeError:   newWriter(err, colors.Red, "[ERRO] "),
-			LogTypeIgnore:  newWriter(out, colors.Default, "[IGNO] "),
+			Success: newWriter(out, colors.Green, "[SUCC] "),
+			Info:    newWriter(out, colors.Blue, "[INFO] "),
+			Warn:    newWriter(err, colors.Magenta, "[WARN] "),
+			Error:   newWriter(err, colors.Red, "[ERRO] "),
+			Ignore:  newWriter(out, colors.Default, "[IGNO] "),
 		},
 	}
 
@@ -56,15 +56,13 @@ func newConsoleLogs(showIgnore bool, err, out io.Writer) *ConsoleLogs {
 }
 
 // Stop 停止输出
-func (logs *ConsoleLogs) Stop() {
-	logs.stop <- struct{}{}
-}
+func (logs *Console) Stop() { logs.stop <- struct{}{} }
 
-func (logs *ConsoleLogs) output() {
+func (logs *Console) output() {
 	for {
 		select {
 		case log := <-logs.Logs:
-			if !logs.showIgnore && log.Type == LogTypeIgnore {
+			if !logs.showIgnore && log.Type == Ignore {
 				continue
 			}
 
@@ -77,7 +75,7 @@ func (logs *ConsoleLogs) output() {
 	}
 }
 
-// 带色彩输出的控制台。
+// 带色彩输出的控制台
 type logWriter struct {
 	out    io.Writer
 	color  colors.Color

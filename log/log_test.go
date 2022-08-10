@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-package gobuild
+package log
 
 import (
 	"bytes"
@@ -18,14 +18,14 @@ func TestLogs(t *testing.T) {
 	logs := newConsoleLogs(true, erro, out)
 	a.NotNil(logs)
 
-	logs.Logs <- &Log{Type: LogTypeError, Message: "error"}
+	logs.Logs <- &Log{Type: Error, Message: "error"}
 	time.Sleep(300 * time.Microsecond)
 	a.NotEmpty(erro.String())
 	a.Empty(out.String())
 
 	erro.Reset()
 	out.Reset()
-	logs.Logs <- &Log{Type: LogTypeIgnore, Message: "message"}
+	logs.Logs <- &Log{Type: Ignore, Message: "message"}
 	time.Sleep(300 * time.Microsecond)
 	a.Empty(erro.String())
 	a.NotEmpty(out.String())
@@ -35,7 +35,7 @@ func TestLogs(t *testing.T) {
 	out.Reset()
 	logs = newConsoleLogs(false, erro, out)
 	a.NotNil(logs)
-	logs.Logs <- &Log{Type: LogTypeIgnore, Message: "message"}
+	logs.Logs <- &Log{Type: Ignore, Message: "message"}
 	time.Sleep(300 * time.Microsecond)
 	a.Empty(out.String())
 }

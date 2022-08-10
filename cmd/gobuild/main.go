@@ -23,6 +23,7 @@ import (
 
 	"github.com/caixw/gobuild"
 	"github.com/caixw/gobuild/locales"
+	"github.com/caixw/gobuild/log"
 )
 
 const usage = `gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
@@ -86,7 +87,7 @@ func main() {
 	p := message.NewPrinter(tag, message.Catalog(c))
 
 	var showHelp, showVersion, showIgnore bool
-	opt := &gobuild.Options{Printer: p}
+	opt := &gobuild.WatchOptions{Printer: p}
 
 	flag.BoolVar(&showHelp, "h", false, p.Sprintf("显示帮助信息"))
 	flag.BoolVar(&showVersion, "v", false, p.Sprintf("显示版本号"))
@@ -124,10 +125,10 @@ func main() {
 		opt.Dirs = flag.Args()
 	}
 
-	logs := gobuild.NewConsoleLogs(showIgnore)
+	logs := log.NewConsole(showIgnore)
 	defer logs.Stop()
 
-	if err := gobuild.Build(context.Background(), logs.Logs, opt); err != nil {
+	if err := gobuild.Watch(context.Background(), logs.Logs, opt); err != nil {
 		panic(err)
 	}
 }
