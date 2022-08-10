@@ -59,6 +59,10 @@ messages:
   message:
     msg: 未指定模塊名稱
 
+- key: 显示完整的版本号
+  message:
+    msg: 顯示完整的版本號
+
 - key: 未找到子命令 %s
   message:
     msg: 未找到子命令 %s

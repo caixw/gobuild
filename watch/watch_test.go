@@ -19,10 +19,12 @@ func TestWatch(t *testing.T) {
 	a.NotError(opt.sanitize())
 
 	logs := log.NewConsole(true)
+	defer logs.Stop()
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	go func() {
-		a.Equal(Watch(ctx, logs.Logs, opt), context.Canceled)
+		a.NotError(Watch(ctx, logs.Logs, opt))
 	}()
 	cancel()
 	time.Sleep(500 * time.Microsecond) // 等待完成

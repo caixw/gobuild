@@ -60,6 +60,10 @@ messages:
   message:
     msg: 未指定模块名称
 
+- key: 显示完整的版本号
+  message:
+    msg: 显示完整的版本号
+
 - key: 未找到子命令 %s
   message:
     msg: 未找到子命令 %s
