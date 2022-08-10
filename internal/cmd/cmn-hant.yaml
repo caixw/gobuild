@@ -1,40 +1,44 @@
 
 languages:
-- cmn-hans
-- und
+- cmn-hant
 
 messages:
 - key: 显示帮助信息
   message:
-    msg: 显示帮助信息
+    msg: 顯示幫助信息
 
 - key: 显示版本号
   message:
-    msg: 显示版本号
+    msg: 顯示版本號
 
 - key: 是否查找子目录
   message:
-    msg: 是否监视子目录
+    msg: 是否監視子目錄
 
 - key: 是否显示被标记为 IGNORE 的日志内容
   message:
-    msg: 是否显示不重要的提示信息
+    msg: 是否顯示不重要的提示信息
 
 - key: 指定输出名称，程序的工作目录随之改变
   message:
-    msg: 指定输出名称，程序的工作目录随之改变
+    msg: 指定輸出名稱，程序的工作目錄隨之改變
 
 - key: 传递给编译程序的参数
   message:
-    msg: 传递给编译程序的参数
+    msg: 傳遞給編譯程序的參數
 
-- key: 指定监视的文件扩展，区分大小写。* 表示监视所有类型文件，空值代表不监视任何文件
+- key: 指定监视的文件扩展，区分大小写
   message:
-    msg: 指定监视的文件扩展，区分大小写。* 表示监视所有类型文件，空值代表不监视任何文件
+    msg: 指定監視的文件擴展，區分大小寫。* 表示監視所有類型文件，空值代表不監視任何文件
 
 - key: 指定需要编译的文件
   message:
-    msg: 指定需要编译的文件
+    msg: 指定需要編譯的文件
+
+- key: 监视器的更新频率
+  message:
+    msg: 監視器的更新頻率，單位為秒
+
 
 - key: >
     gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
@@ -67,9 +71,9 @@ messages:
     源代码采用 MIT 开源许可证，并发布于 https://github.com/caixw/gobuild
   message:
     msg: >
-      gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
+      gobuild 是 Go 的熱編譯工具，監視文件變化，並編譯和運行程序。
 
-      命令行语法：
+      命令行語法：
       gobuild [options] [dependents]
 
       options:
@@ -77,21 +81,21 @@ messages:
       %s
 
       dependents:
-        指定其它依赖的目录，只能出现在命令的尾部。
+        指定其它依賴的目錄，只能出現在命令的尾部。
 
 
-      常见用法:
+      常見用法:
 
       gobuild
-        监视当前目录，若有变动，则重新编译当前目录下的 *.go 文件；
+        監視當前目錄，若有變動，則重新編譯當前目錄下的 *.go 文件；
 
       gobuild -main=main.go
-        监视当前目录，若有变动，则重新编译当前目录下的 main.go 文件；
+        監視當前目錄，若有變動，則重新編譯當前目錄下的 main.go 文件；
 
       gobuild -main="main.go" dir1 dir2
-        监视当前目录及 dir1 和 dir2，若有变动，则重新编译当前目录下的 main.go 文件；
+        監視當前目錄及 dir1 和 dir2，若有變動，則重新編譯當前目錄下的 main.go 文件；
 
 
-      NOTE: 不会监视隐藏文件和隐藏目录下的文件。
+      NOTE: 不會監視隱藏文件和隱藏目錄下的文件。
 
-      源代码采用 MIT 开源许可证，并发布于 https://github.com/caixw/gobuild
+      源代碼采用 MIT 開源許可證，並發布於 https://github.com/caixw/gobuild
