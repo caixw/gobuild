@@ -23,7 +23,7 @@ type builder struct {
 	appCmd      *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
 	appArgs     []string  // 传递给 appCmd 的参数
 	goCmdArgs   []string  // 传递给 go build 的参数
-	logs        chan *Log
+	logs        chan<- *Log
 	watcherFreq time.Duration
 	p           *message.Printer
 
@@ -34,7 +34,7 @@ type builder struct {
 }
 
 // Build 执行热编译服务
-func Build(ctx context.Context, logs chan *Log, opt *Options) error {
+func Build(ctx context.Context, logs chan<- *Log, opt *Options) error {
 	if err := opt.sanitize(); err != nil {
 		return err
 	}
@@ -71,9 +71,9 @@ func Build(ctx context.Context, logs chan *Log, opt *Options) error {
 	return context.Canceled
 }
 
-func (opt *Options) newBuilder(logs chan *Log) (*builder, error) {
+func (opt *Options) newBuilder(logs chan<- *Log) (*builder, error) {
 	b := &builder{
-		exts:        opt.exts,
+		exts:        opt.Exts,
 		appName:     opt.appName,
 		wd:          filepath.Dir(opt.appName),
 		appArgs:     opt.appArgs,

@@ -77,7 +77,7 @@ func (logs *ConsoleLogs) output() {
 	}
 }
 
-// 带色彩输出的控制台。
+// 带色彩输出的控制台
 type logWriter struct {
 	out    io.Writer
 	color  colors.Color
