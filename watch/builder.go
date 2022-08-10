@@ -3,7 +3,6 @@
 package watch
 
 import (
-	"bytes"
 	"context"
 	"os"
 	"os/exec"
@@ -14,6 +13,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"golang.org/x/text/message"
 
+	"github.com/caixw/gobuild/internal/local"
 	"github.com/caixw/gobuild/log"
 )
 
@@ -43,13 +43,11 @@ func (opt *Options) newBuilder(logs chan<- *log.Log) (*builder, error) {
 		p:           opt.Printer,
 	}
 
-	var buf bytes.Buffer
-	cmd := exec.Command("go", "version")
-	cmd.Stdout = &buf
-	if err := cmd.Run(); err != nil {
+	v, err := local.GoVersion()
+	if err != nil {
 		return nil, err
 	}
-	b.env = strings.TrimSpace(strings.TrimPrefix(buf.String(), "go version "))
+	b.env = v
 	return b, nil
 }
 

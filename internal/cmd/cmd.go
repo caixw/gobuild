@@ -18,6 +18,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/caixw/gobuild"
+	"github.com/caixw/gobuild/internal/local"
 	"github.com/caixw/gobuild/locales"
 	"github.com/caixw/gobuild/log"
 )
@@ -71,8 +72,12 @@ func Exec() {
 		flag.Usage()
 		return
 	case showVersion:
-		fmt.Fprintln(os.Stdout, "gobuild", version)
-		fmt.Fprintln(os.Stdout, "build with", runtime.Version())
+		fmt.Fprintf(os.Stdout, "gobuild %s build with %s\n", version, runtime.Version())
+		if v, err := local.GoVersion(); err != nil {
+			fmt.Fprintln(os.Stdout, p.Sprintf("获取本地环境出错：%s", err.Error()))
+		} else {
+			fmt.Fprintln(os.Stdout, p.Sprintf("本地环境 %s", v))
+		}
 		return
 	}
 
