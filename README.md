@@ -10,9 +10,12 @@ gobuild 是一个简单的 Go 代码热编译工具。
 
 ## 命令行语法:
 
-主要包含了 watch 和 init 两个子命令。
+主要包含了 watch 和 init 两个子命令。具体的子命令可以通过 `gobuild help` 查看。
 
 ### init
+
+初始化项目，添加项目的必备的文件，比如热编译的配置文件 `.gobuild.yaml`。
+如果是空目录，还会顺带初始化 `go.mod` 等文件。
 
 ```shell
 gobuild init github.com/owner/mod
@@ -20,35 +23,27 @@ gobuild init github.com/owner/mod
 
 ### watch
 
-```shell
-gobuild watch [options] [dependents]
-
-options:
- -h    显示当前帮助信息；
- -v    显示 gobuild 和 Go 程序的版本信息；
- -r    是否搜索子目录，默认为 true；
- -i    是否显示被标记为 IGNORE 的日志内容，默认为 false，即不显示；
- -o    执行编译后的可执行文件名；
- -x    传递给编译程序的参数；
- -ext  需要监视的扩展名，默认值为"go"，区分大小写，会去掉每个扩展名的首尾空格。
-       若需要监视所有类型文件，请使用 *，传递空值代表不监视任何文件；
- -main 指定需要编译的文件，默认为""。
-
-dependents:
- 指定其它依赖的目录，只能出现在命令的尾部。
-```
-
-#### 常见用法:
+监视文件并进行热编译，热编译的配置项从当前目录下的 `.gobuild.yaml` 加载。
 
 ```shell
-# 监视当前目录下的文件，若发生变化，则触发 go build -main="*.go"
-gobuild
-
-# 监视当前目录和 ~/Go/src/github.com/issue9/term 目录下的文件，
-# 若发生变化，则触发 go build -main="main.go"
-gobuild -main=main.go ~/Go/src/github.com/issue9/term
+gobuild watch [options]
 ```
 
+#### 配置文件
+
+配置文件为当前目录下的 .gobuild.yaml：
+
+ 字段       | 类型         | 描述
+------------|--------------|-------------------------------------
+ main       | string       | 指定需要编译的文件，如果为空表示当前目录。
+ output     | string       | 指定可执行文件输出的文件路径
+ flags      | map          | 指定可执行文件输出的文件路径
+ exts       | []string     | 指定监视的文件扩展名
+ args       | string       | 传递给编译成功后的程序的参数
+ recursive  | bool         | 是否监视子目录
+ dirs       | dirs         | 表示需要监视的目录
+ freq       | duration     | 监视器的更新频率
+ 
 ## 支持平台
 
 平台支持依赖 [colors](https://github.com/issue9/term) 与 [fsnotify](https://github.com/fsnotify/fsnotify) 两个模块，

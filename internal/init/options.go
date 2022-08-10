@@ -13,7 +13,7 @@ import (
 	"github.com/caixw/gobuild/watch"
 )
 
-const optionsFilename = ".gobuild.yaml"
+const ConfigFilename = ".gobuild.yaml"
 
 func initOptions(wd, base string) error {
 	dir := path.Join(binBaseDir, base)
@@ -29,5 +29,5 @@ func initOptions(wd, base string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(wd, optionsFilename), data, fs.ModePerm)
+	return os.WriteFile(filepath.Join(wd, ConfigFilename), data, fs.ModePerm)
 }

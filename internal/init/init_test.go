@@ -21,7 +21,7 @@ func TestInit(t *testing.T) {
 	a.Run("正常创建", func(a *assert.Assertion) {
 		a.NotError(Init("testdir/mod2", "mod"))
 		a.FileExists("testdir/mod2/mod/go.mod")
-		a.FileExists(filepath.Join("testdir/mod2/mod/", optionsFilename))
+		a.FileExists(filepath.Join("testdir/mod2/mod/", ConfigFilename))
 		a.FileExists(filepath.Join("testdir/mod2/mod/", binBaseDir, "mod/main.go"))
 		os.RemoveAll("testdir/mod2/mod")
 	})
@@ -29,8 +29,8 @@ func TestInit(t *testing.T) {
 	a.Run("仅创建.gobuild.yaml", func(a *assert.Assertion) {
 		a.NotError(Init("testdir", "mod3"))
 		a.FileNotExists("testdir/mod3/go.mod")
-		a.FileExists(filepath.Join("testdir/mod3", optionsFilename))
+		a.FileExists(filepath.Join("testdir/mod3", ConfigFilename))
 		a.FileNotExists(filepath.Join("testdir/mod3/", binBaseDir, "mod/main.go"))
-		os.RemoveAll(filepath.Join("testdir/mod3", optionsFilename))
+		os.RemoveAll(filepath.Join("testdir/mod3", ConfigFilename))
 	})
 }

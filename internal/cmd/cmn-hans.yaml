@@ -12,33 +12,9 @@ messages:
   message:
     msg: 显示版本号
 
-- key: 是否查找子目录
-  message:
-    msg: 是否监视子目录
-
 - key: 是否显示被标记为 IGNORE 的日志内容
   message:
     msg: 是否显示不重要的提示信息
-
-- key: 指定输出名称，程序的工作目录随之改变
-  message:
-    msg: 指定输出名称，程序的工作目录随之改变
-
-- key: 传递给编译程序的参数
-  message:
-    msg: 传递给编译程序的参数
-
-- key: 指定监视的文件扩展，区分大小写
-  message:
-    msg: 指定监视的文件扩展，区分大小写。* 表示监视所有类型文件，空值代表不监视任何文件
-
-- key: 指定需要编译的文件
-  message:
-    msg: 指定需要编译的文件
-
-- key: 监视器的更新频率
-  message:
-    msg: 监视器的更新频率，单位为秒
 
 - key: 本地环境 %s
   message:
@@ -50,11 +26,13 @@ messages:
 
 - key: 显示帮助信息
   message:
-    msg: 显示帮助信息
+    msg: |
+      显示帮助信息
 
 - key: 显示版本信息
   message:
-    msg: 显示版本信息
+    msg: |
+      显示版本信息
 
 - key: 未指定模块名称
   message:
@@ -75,32 +53,19 @@ messages:
 
 - key: 源代码采用 MIT 开源许可证，并发布于 %s
   message:
-    msg: 源代码采用 MIT 开源许可证发布于 %s
+    msg: |
+      源代码采用 MIT 开源许可证发布于 %s
 
 - key: 热编译代码
   message:
     msg: |
       热编译代码
 
+      根据当前目录下的 .gobuild.yaml 初始化热编译监视器，
+      对代码进行热编译，不会监视隐藏文件和隐藏目录下的文件。
+
       语法：
-      gobuild watch [options] [dependents]
-
-      dependents:
-        指定其它依赖的目录，只能出现在命令的尾部。
-
-
-      常见用法:
-
-      gobuild watch
-        监视当前目录，若有变动，则重新编译当前目录下的 *.go 文件；
-
-      gobuild watch -main=main.go
-        监视当前目录，若有变动，则重新编译当前目录下的 main.go 文件；
-
-      gobuild watch -main="main.go" dir1 dir2
-        监视当前目录及 dir1 和 dir2，若有变动，则重新编译当前目录下的 main.go 文件；
-
-      NOTE: 不会监视隐藏文件和隐藏目录下的文件。
+      gobuild watch {options}
 
 - key: 包含的子命令：
   message:

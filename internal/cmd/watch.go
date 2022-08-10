@@ -7,56 +7,52 @@ import (
 	"flag"
 	"io"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/issue9/cmdopt"
 	"golang.org/x/text/message"
+	"gopkg.in/yaml.v3"
 
 	"github.com/caixw/gobuild"
+	i "github.com/caixw/gobuild/internal/init"
 	"github.com/caixw/gobuild/log"
 )
 
 var (
-	watchFS *flag.FlagSet
-
-	showIgnore bool
-	exts       string
-	freq       int
-	opt        = &gobuild.WatchOptions{}
+	watchFS         *flag.FlagSet
+	watchShowIgnore bool
 )
 
 func initWatch(o *cmdopt.CmdOpt, p *message.Printer) {
 	watchFS = o.New("watch", p.Sprintf("热编译代码"), doWatch(p))
-
-	watchFS.BoolVar(&opt.Recursive, "r", true, p.Sprintf("是否查找子目录"))
-	watchFS.BoolVar(&showIgnore, "i", false, p.Sprintf("是否显示被标记为 IGNORE 的日志内容"))
-	watchFS.StringVar(&opt.OutputName, "o", "", p.Sprintf("指定输出名称，程序的工作目录随之改变"))
-	watchFS.StringVar(&opt.AppArgs, "x", "", p.Sprintf("传递给编译程序的参数"))
-	watchFS.IntVar(&freq, "freq", 1, p.Sprintf("监视器的更新频率"))
-	watchFS.StringVar(&exts, "ext", "go", p.Sprintf("指定监视的文件扩展，区分大小写"))
-	watchFS.StringVar(&opt.MainFiles, "main", "", p.Sprintf("指定需要编译的文件"))
-	opt.Exts = strings.Split(exts, ",")
-	opt.WatcherFrequency = time.Duration(freq) * time.Second
-	opt.Printer = p
-
+	watchFS.BoolVar(&watchShowIgnore, "i", false, p.Sprintf("是否显示被标记为 IGNORE 的日志内容"))
 }
 
 func doWatch(p *message.Printer) cmdopt.DoFunc {
 	return func(w io.Writer) error {
-		if flag.NArg() == 0 {
+		data, err := os.ReadFile(i.ConfigFilename)
+		if err != nil {
+			return err
+		}
+
+		o := &gobuild.WatchOptions{}
+		if err := yaml.Unmarshal(data, o); err != nil {
+			return err
+		}
+		o.Printer = p
+
+		if watchFS.NArg() == 0 {
 			wd, err := os.Getwd()
 			if err != nil {
 				return err
 			}
-			opt.Dirs = []string{wd}
+			o.Dirs = []string{wd}
 		} else {
-			opt.Dirs = flag.Args()
+			o.Dirs = watchFS.Args()
 		}
 
-		logs := log.NewConsole(showIgnore)
+		logs := log.NewConsole(watchShowIgnore)
 		defer logs.Stop()
 
-		return gobuild.Watch(context.Background(), logs.Logs, opt)
+		return gobuild.Watch(context.Background(), logs.Logs, o)
 	}
 }

@@ -37,5 +37,5 @@ func TestWatch(t *testing.T) {
 	cancel()
 	time.Sleep(500 * time.Millisecond) // 等待 cancel 完成
 	<-exit
-	a.NotError(os.Remove("./testdir/outputName"))
+	os.Remove("./testdir/outputName")
 }
