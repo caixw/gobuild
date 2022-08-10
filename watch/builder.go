@@ -3,59 +3,53 @@
 package watch
 
 import (
-	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
 	"golang.org/x/text/message"
 
-	"github.com/caixw/gobuild/internal/local"
 	"github.com/caixw/gobuild/log"
 )
 
 type builder struct {
-	exts        []string  // 需要监视的文件扩展名
-	appName     string    // 输出的程序文件
-	wd          string    // 工作目录
-	appCmd      *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
-	appArgs     []string  // 传递给 appCmd 的参数
-	goCmdArgs   []string  // 传递给 go build 的参数
+	exts        []string // 需要监视的文件扩展名
+	appName     string   // 输出的程序文件
 	logs        chan<- *log.Log
 	watcherFreq time.Duration
 	p           *message.Printer
 
-	env string // 当前系统的环境信息
+	wd      string    // 工作目录
+	appCmd  *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
+	appArgs []string  // 传递给 appCmd 的参数
+
+	goCmd     *exec.Cmd // go build 进程
+	goCmdArgs []string  // 传递给 go build 的参数
 }
 
-func (opt *Options) newBuilder(logs chan<- *log.Log) (*builder, error) {
-	b := &builder{
+func (opt *Options) newBuilder(logs chan<- *log.Log) *builder {
+	return &builder{
 		exts:        opt.Exts,
 		appName:     opt.appName,
-		wd:          filepath.Dir(opt.appName),
-		appArgs:     opt.appArgs,
-		goCmdArgs:   opt.goCmdArgs,
 		logs:        logs,
 		watcherFreq: opt.WatcherFrequency,
 		p:           opt.Printer,
-	}
 
-	v, err := local.GoVersion()
-	if err != nil {
-		return nil, err
+		wd:      filepath.Dir(opt.appName),
+		appArgs: opt.appArgs,
+
+		goCmdArgs: opt.goCmdArgs,
 	}
-	b.env = v
-	return b, nil
 }
 
 // 输出不翻译的内容
 func (b *builder) log(typ int8, msg ...interface{}) {
 	b.logs <- &log.Log{
 		Type:    typ,
-		Message: b.p.Sprint(msg...),
+		Message: fmt.Sprint(msg...),
 	}
 }
 
@@ -87,17 +81,30 @@ func (b *builder) isIgnore(path string) bool {
 
 // 开始编译代码
 func (b *builder) build() {
+	if b.goCmd != nil && b.goCmd.Process != nil {
+		b.logf(log.Info, "中止旧的编译进程：%s", b.appName)
+		if err := b.appCmd.Process.Kill(); err != nil {
+			b.logf(log.Error, "中止旧的编译进程失败：%s", err.Error())
+		}
+		if err := b.appCmd.Wait(); err != nil {
+			println("wait:", err.Error())
+		}
+		b.logf(log.Success, "旧的编译进程被终止!")
+		b.appCmd = nil
+	}
+
 	b.logf(log.Info, "编译代码...")
 
-	goCmd := exec.Command("go", b.goCmdArgs...)
-	goCmd.Stderr = os.Stderr
-	goCmd.Stdout = os.Stdout
-	if err := goCmd.Run(); err != nil {
+	b.goCmd = exec.Command("go", b.goCmdArgs...)
+	b.goCmd.Stderr = os.Stderr
+	b.goCmd.Stdout = os.Stdout
+	if err := b.goCmd.Run(); err != nil {
 		b.logf(log.Error, "编译失败：%s", err.Error())
 		return
 	}
 
 	b.logf(log.Success, "编译成功!")
+	b.goCmd = nil
 
 	b.restartApp()
 }
@@ -110,14 +117,7 @@ func (b *builder) restartApp() {
 		}
 	}()
 
-	// kill process
-	if b.appCmd != nil && b.appCmd.Process != nil {
-		b.logf(log.Info, "中止旧进程：%s", b.appName)
-		if err := b.appCmd.Process.Kill(); err != nil {
-			b.logf(log.Error, "中止旧进程失败：%s", err.Error())
-		}
-		b.logf(log.Success, "旧进程被终止!")
-	}
+	b.kill()
 
 	b.logf(log.Info, "启动新进程：%s", b.appName)
 	b.appCmd = exec.Command(b.appName, b.appArgs...)
@@ -126,6 +126,20 @@ func (b *builder) restartApp() {
 	b.appCmd.Stdout = os.Stdout
 	if err := b.appCmd.Start(); err != nil {
 		b.logf(log.Error, "启动进程时出错：%s", err)
+	}
+}
+
+func (b *builder) kill() {
+	if b.appCmd != nil && b.appCmd.Process != nil {
+		b.logf(log.Info, "中止旧进程：%s", b.appName)
+		if err := b.appCmd.Process.Kill(); err != nil {
+			b.logf(log.Error, "中止旧进程失败：%s", err.Error())
+		}
+		if err := b.appCmd.Wait(); err != nil {
+			println("wait:", err.Error())
+		}
+		b.logf(log.Success, "旧进程被终止!")
+		b.appCmd = nil
 	}
 }
 
@@ -157,65 +171,4 @@ func (b *builder) filterPaths(paths []string) []string {
 	}
 
 	return ret
-}
-
-func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
-	b.logf(log.Info, "初始化监视器...")
-
-	// 初始化监视器
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return nil, err
-	}
-
-	paths = b.filterPaths(paths)
-
-	b.logf(log.Ignore, "以下路径或是文件将被监视：")
-	for _, path := range paths {
-		b.log(log.Ignore, path) // 路径不翻译
-	}
-
-	for _, path := range paths {
-		if err := watcher.Add(path); err != nil {
-			watcher.Close()
-			return nil, err
-		}
-	}
-
-	return watcher, nil
-}
-
-// 开始监视 paths 中指定的目录或文件。
-func (b *builder) watch(ctx context.Context, watcher *fsnotify.Watcher) {
-	var buildTime time.Time
-	for {
-		select {
-		case <-ctx.Done():
-			b.logf(log.Info, context.Canceled.Error())
-			return
-		case event := <-watcher.Events:
-			if event.Op&fsnotify.Chmod == fsnotify.Chmod {
-				b.logf(log.Ignore, "watcher.Events:忽略 %s 事件", event.String())
-				continue
-			}
-
-			if b.isIgnore(event.Name) { // 不需要监视的扩展名
-				b.logf(log.Ignore, "watcher.Events:忽略不被监视的文件：%s", event.Name)
-				continue
-			}
-
-			if time.Since(buildTime) <= b.watcherFreq { // 已经记录
-				b.logf(log.Ignore, "watcher.Events:忽略短期内频繁修改的文件：%s", event.Name)
-				continue
-			}
-
-			buildTime = time.Now()
-			b.logf(log.Info, "watcher.Events:%s 事件触发了编译", event.String())
-
-			go b.build()
-		case err := <-watcher.Errors:
-			watcher.Close()
-			b.logf(log.Warn, "watcher.Errors：%s", err.Error())
-		} // end select
-	}
 }

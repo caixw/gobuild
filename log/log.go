@@ -41,6 +41,7 @@ func newConsoleLogs(showIgnore bool, err, out io.Writer) *Console {
 	logs := &Console{
 		Logs:       make(chan *Log, 100),
 		showIgnore: showIgnore,
+		stop:       make(chan struct{}, 1),
 		writers: map[int8]*logWriter{
 			Success: newWriter(out, colors.Green, "[SUCC] "),
 			Info:    newWriter(out, colors.Blue, "[INFO] "),

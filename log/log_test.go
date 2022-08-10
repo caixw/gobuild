@@ -17,6 +17,7 @@ func TestLogs(t *testing.T) {
 
 	logs := newConsoleLogs(true, erro, out)
 	a.NotNil(logs)
+	defer logs.Stop()
 
 	logs.Logs <- &Log{Type: Error, Message: "error"}
 	time.Sleep(300 * time.Microsecond)

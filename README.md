@@ -8,10 +8,20 @@
 gobuild 是一个简单的 Go 代码热编译工具。
 会实时监控指定目录下的文件变化(重命名，删除，创建，添加)，并编译和运行程序。
 
-### 命令行语法:
+## 命令行语法:
+
+主要包含了 watch 和 init 两个子命令。
+
+### init
 
 ```shell
-gobuild [options] [dependents]
+gobuild init github.com/owner/mod
+```
+
+### watch
+
+```shell
+gobuild watch [options] [dependents]
 
 options:
  -h    显示当前帮助信息；
@@ -28,7 +38,7 @@ dependents:
  指定其它依赖的目录，只能出现在命令的尾部。
 ```
 
-### 常见用法:
+#### 常见用法:
 
 ```shell
 # 监视当前目录下的文件，若发生变化，则触发 go build -main="*.go"

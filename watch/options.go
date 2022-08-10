@@ -75,9 +75,9 @@ type Options struct {
 	//
 	// 只有文件更新的时长超过此值，才会被定义为更新。防止文件频繁修改导致的频繁编译调用。
 	//
-	// 此值不能小于 MinWatcherFrequency。
+	// 此值不能小于 [MinWatcherFrequency]。
 	//
-	// 默认值为 MinWatcherFrequency 表示的值。
+	// 默认值为 [MinWatcherFrequency]。
 	WatcherFrequency time.Duration `xml:"freq" yaml:"freq" json:"freq"`
 
 	// 传递给 go 命令的参数
@@ -209,7 +209,7 @@ func getAppName(outputName, wd string) (string, error) {
 	return outputName, nil
 }
 
-// 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录。
+// 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录
 func recursivePaths(recursive bool, paths []string) ([]string, error) {
 	if !recursive {
 		return paths, nil

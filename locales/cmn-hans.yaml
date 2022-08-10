@@ -48,6 +48,18 @@ messages:
   message:
     msg: 旧进程被终止!
 
+- key: 中止旧的编译进程：%s
+  message:
+    msg: 中止旧的编译进程：%s
+
+- key: 中止旧的编译进程失败：%s
+  message:
+    msg: 中止旧的编译进程失败：%s
+
+- key: 旧的编译进程被终止!
+  message:
+    msg: 旧的编译进程被终止!
+
 - key: 启动新进程：%s
   message:
     msg: 启动新进程：%s
@@ -84,6 +96,6 @@ messages:
   message:
     msg: 监视器错误：%s
 
-- key: context canceled
+- key: 用户取消
   message:
     msg: 用户取消
