@@ -1,14 +1,16 @@
 # gobuild
 
+[![Latest Release](https://img.shields.io/github/release/caixw/gobuild.svg?style=flat-square)](https://github.com/caixw/gobuild/releases/latest)
 [![Test](https://github.com/caixw/gobuild/workflows/Test/badge.svg)](https://github.com/caixw/gobuild/actions?query=workflow%3ATest)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/caixw/gobuild)](https://pkg.go.dev/github.com/caixw/gobuild)
 ![Go version](https://img.shields.io/github/go-mod/go-version/caixw/gobuild)
 ![License](https://img.shields.io/github/license/caixw/gobuild)
+[![codecov](https://codecov.io/gh/caixw/gobuild/branch/master/graph/badge.svg)](https://codecov.io/gh/caixw/gobuild)
 
 gobuild 是一个简单的 Go 代码热编译工具。
 会实时监控指定目录下的文件变化(重命名，删除，创建，添加)，并编译和运行程序。
 
-## 命令行语法:
+## 命令行语法
 
 主要包含了 watch 和 init 两个子命令。具体的子命令可以通过 `gobuild help` 查看。
 
@@ -29,9 +31,9 @@ gobuild init github.com/owner/mod
 gobuild watch [options]
 ```
 
-#### 配置文件
+### 配置文件
 
-配置文件为当前目录下的 .gobuild.yaml：
+配置文件为当前目录下的 `.gobuild.yaml`，可由 `gobuild init` 子命令生成，包含了以下字段：
 
  字段       | 类型         | 描述
 ------------|--------------|-------------------------------------
@@ -43,7 +45,7 @@ gobuild watch [options]
  recursive  | bool         | 是否监视子目录
  dirs       | dirs         | 表示需要监视的目录
  freq       | duration     | 监视器的更新频率
- 
+
 ## 支持平台
 
 平台支持依赖 [colors](https://github.com/issue9/term) 与 [fsnotify](https://github.com/fsnotify/fsnotify) 两个模块，

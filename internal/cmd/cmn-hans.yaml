@@ -51,10 +51,10 @@ messages:
     msg: |
       gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。
 
-- key: 源代码采用 MIT 开源许可证，并发布于 %s
+- key: 源代码采用 %s 开源许可证，并发布于 %s
   message:
     msg: |
-      源代码采用 MIT 开源许可证发布于 %s
+      源代码采用 %s 开源许可证发布于 %s
 
 - key: 热编译代码
   message:

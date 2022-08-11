@@ -18,14 +18,17 @@ import (
 //go:embed *.yaml
 var localeFS embed.FS
 
-const url = "https://github.com/caixw/gobuild"
+const (
+	url     = "https://github.com/caixw/gobuild"
+	license = "MIT"
+)
 
 func Exec() error {
 	p := getPrinter()
 	o := &cmdopt.CmdOpt{
 		Output:        os.Stdout,
 		Header:        p.Sprintf("gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。"),
-		Footer:        p.Sprintf("源代码采用 MIT 开源许可证，并发布于 %s", url),
+		Footer:        p.Sprintf("源代码采用 %s 开源许可证，并发布于 %s", license, url),
 		CommandsTitle: p.Sprintf("包含的子命令："),
 		OptionsTitle:  p.Sprintf("可用选项："),
 		NotFound: func(string) string {
