@@ -83,14 +83,14 @@ func (b *builder) isIgnore(path string) bool {
 func (b *builder) build() {
 	if b.goCmd != nil && b.goCmd.Process != nil {
 		b.logf(log.Info, "中止旧的编译进程：%s", b.appName)
-		if err := b.appCmd.Process.Kill(); err != nil {
+		if err := b.goCmd.Process.Kill(); err != nil {
 			b.logf(log.Error, "中止旧的编译进程失败：%s", err.Error())
 		}
-		if err := b.appCmd.Wait(); err != nil {
+		if err := b.goCmd.Wait(); err != nil {
 			println("wait:", err.Error())
 		}
 		b.logf(log.Success, "旧的编译进程被终止!")
-		b.appCmd = nil
+		b.goCmd = nil
 	}
 
 	b.logf(log.Info, "编译代码...")
