@@ -96,8 +96,8 @@ func (b *builder) build() {
 	b.logf(log.Info, "编译代码...")
 
 	b.goCmd = exec.Command("go", b.goCmdArgs...)
-	b.goCmd.Stderr = os.Stderr
-	b.goCmd.Stdout = os.Stdout
+	b.goCmd.Stderr = log.AsWriter(log.Error, b.logs)
+	b.goCmd.Stdout = log.AsWriter(log.Ignore, b.logs)
 	if err := b.goCmd.Run(); err != nil {
 		b.logf(log.Error, "编译失败：%s", err.Error())
 		return
@@ -122,8 +122,8 @@ func (b *builder) restartApp() {
 	b.logf(log.Info, "启动新进程：%s", b.appName)
 	b.appCmd = exec.Command(b.appName, b.appArgs...)
 	b.appCmd.Dir = b.wd
-	b.appCmd.Stderr = os.Stderr
-	b.appCmd.Stdout = os.Stdout
+	b.appCmd.Stderr = log.AsWriter(log.Error, b.logs)
+	b.appCmd.Stdout = log.AsWriter(log.Ignore, b.logs)
 	if err := b.appCmd.Start(); err != nil {
 		b.logf(log.Error, "启动进程时出错：%s", err)
 	}

@@ -10,33 +10,23 @@ import (
 	"github.com/issue9/assert/v3"
 )
 
-func TestLogs(t *testing.T) {
+func TestAsWriter(t *testing.T) {
 	a := assert.New(t, false)
 	erro := new(bytes.Buffer)
 	out := new(bytes.Buffer)
-
 	logs := newConsoleLogs(true, erro, out)
 	a.NotNil(logs)
 	defer logs.Stop()
 
-	logs.Logs <- &Log{Type: Error, Message: "error"}
+	w := AsWriter(Info, logs.Logs)
+	n, err := w.Write([]byte("abc"))
+	a.NotError(err).Equal(n, 3)
 	time.Sleep(300 * time.Microsecond)
-	a.NotEmpty(erro.String())
-	a.Empty(out.String())
+	a.Contains(out.String(), "abc").NotContains(erro.String(), "abc")
 
-	erro.Reset()
-	out.Reset()
-	logs.Logs <- &Log{Type: Ignore, Message: "message"}
+	w = AsWriter(Error, logs.Logs)
+	n, err = w.Write([]byte("defg"))
+	a.NotError(err).Equal(n, 4)
 	time.Sleep(300 * time.Microsecond)
-	a.Empty(erro.String())
-	a.NotEmpty(out.String())
-
-	// ignore=false
-	erro.Reset()
-	out.Reset()
-	logs = newConsoleLogs(false, erro, out)
-	a.NotNil(logs)
-	logs.Logs <- &Log{Type: Ignore, Message: "message"}
-	time.Sleep(300 * time.Microsecond)
-	a.Empty(out.String())
+	a.Contains(out.String(), "abc").Contains(erro.String(), "defg")
 }
