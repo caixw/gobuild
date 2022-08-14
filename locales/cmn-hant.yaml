@@ -47,6 +47,14 @@ messages:
   message:
     msg: 舊進程被終止!
 
+- key: 被中止编译进程非正常退出：%s
+  message:
+    msg: 被中止編譯進程非正常退出：%s
+
+- key: 被中止进程非正常退出：%s
+  message:
+    msg: 被中止進程非正常退出：%s
+
 - key: 中止旧的编译进程：%s
   message:
     msg: 中止舊的編譯進程：%s

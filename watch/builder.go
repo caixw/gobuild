@@ -87,7 +87,7 @@ func (b *builder) build() {
 			b.logf(log.Error, "中止旧的编译进程失败：%s", err.Error())
 		}
 		if err := b.goCmd.Wait(); err != nil {
-			println("wait:", err.Error())
+			b.logf(log.Error, "被中止编译进程非正常退出：%s", err.Error())
 		}
 		b.logf(log.Success, "旧的编译进程被终止!")
 		b.goCmd = nil
@@ -136,7 +136,7 @@ func (b *builder) kill() {
 			b.logf(log.Error, "中止旧进程失败：%s", err.Error())
 		}
 		if err := b.appCmd.Wait(); err != nil {
-			println("wait:", err.Error())
+			b.logf(log.Error, "被中止进程非正常退出：%s", err.Error())
 		}
 		b.logf(log.Success, "旧进程被终止!")
 		b.appCmd = nil
