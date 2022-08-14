@@ -8,17 +8,17 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/issue9/assert/v2"
+	"github.com/issue9/assert/v3"
 )
 
 func TestInit(t *testing.T) {
-	a := assert.New(t, false)
-
-	a.Run("存在同名文件", func(a *assert.Assertion) {
+	t.Run("存在同名文件", func(t *testing.T) {
+		a := assert.New(t, false)
 		a.ErrorIs(Init("testdir", "mod1"), fs.ErrExist)
 	})
 
-	a.Run("正常创建", func(a *assert.Assertion) {
+	t.Run("正常创建", func(t *testing.T) {
+		a := assert.New(t, false)
 		a.NotError(Init("testdir/mod2", "mod"))
 		a.FileExists("testdir/mod2/mod/go.mod")
 		a.FileExists(filepath.Join("testdir/mod2/mod/", ConfigFilename))
@@ -26,7 +26,8 @@ func TestInit(t *testing.T) {
 		os.RemoveAll("testdir/mod2/mod")
 	})
 
-	a.Run("仅创建.gobuild.yaml", func(a *assert.Assertion) {
+	t.Run("仅创建.gobuild.yaml", func(t *testing.T) {
+		a := assert.New(t, false)
 		a.NotError(Init("testdir", "mod3"))
 		a.FileNotExists("testdir/mod3/go.mod")
 		a.FileExists(filepath.Join("testdir/mod3", ConfigFilename))
