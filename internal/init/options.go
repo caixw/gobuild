@@ -18,7 +18,7 @@ const ConfigFilename = ".gobuild.yaml"
 func initOptions(wd, base string) error {
 	dir := path.Join(binBaseDir, base)
 	o := &watch.Options{
-		MainFiles:        path.Join(dir, "*.go"),
+		MainFiles:        path.Join("./", dir),
 		OutputName:       path.Join(dir, base),
 		Exts:             []string{".go", ".yaml", ".xml", ".yml", ".json"}, // 配置文件修改也重启
 		Recursive:        true,
