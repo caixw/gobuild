@@ -27,9 +27,12 @@ type Options struct {
 	// 如果为空，表示原样输出，不具备本地化的功能。
 	Printer *message.Printer `xml:"-" json:"-" yaml:"-"`
 
-	// 为 go build 最后的文件参数
+	// 在 go.mod 发生变化自动运行 go mod tidy
+	AutoTidy bool `xml:"tidy" json:"tidy" yaml:"tidy"`
+
+	// 指定编译的文件
 	//
-	// 可以为空，表示当前目录。
+	// 为 go build 最后的文件参数，可以为空，表示当前目录。
 	MainFiles string `xml:"main" json:"main" yaml:"main"`
 
 	// 指定可执行文件输出的文件路径
