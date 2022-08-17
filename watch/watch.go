@@ -78,8 +78,8 @@ func (b *builder) watch(ctx context.Context, paths []string) error {
 
 			buildTime = time.Now()
 
-			if event.Name == "go.mod" {
-				b.logf(log.Info, "watcher.Events:%s 事件触发了 go mod tidy", event.String()) // TODO 翻译
+			if event.Name == "go.mod" && b.autoTidy {
+				b.logf(log.Info, "watcher.Events:%s 事件触发了 go mod tidy", event.String())
 				go b.tidy()
 			} else {
 				b.logf(log.Info, "watcher.Events:%s 事件触发了编译", event.String())

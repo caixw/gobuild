@@ -85,7 +85,7 @@ func (b *builder) isIgnore(path string) bool {
 func (b *builder) tidy() {
 	b.killGo()
 
-	b.logf(log.Info, "go mod tidy...")
+	b.logf(log.Info, "执行 go mod tidy...")
 
 	b.goCmd = exec.Command("go", b.goCmdArgs...)
 	b.goCmd.Stderr = log.AsWriter(log.Error, b.logs)
@@ -95,7 +95,7 @@ func (b *builder) tidy() {
 		return
 	}
 
-	b.logf(log.Success, "go mod tidy 成功!")
+	b.logf(log.Success, "go mod tidy 完成!")
 	b.goCmd = nil
 }
 

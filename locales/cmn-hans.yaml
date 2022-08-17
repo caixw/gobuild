@@ -107,3 +107,19 @@ messages:
 - key: 用户取消
   message:
     msg: 用户取消
+
+- key: watcher.Events:%s 事件触发了 go mod tidy
+  message:
+    msg: watcher.Events:%s 事件触发了 go mod tidy
+
+- key: 执行 go mod tidy...
+  message:
+    msg: 执行 go mod tidy...
+
+- key: go mod tidy 失败：%s
+  message:
+    msg: go mod tidy 失败：%s
+
+- key: go mod tidy 完成!
+  message:
+    msg: go mod tidy 完成!
