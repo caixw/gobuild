@@ -23,6 +23,7 @@ func initOptions(wd, base string) error {
 		Exts:             []string{".go", ".yaml", ".xml", ".yml", ".json"}, // 配置文件修改也重启
 		Recursive:        true,
 		Dirs:             []string{"./"},
+		AutoTidy:         true,
 		WatcherFrequency: watch.MinWatcherFrequency,
 	}
 	data, err := yaml.Marshal(o)
