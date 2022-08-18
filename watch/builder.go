@@ -83,8 +83,8 @@ func (b *builder) tidy() {
 	b.logf(log.Info, "执行 go mod tidy...")
 
 	b.goCmd = exec.Command("go", "mod", "tidy")
-	b.goCmd.Stderr = log.AsWriter(log.Error, b.logs)
-	b.goCmd.Stdout = log.AsWriter(log.Ignore, b.logs)
+	b.goCmd.Stderr = log.AsWriter(log.Go, b.logs)
+	b.goCmd.Stdout = log.AsWriter(log.Go, b.logs)
 	if err := b.goCmd.Run(); err != nil {
 		b.logf(log.Error, "go mod tidy 失败：%s", err.Error())
 		return
@@ -101,8 +101,8 @@ func (b *builder) build() {
 	b.logf(log.Info, "编译代码...")
 
 	b.goCmd = exec.Command("go", b.goArgs...)
-	b.goCmd.Stderr = log.AsWriter(log.Error, b.logs)
-	b.goCmd.Stdout = log.AsWriter(log.Ignore, b.logs)
+	b.goCmd.Stderr = log.AsWriter(log.Go, b.logs)
+	b.goCmd.Stdout = log.AsWriter(log.Go, b.logs)
 	if err := b.goCmd.Run(); err != nil {
 		b.logf(log.Error, "编译失败：%s", err.Error())
 		return
@@ -144,8 +144,8 @@ func (b *builder) restartApp() {
 	b.logf(log.Info, "启动新进程：%s", b.appName)
 	b.appCmd = exec.Command(b.appName, b.appArgs...)
 	b.appCmd.Dir = b.appWD
-	b.appCmd.Stderr = log.AsWriter(log.Error, b.logs)
-	b.appCmd.Stdout = log.AsWriter(log.Ignore, b.logs)
+	b.appCmd.Stderr = log.AsWriter(log.App, b.logs)
+	b.appCmd.Stdout = log.AsWriter(log.App, b.logs)
 	if err := b.appCmd.Start(); err != nil {
 		b.logf(log.Error, "启动进程时出错：%s", err)
 	}

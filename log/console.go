@@ -5,6 +5,7 @@ package log
 import (
 	"io"
 	"os"
+	"strings"
 
 	"github.com/issue9/term/v3/colors"
 )
@@ -33,6 +34,8 @@ func newConsoleLogs(showIgnore bool, err, out io.Writer) *Console {
 			Warn:    newWriter(err, colors.Magenta, "[WARN] "),
 			Error:   newWriter(err, colors.Red, "[ERRO] "),
 			Ignore:  newWriter(out, colors.Default, "[IGNO] "),
+			App:     newWriter(out, colors.Default, "[APP] "),
+			Go:      newWriter(out, colors.Default, "[GO] "),
 		},
 	}
 
@@ -54,7 +57,8 @@ func (logs *Console) output() {
 
 			w := logs.writers[log.Type]
 			colors.Fprint(w.out, colors.Normal, w.color, colors.Default, w.prefix)
-			colors.Fprintln(w.out, colors.Normal, colors.Default, colors.Default, log.Message)
+			msg := strings.TrimRight(log.Message, "\n")
+			colors.Fprintln(w.out, colors.Normal, colors.Default, colors.Default, msg)
 		case <-logs.stop:
 			return
 		}

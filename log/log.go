@@ -12,6 +12,8 @@ const (
 	Warn
 	Error
 	Ignore
+	App
+	Go
 )
 
 type Log struct {
