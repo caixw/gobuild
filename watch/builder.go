@@ -3,11 +3,11 @@
 package watch
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/text/message"
@@ -22,13 +22,17 @@ type builder struct {
 	watcherFreq time.Duration
 	p           *message.Printer
 
-	wd      string    // 工作目录
-	appCmd  *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
-	appArgs []string  // 传递给 appCmd 的参数
+	// 被编译程序的执行环境
+	appWD      string    // 工作目录
+	appCmd     *exec.Cmd // appName 的命令行包装引用，方便结束其进程。
+	appArgs    []string  // 传递给 appCmd 的参数
+	appKillMux sync.Mutex
 
-	autoTidy  bool      // 自动运行 go mod tidy
+	// go build 或是 go mod tidy 的运行环境
+	goTidy    bool      // 自动运行 go mod tidy
 	goCmd     *exec.Cmd // go build 或是 go mod 进程
-	goCmdArgs []string  // 传递给 go build 的参数，go mod tidy 忽略此参数。
+	goArgs    []string  // 传递给 go build 的参数，go mod tidy 忽略此参数。
+	goKillMux sync.Mutex
 }
 
 func (opt *Options) newBuilder(logs chan<- *log.Log) *builder {
@@ -39,19 +43,11 @@ func (opt *Options) newBuilder(logs chan<- *log.Log) *builder {
 		watcherFreq: opt.WatcherFrequency,
 		p:           opt.Printer,
 
-		wd:      filepath.Dir(opt.appName),
+		appWD:   filepath.Dir(opt.appName),
 		appArgs: opt.appArgs,
 
-		autoTidy:  opt.AutoTidy,
-		goCmdArgs: opt.goCmdArgs,
-	}
-}
-
-// 输出不翻译的内容
-func (b *builder) log(typ int8, msg ...interface{}) {
-	b.logs <- &log.Log{
-		Type:    typ,
-		Message: fmt.Sprint(msg...),
+		goTidy: opt.AutoTidy,
+		goArgs: opt.goCmdArgs,
 	}
 }
 
@@ -81,13 +77,12 @@ func (b *builder) isIgnore(path string) bool {
 	return true
 }
 
-// tidy go mod tidy
 func (b *builder) tidy() {
 	b.killGo()
 
 	b.logf(log.Info, "执行 go mod tidy...")
 
-	b.goCmd = exec.Command("go", b.goCmdArgs...)
+	b.goCmd = exec.Command("go", "mod", "tidy")
 	b.goCmd.Stderr = log.AsWriter(log.Error, b.logs)
 	b.goCmd.Stdout = log.AsWriter(log.Ignore, b.logs)
 	if err := b.goCmd.Run(); err != nil {
@@ -105,7 +100,7 @@ func (b *builder) build() {
 
 	b.logf(log.Info, "编译代码...")
 
-	b.goCmd = exec.Command("go", b.goCmdArgs...)
+	b.goCmd = exec.Command("go", b.goArgs...)
 	b.goCmd.Stderr = log.AsWriter(log.Error, b.logs)
 	b.goCmd.Stdout = log.AsWriter(log.Ignore, b.logs)
 	if err := b.goCmd.Run(); err != nil {
@@ -120,6 +115,9 @@ func (b *builder) build() {
 }
 
 func (b *builder) killGo() {
+	b.goKillMux.Lock()
+	defer b.goKillMux.Unlock()
+
 	if b.goCmd != nil && b.goCmd.Process != nil {
 		b.logf(log.Info, "中止旧的编译进程")
 		if err := b.goCmd.Process.Kill(); err != nil {
@@ -141,11 +139,11 @@ func (b *builder) restartApp() {
 		}
 	}()
 
-	b.kill()
+	b.killApp()
 
 	b.logf(log.Info, "启动新进程：%s", b.appName)
 	b.appCmd = exec.Command(b.appName, b.appArgs...)
-	b.appCmd.Dir = b.wd
+	b.appCmd.Dir = b.appWD
 	b.appCmd.Stderr = log.AsWriter(log.Error, b.logs)
 	b.appCmd.Stdout = log.AsWriter(log.Ignore, b.logs)
 	if err := b.appCmd.Start(); err != nil {
@@ -153,7 +151,10 @@ func (b *builder) restartApp() {
 	}
 }
 
-func (b *builder) kill() {
+func (b *builder) killApp() {
+	b.appKillMux.Lock()
+	defer b.appKillMux.Unlock()
+
 	if b.appCmd != nil && b.appCmd.Process != nil {
 		b.logf(log.Info, "中止旧进程：%s", b.appName)
 		if err := b.appCmd.Process.Kill(); err != nil {

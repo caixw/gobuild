@@ -79,9 +79,9 @@ messages:
   message:
     msg: 初始化監視器...
 
-- key: 以下路径或是文件将被监视：
+- key: 以下路径或是文件将被监视：%s
   message:
-    msg: 以下路徑或是文件將被監視：
+    msg: 以下路徑或是文件將被監視：%s
 
 - key: watcher.Events:忽略 %s 事件
   message:

@@ -5,6 +5,7 @@ package watch
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -57,7 +58,8 @@ func (b *builder) watch(ctx context.Context, paths []string) error {
 	for {
 		select {
 		case <-ctx.Done():
-			b.kill()
+			b.killApp()
+			b.killGo()
 			b.logf(log.Info, "用户取消")
 			return nil
 		case event := <-watcher.Events:
@@ -78,7 +80,7 @@ func (b *builder) watch(ctx context.Context, paths []string) error {
 
 			buildTime = time.Now()
 
-			if event.Name == "go.mod" && b.autoTidy {
+			if event.Name == "go.mod" && b.goTidy {
 				b.logf(log.Info, "watcher.Events:%s 事件触发了 go mod tidy", event.String())
 				go b.tidy()
 			} else {
@@ -103,10 +105,8 @@ func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
 
 	paths = b.filterPaths(paths)
 
-	b.logf(log.Ignore, "以下路径或是文件将被监视：")
-	for _, path := range paths {
-		b.log(log.Ignore, path) // 路径不翻译
-	}
+	ps := strings.Join(paths, ",\n")
+	b.logf(log.Ignore, "以下路径或是文件将被监视：%s", ps)
 
 	for _, path := range paths {
 		if err := watcher.Add(path); err != nil {
