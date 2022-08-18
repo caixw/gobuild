@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: MIT
 
-// Package log 输出的日志管理
-package log
+package watch
 
 import "io"
 
 // 日志类型
 const (
-	Success int8 = iota
-	Info
-	Warn
-	Error
-	Ignore
-	App
-	Go
+	LogTypeSuccess int8 = iota
+	LogTypeInfo
+	LogTypeWarn
+	LogTypeError
+	LogTypeIgnore
+	LogTypeApp
+	LogTypeGo
 )
 
 type Log struct {
@@ -34,4 +33,4 @@ func (w *writer) Write(bs []byte) (int, error) {
 	return len(bs), nil
 }
 
-func AsWriter(t int8, w chan<- *Log) io.Writer { return &writer{t: t, w: w} }
+func asWriter(t int8, w chan<- *Log) io.Writer { return &writer{t: t, w: w} }

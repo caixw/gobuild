@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-package log
+package cmd
 
 import (
 	"io"
@@ -8,11 +8,13 @@ import (
 	"strings"
 
 	"github.com/issue9/term/v3/colors"
+
+	"github.com/caixw/gobuild/watch"
 )
 
 // Console 将日志输出到控制台
 type Console struct {
-	Logs       chan *Log
+	Logs       chan *watch.Log
 	showIgnore bool
 	writers    map[int8]*consoleWriter
 	stop       chan struct{}
@@ -25,17 +27,17 @@ func NewConsole(showIgnore bool) *Console {
 
 func newConsoleLogs(showIgnore bool, err, out io.Writer) *Console {
 	logs := &Console{
-		Logs:       make(chan *Log, 100),
+		Logs:       make(chan *watch.Log, 100),
 		showIgnore: showIgnore,
 		stop:       make(chan struct{}, 1),
 		writers: map[int8]*consoleWriter{
-			Success: newWriter(out, colors.Green, "[SUCC] "),
-			Info:    newWriter(out, colors.Blue, "[INFO] "),
-			Warn:    newWriter(err, colors.Magenta, "[WARN] "),
-			Error:   newWriter(err, colors.Red, "[ERRO] "),
-			Ignore:  newWriter(out, colors.Default, "[IGNO] "),
-			App:     newWriter(out, colors.Default, "[APP] "),
-			Go:      newWriter(out, colors.Default, "[GO] "),
+			watch.LogTypeSuccess: newWriter(out, colors.Green, "[SUCC] "),
+			watch.LogTypeInfo:    newWriter(out, colors.Blue, "[INFO] "),
+			watch.LogTypeWarn:    newWriter(err, colors.Magenta, "[WARN] "),
+			watch.LogTypeError:   newWriter(err, colors.Red, "[ERRO] "),
+			watch.LogTypeIgnore:  newWriter(out, colors.Default, "[IGNO] "),
+			watch.LogTypeApp:     newWriter(out, colors.Default, "[APP] "),
+			watch.LogTypeGo:      newWriter(out, colors.Default, "[GO] "),
 		},
 	}
 
@@ -51,7 +53,7 @@ func (logs *Console) output() {
 	for {
 		select {
 		case log := <-logs.Logs:
-			if !logs.showIgnore && log.Type == Ignore {
+			if !logs.showIgnore && log.Type == watch.LogTypeIgnore {
 				continue
 			}
 

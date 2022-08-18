@@ -9,8 +9,6 @@ import (
 	"time"
 
 	"github.com/issue9/assert/v3"
-
-	"github.com/caixw/gobuild/log"
 )
 
 func TestWatch(t *testing.T) {
@@ -23,8 +21,8 @@ func TestWatch(t *testing.T) {
 	}
 	a.NotError(opt.sanitize())
 
-	logs := log.NewConsole(true)
-	defer logs.Stop()
+	logs := newLogs()
+	defer logs.close()
 
 	ctx, cancel := context.WithCancel(context.Background())
 

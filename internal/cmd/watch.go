@@ -14,7 +14,6 @@ import (
 
 	"github.com/caixw/gobuild"
 	i "github.com/caixw/gobuild/internal/init"
-	"github.com/caixw/gobuild/log"
 )
 
 var (
@@ -50,7 +49,7 @@ func doWatch(p *message.Printer) cmdopt.DoFunc {
 			o.Dirs = watchFS.Args()
 		}
 
-		logs := log.NewConsole(watchShowIgnore)
+		logs := NewConsole(watchShowIgnore)
 		defer logs.Stop()
 
 		return gobuild.Watch(context.Background(), logs.Logs, o)

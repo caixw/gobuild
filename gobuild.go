@@ -6,13 +6,12 @@ import (
 	"context"
 
 	i "github.com/caixw/gobuild/internal/init"
-	"github.com/caixw/gobuild/log"
 	"github.com/caixw/gobuild/watch"
 )
 
 type (
 	WatchOptions = watch.Options
-	Log          = log.Log
+	Log          = watch.Log
 )
 
 // Watch 监视文件变化执行热编译服务
