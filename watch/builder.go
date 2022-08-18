@@ -121,7 +121,7 @@ func (b *builder) build() {
 
 func (b *builder) killGo() {
 	if b.goCmd != nil && b.goCmd.Process != nil {
-		b.logf(log.Info, "中止旧的编译进程：%s", b.appName)
+		b.logf(log.Info, "中止旧的编译进程")
 		if err := b.goCmd.Process.Kill(); err != nil {
 			b.logf(log.Error, "中止旧的编译进程失败：%s", err.Error())
 		}
