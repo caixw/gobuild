@@ -4,8 +4,10 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"io"
+	"io/fs"
 	"os"
 
 	"github.com/issue9/cmdopt"
@@ -29,7 +31,9 @@ func initWatch(o *cmdopt.CmdOpt, p *message.Printer) {
 func doWatch(p *message.Printer) cmdopt.DoFunc {
 	return func(w io.Writer) error {
 		data, err := os.ReadFile(i.ConfigFilename)
-		if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return errors.New(p.Sprintf("未找到配置文件：%s", i.ConfigFilename))
+		} else if err != nil {
 			return err
 		}
 

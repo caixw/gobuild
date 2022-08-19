@@ -25,19 +25,17 @@ func newLogs() *logs {
 		out:  &bytes.Buffer{},
 	}
 	go func() {
-		for {
-			select {
-			case log := <-l.Logs:
-				if log == nil {
-					return
-				}
-				switch log.Type {
-				case LogTypeInfo:
-					l.out.WriteString(log.Message)
-				case LogTypeError:
-					l.erro.WriteString(log.Message)
-				}
+		for log := range l.Logs {
+			if log == nil {
+				return
 			}
+			switch log.Type {
+			case LogTypeInfo:
+				l.out.WriteString(log.Message)
+			case LogTypeError:
+				l.erro.WriteString(log.Message)
+			}
+
 		}
 	}()
 

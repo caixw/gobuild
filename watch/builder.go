@@ -15,7 +15,9 @@ import (
 
 type builder struct {
 	exts        []string // 需要监视的文件扩展名
-	appName     string   // 输出的程序文件
+	anyExt      bool
+	excludes    []string
+	appName     string // 输出的程序文件
 	logs        chan<- *Log
 	watcherFreq time.Duration
 	p           *message.Printer
@@ -36,6 +38,8 @@ type builder struct {
 func (opt *Options) newBuilder(logs chan<- *Log) *builder {
 	return &builder{
 		exts:        opt.Exts,
+		anyExt:      opt.anyExts,
+		excludes:    opt.Excludes,
 		appName:     opt.appName,
 		logs:        logs,
 		watcherFreq: opt.WatcherFrequency,
@@ -63,10 +67,21 @@ func (b *builder) isIgnore(path string) bool {
 		return true
 	}
 
-	for _, ext := range b.exts {
-		if ext == "*" {
+	for _, p := range b.excludes {
+		matched, err := filepath.Match(p, path)
+		if err != nil {
+			b.logf(LogTypeError, b.p.Sprintf(err.Error))
 			return false
 		}
+		if matched {
+			return true
+		}
+	}
+
+	if b.anyExt {
+		return false
+	}
+	for _, ext := range b.exts {
 		if strings.HasSuffix(path, ext) {
 			return false
 		}

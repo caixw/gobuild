@@ -41,6 +41,11 @@ messages:
   message:
     msg: 顯示完整的版本號
 
+- key: 未找到配置文件：%s
+  message:
+    msg: |
+      未找到配置文件：%s，你可以通過 gobuild init 在當前目錄下生成一個。
+
 - key: 未找到子命令 %s
   message:
     msg: 未找到子命令 %s

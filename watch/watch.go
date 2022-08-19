@@ -32,7 +32,7 @@ func Watch(ctx context.Context, logs chan<- *Log, opt *Options) error {
 	b.logf(LogTypeInfo, "给程序传递了以下参数：%s", b.appArgs) // 输出提示信息
 
 	switch { // 提示扩展名
-	case len(b.exts) == 0: // 允许不监视任意文件，但输出一信息来警告
+	case len(b.exts) == 0: // 允许不监视任意文件，但输出警告信息
 		b.logf(LogTypeWarn, "将 ext 设置为空值，意味着不监视任何文件的改变！")
 	case len(b.exts) > 0:
 		b.logf(LogTypeInfo, "系统将监视以下类型的文件：%s", b.exts)
@@ -40,12 +40,13 @@ func Watch(ctx context.Context, logs chan<- *Log, opt *Options) error {
 
 	b.logf(LogTypeInfo, "输出文件为：%s", b.appName) // 提示 appName
 
-	go b.build() // 第一次主动编译程序，后续的才是监视变化。
 	return b.watch(ctx, opt.paths)
 }
 
 // 开始监视 paths 中指定的目录或文件
 func (b *builder) watch(ctx context.Context, paths []string) error {
+	go b.build() // 第一次主动编译程序，后续的才是监视变化。
+
 	watcher, err := b.initWatcher(paths)
 	if err != nil {
 		return err
@@ -75,7 +76,6 @@ func (b *builder) watch(ctx context.Context, paths []string) error {
 				b.logf(LogTypeIgnore, "watcher.Events:忽略短期内频繁修改的文件：%s", event.Name)
 				continue
 			}
-
 			buildTime = time.Now()
 
 			if event.Name == "go.mod" && b.goTidy {

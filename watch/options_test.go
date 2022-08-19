@@ -17,6 +17,17 @@ var (
 	_ xml.Unmarshaler = &Flags{}
 )
 
+func TestFlags_Marshal(t *testing.T) {
+	a := assert.New(t, false)
+	f := Flags{"k1": "v1"}
+	data, err := xml.Marshal(f)
+	a.NotError(err).Equal(string(data), "<Flags><k1>v1</k1></Flags>")
+
+	f2 := Flags{}
+	a.NotError(xml.Unmarshal(data, &f2))
+	a.Equal(f, f2)
+}
+
 func TestOptions_sanitize(t *testing.T) {
 	a := assert.New(t, false)
 
@@ -27,6 +38,15 @@ func TestOptions_sanitize(t *testing.T) {
 	opt.Dirs = []string{"./"}
 	a.NotError(opt.sanitize()).
 		Equal(opt.WatcherFrequency, MinWatcherFrequency)
+
+	opt.Excludes = []string{}
+	a.NotError(opt.sanitize())
+
+	opt.Excludes = []string{"/abc/*"}
+	a.NotError(opt.sanitize())
+
+	opt.Excludes = []string{"/abc/*****/def", "abc/[]/def"}
+	a.Error(opt.sanitize())
 }
 
 func pathsEqual(a *assert.Assertion, paths1, paths2 []string) {
@@ -51,11 +71,15 @@ func TestOptions_sanitizeExts(t *testing.T) {
 
 	opt := &Options{}
 	opt.sanitizeExts()
-	a.Empty(opt.Exts)
+	a.Empty(opt.Exts).False(opt.anyExts)
 
 	opt = &Options{Exts: []string{".go", " ", "java", " .php"}}
 	opt.sanitizeExts()
-	a.Equal(opt.Exts, []string{".go", ".java", ".php"})
+	a.Equal(opt.Exts, []string{".go", ".java", ".php"}).False(opt.anyExts)
+
+	opt = &Options{Exts: []string{".go", " ", "java", "*"}}
+	opt.sanitizeExts()
+	a.True(opt.anyExts)
 }
 
 func TestGetAppName(t *testing.T) {

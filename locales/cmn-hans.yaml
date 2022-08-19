@@ -20,6 +20,10 @@ messages:
   message:
     msg: 系统将监视以下类型的文件：%s
 
+- key: 字段 Dirs 不能为空
+  message:
+    msg: 字段 Dirs 不能为空
+
 - key: 编译代码...
   message:
     msg: 开始编译代码...

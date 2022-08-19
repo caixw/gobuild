@@ -19,6 +19,10 @@ messages:
   message:
     msg: 系統將監視以下類型的文件：%s
 
+- key: 字段 Dirs 不能为空
+  message:
+    msg: 字段 Dirs 不能为空
+
 - key: 编译代码...
   message:
     msg: 開始編譯代碼...

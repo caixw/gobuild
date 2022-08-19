@@ -56,8 +56,14 @@ type Options struct {
 
 	// 指定监视的文件扩展名
 	//
-	// 为空表示不监视任何文件
-	Exts []string `xml:"exts" json:"exts" yaml:"exts"`
+	// 为空表示不监视任何文件，如果指定了 *，表示所有文件类型，包括没有扩展名的文件。
+	Exts    []string `xml:"exts" json:"exts" yaml:"exts"`
+	anyExts bool
+
+	// 忽略的文件
+	//
+	// 采用 [path.Match] 作为匹配方式。
+	Excludes []string `xml:"excludes>glob" json:"excludes" yaml:"exclude"`
 
 	// 传递给编译成功后的程序的参数
 	AppArgs string `xml:"args" yaml:"args" json:"args"`
@@ -69,6 +75,8 @@ type Options struct {
 	// 表示需要监视的目录
 	//
 	// 至少指定一个目录，第一个目录被当作主目录，将编译其下的文件作为执行主体。
+	// 如果你在 go.mod 中设置了 replace 或是更高级的 workspace 中有相关设置，
+	// 可以在此处指定这些需要跟踪的包。
 	//
 	// 如果 OutputName 中未指定目录的话，第一个目录会被当作工作目录使用。
 	Dirs  []string `xml:"dirs" yaml:"dirs" json:"dirs"`
@@ -131,8 +139,15 @@ func (opt *Options) sanitize() error {
 		opt.Printer = message.NewPrinter(language.Und)
 	}
 
+	// 检测 glob 语法
+	for _, p := range opt.Excludes {
+		if _, err := filepath.Match(p, "abc"); err != nil {
+			return err
+		}
+	}
+
 	if len(opt.Dirs) == 0 {
-		return errors.New("参数 dir 至少指定一个")
+		return errors.New(opt.Printer.Sprintf("字段 Dirs 不能为空"))
 	}
 	wd, err := filepath.Abs(opt.Dirs[0])
 	if err != nil {
@@ -178,6 +193,11 @@ func (opt *Options) sanitizeExts() {
 		ext = strings.TrimSpace(ext)
 		if len(ext) == 0 {
 			continue
+		}
+
+		if ext == "*" {
+			opt.anyExts = true
+			return
 		}
 
 		if ext[0] != '.' {
