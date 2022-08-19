@@ -4,7 +4,9 @@ package cmd
 
 import (
 	"embed"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/issue9/cmdopt"
 	"github.com/issue9/localeutil"
@@ -46,11 +48,20 @@ func Exec() error {
 func getPrinter() *message.Printer {
 	tag, _ := localeutil.DetectUserLanguageTag()
 	c := catalog.NewBuilder(catalog.Fallback(tag))
+
 	if err := localeutil.LoadMessageFromFSGlob(c, &localeFS, "*.yaml", yaml.Unmarshal); err != nil {
 		panic(err)
 	}
 	if err := localeutil.LoadMessageFromFSGlob(c, locales.Locales, "*.yaml", yaml.Unmarshal); err != nil {
 		panic(err)
 	}
+	p, err := os.Executable()
+	if err != nil { // 这里不退出
+		fmt.Fprintln(os.Stderr, err)
+	}
+	if err := localeutil.LoadMessageFromFSGlob(c, os.DirFS(filepath.Dir(p)), "*.yaml", yaml.Unmarshal); err != nil {
+		panic(err)
+	}
+
 	return message.NewPrinter(tag, message.Catalog(c))
 }

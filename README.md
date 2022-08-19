@@ -45,11 +45,12 @@ gobuild watch [options]
  main       | string       | 指定需要编译的文件，如果为空表示当前目录。
  output     | string       | 指定可执行文件输出的文件路径
  flags      | map          | 指定可执行文件输出的文件路径
- exts       | []string     | 指定监视的文件扩展名
+ exts       | []string     | 指定监视的文件扩展名，如果包含了 *，表示所有文件类型，包括没有扩展名的。
  args       | string       | 传递给编译成功后的程序的参数
  recursive  | bool         | 是否监视子目录
  dirs       | dirs         | 表示需要监视的目录
  freq       | duration     | 监视器的更新频率
+ excludes   | []string     | 忽略的文件，glob 格式，高于 exts 配置项。
 
 ## 支持平台
 

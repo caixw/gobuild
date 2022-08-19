@@ -16,8 +16,8 @@ const (
 	LogTypeWarn
 	LogTypeError
 	LogTypeIgnore // 默认情况下被忽略的信息，一般内容比较多，且价格不高的内容会显示在此通道。
-	LogTypeApp
-	LogTypeGo
+	LogTypeApp    // 被编译程序返回的信息
+	LogTypeGo     // Go 编译器返回的信息
 )
 
 type (
@@ -64,25 +64,26 @@ func (c *consoleLogger) Output(t int8, msg string) {
 	colors.Fprintln(w.out, colors.Normal, colors.Default, colors.Default, msg)
 }
 
+// NewConsoleLogger 返回将日志输出到控制台的 Logger 接口实现
 func NewConsoleLogger(showIgnore bool, err, out io.Writer) Logger {
+	newCW := func(out io.Writer, color colors.Color, prefix string) *consoleWriter {
+		return &consoleWriter{
+			out:    out,
+			color:  color,
+			prefix: prefix,
+		}
+	}
+
 	return &consoleLogger{
 		showIgnore: showIgnore,
 		writers: map[int8]*consoleWriter{
-			LogTypeSuccess: newConsoleWriter(out, colors.Green, "[SUCC] "),
-			LogTypeInfo:    newConsoleWriter(out, colors.Blue, "[INFO] "),
-			LogTypeWarn:    newConsoleWriter(err, colors.Magenta, "[WARN] "),
-			LogTypeError:   newConsoleWriter(err, colors.Red, "[ERRO] "),
-			LogTypeIgnore:  newConsoleWriter(out, colors.Default, "[IGNO] "),
-			LogTypeApp:     newConsoleWriter(out, colors.Default, "[APP] "),
-			LogTypeGo:      newConsoleWriter(out, colors.Default, "[GO] "),
+			LogTypeSuccess: newCW(out, colors.Green, "[SUCC] "),
+			LogTypeInfo:    newCW(out, colors.Blue, "[INFO] "),
+			LogTypeWarn:    newCW(err, colors.Magenta, "[WARN] "),
+			LogTypeError:   newCW(err, colors.Red, "[ERRO] "),
+			LogTypeIgnore:  newCW(out, colors.Default, "[IGNO] "),
+			LogTypeApp:     newCW(out, colors.Default, "[APP] "),
+			LogTypeGo:      newCW(out, colors.Default, "[GO] "),
 		},
-	}
-}
-
-func newConsoleWriter(out io.Writer, color colors.Color, prefix string) *consoleWriter {
-	return &consoleWriter{
-		out:    out,
-		color:  color,
-		prefix: prefix,
 	}
 }
