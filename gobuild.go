@@ -18,6 +18,7 @@ func Watch(ctx context.Context, o *WatchOptions) error { return watch.Watch(ctx,
 
 // Init 初始化一个空的项目
 //
+// wd 为工作目录，将在此目录下初始化项目；
 // name 为 go.mod 中定义的模块的名称。
 // name 的最后一个元素会作为名称在 wd 指定的目录下创建子目录，
 // 同时在子目录下会添加以下内容：

@@ -33,12 +33,12 @@ type Options struct {
 	Logger Logger `xml:"-" json:"-" yaml:"-"`
 
 	// 在 go.mod 发生变化自动运行 go mod tidy
-	AutoTidy bool `xml:"tidy" json:"tidy" yaml:"tidy"`
+	AutoTidy bool `xml:"tidy,omitempty" json:"tidy,omitempty" yaml:"tidy,omitempty"`
 
 	// 指定编译的文件
 	//
 	// 为 go build 最后的文件参数，可以为空，表示当前目录。
-	MainFiles string `xml:"main" json:"main" yaml:"main"`
+	MainFiles string `xml:"main,omitempty" json:"main,omitempty" yaml:"main,omitempty"`
 
 	// 指定可执行文件输出的文件路径
 	//
@@ -47,7 +47,7 @@ type Options struct {
 	// windows 系统无须指定 .exe 扩展名，会自行添加。
 	//
 	// 如果带路径信息，则会使用该文件所在目录作为工作目录。
-	OutputName string `xml:"output" json:"output" yaml:"output"`
+	OutputName string `xml:"output,omitempty" json:"output,omitempty" yaml:"output,omitempty"`
 	appName    string
 
 	// 传递各个工具的参数
@@ -57,25 +57,25 @@ type Options struct {
 	//  - gccgo --> gccgoflags
 	//  - gc    --> gcflags
 	//  - ld    --> ldflags
-	Flags Flags `xml:"flags" json:"flags" yaml:"flags"`
+	Flags Flags `xml:"flags,omitempty" json:"flags,omitempty" yaml:"flags,omitempty"`
 
 	// 指定监视的文件扩展名
 	//
 	// 为空表示不监视任何文件，如果指定了 *，表示所有文件类型，包括没有扩展名的文件。
-	Exts    []string `xml:"exts" json:"exts" yaml:"exts"`
+	Exts    []string `xml:"exts,omitempty" json:"exts,omitempty" yaml:"exts,omitempty"`
 	anyExts bool
 
 	// 忽略的文件
 	//
 	// 采用 [path.Match] 作为匹配方式。
-	Excludes []string `xml:"excludes>glob" json:"excludes" yaml:"excludes"`
+	Excludes []string `xml:"excludes>glob,omitempty" json:"excludes,omitempty" yaml:"excludes,omitempty"`
 
 	// 传递给编译成功后的程序的参数
-	AppArgs string `xml:"args" yaml:"args" json:"args"`
+	AppArgs string `xml:"args,omitempty" yaml:"args,omitempty" json:"args,omitempty"`
 	appArgs []string
 
 	// 是否监视子目录
-	Recursive bool `xml:"recursive" yaml:"recursive" json:"recursive"`
+	Recursive bool `xml:"recursive,omitempty" yaml:"recursive,omitempty" json:"recursive,omitempty"`
 
 	// 表示需要监视的目录
 	//
@@ -84,7 +84,7 @@ type Options struct {
 	// 可以在此处指定这些需要跟踪的包。
 	//
 	// 如果 OutputName 中未指定目录的话，第一个目录会被当作工作目录使用。
-	Dirs  []string `xml:"dirs" yaml:"dirs" json:"dirs"`
+	Dirs  []string `xml:"dirs,omitempty" yaml:"dirs,omitempty" json:"dirs,omitempty"`
 	paths []string
 
 	// 监视器的更新频率
@@ -94,7 +94,7 @@ type Options struct {
 	// 此值不能小于 [MinWatcherFrequency]。
 	//
 	// 默认值为 [MinWatcherFrequency]。
-	WatcherFrequency time.Duration `xml:"freq" yaml:"freq" json:"freq"`
+	WatcherFrequency time.Duration `xml:"freq,omitempty" yaml:"freq,omitempty" json:"freq,omitempty"`
 
 	// 传递给 go 命令的参数
 	goCmdArgs []string
