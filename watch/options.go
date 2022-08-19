@@ -63,7 +63,7 @@ type Options struct {
 	// 忽略的文件
 	//
 	// 采用 [path.Match] 作为匹配方式。
-	Excludes []string `xml:"excludes>glob" json:"excludes" yaml:"exclude"`
+	Excludes []string `xml:"excludes>glob" json:"excludes" yaml:"excludes"`
 
 	// 传递给编译成功后的程序的参数
 	AppArgs string `xml:"args" yaml:"args" json:"args"`

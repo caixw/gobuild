@@ -42,6 +42,10 @@ messages:
   message:
     msg: 显示完整的版本号
 
+- key: 配置文件被修改，重启热编译程序！
+  message:
+    msg: 配置文件被修改，重启热编译程序！
+
 - key: 未找到配置文件：%s
   message:
     msg: |
