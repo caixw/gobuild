@@ -18,7 +18,7 @@ type builder struct {
 	anyExt      bool
 	excludes    []string
 	appName     string // 输出的程序文件
-	logs        chan<- *Log
+	logs        Logger
 	watcherFreq time.Duration
 	p           *message.Printer
 
@@ -35,13 +35,17 @@ type builder struct {
 	goKillMux sync.Mutex
 }
 
-func (opt *Options) newBuilder(logs chan<- *Log) *builder {
+func (opt *Options) newBuilder() *builder {
+	exts := opt.Exts
+	if opt.anyExts {
+		exts = []string{"*"}
+	}
 	return &builder{
-		exts:        opt.Exts,
+		exts:        exts,
 		anyExt:      opt.anyExts,
 		excludes:    opt.Excludes,
 		appName:     opt.appName,
-		logs:        logs,
+		logs:        opt.Logger,
 		watcherFreq: opt.WatcherFrequency,
 		p:           opt.Printer,
 
@@ -55,10 +59,7 @@ func (opt *Options) newBuilder(logs chan<- *Log) *builder {
 
 // 输出翻译后的内容
 func (b *builder) logf(typ int8, key message.Reference, msg ...interface{}) {
-	b.logs <- &Log{
-		Type:    typ,
-		Message: b.p.Sprintf(key, msg...),
-	}
+	b.logs.Output(typ, b.p.Sprintf(key, msg...))
 }
 
 // 确定文件 path 是否属于被忽略的格式

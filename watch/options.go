@@ -27,6 +27,11 @@ type Options struct {
 	// 如果为空，表示原样输出，不具备本地化的功能。
 	Printer *message.Printer `xml:"-" json:"-" yaml:"-"`
 
+	// 日志输出对象
+	//
+	// 如为空，则被初始化 *ConsoleLogger 对象。
+	Logger Logger `xml:"-" json:"-" yaml:"-"`
+
 	// 在 go.mod 发生变化自动运行 go mod tidy
 	AutoTidy bool `xml:"tidy" json:"tidy" yaml:"tidy"`
 
@@ -137,6 +142,10 @@ func (f *Flags) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 func (opt *Options) sanitize() error {
 	if opt.Printer == nil {
 		opt.Printer = message.NewPrinter(language.Und)
+	}
+
+	if opt.Logger == nil {
+		opt.Logger = NewConsoleLogger(true, os.Stderr, os.Stdout)
 	}
 
 	// 检测 glob 语法

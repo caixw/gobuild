@@ -13,8 +13,18 @@ func TestOptions_newBuilder(t *testing.T) {
 
 	opt := &Options{Dirs: []string{"./"}}
 	a.NotError(opt.sanitize())
-	b := opt.newBuilder(nil)
-	a.NotNil(b)
+	b := opt.newBuilder()
+	a.NotNil(b).False(b.anyExt)
+
+	opt = &Options{Dirs: []string{"./"}, Exts: []string{".a", "*", ".b"}}
+	a.NotError(opt.sanitize())
+	b = opt.newBuilder()
+	a.NotNil(b).Equal(b.exts, []string{"*"}).True(b.anyExt)
+
+	opt = &Options{Dirs: []string{"./"}, Exts: []string{".a", ".b"}}
+	a.NotError(opt.sanitize())
+	b = opt.newBuilder()
+	a.NotNil(b).Equal(b.exts, []string{".a", ".b"}).False(b.anyExt)
 }
 
 func TestBuilder_isIgnore(t *testing.T) {
@@ -23,21 +33,21 @@ func TestBuilder_isIgnore(t *testing.T) {
 	// 未指定 exts，忽略所有。
 	opt := &Options{Dirs: []string{"./"}}
 	a.NotError(opt.sanitize())
-	b := opt.newBuilder(nil)
+	b := opt.newBuilder()
 	a.NotNil(b)
 	a.True(b.isIgnore("./builder.go"))
 
 	// exts = "*"
 	opt = &Options{Dirs: []string{"./"}, Exts: []string{"*"}}
 	a.NotError(opt.sanitize())
-	b = opt.newBuilder(nil)
+	b = opt.newBuilder()
 	a.NotNil(b)
 	a.False(b.isIgnore("builder.go")).
 		False(b.isIgnore("not-exists.file"))
 
 	opt = &Options{Dirs: []string{"./"}, Exts: []string{"*"}, Excludes: []string{"builder.go", "*_test.go"}}
 	a.NotError(opt.sanitize())
-	b = opt.newBuilder(nil)
+	b = opt.newBuilder()
 	a.NotNil(b)
 	a.True(b.isIgnore("builder.go")).
 		False(b.isIgnore("not-exists.file")).

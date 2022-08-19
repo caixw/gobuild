@@ -4,6 +4,7 @@ package watch
 
 import (
 	"context"
+	"io"
 	"os"
 	"testing"
 	"time"
@@ -15,20 +16,18 @@ func TestWatch(t *testing.T) {
 	a := assert.New(t, false)
 
 	opt := &Options{
+		Logger:     NewConsoleLogger(true, io.Discard, io.Discard),
 		Dirs:       []string{"./testdir"},
 		MainFiles:  "./testdir/main.go",
 		OutputName: "outputName",
 	}
 	a.NotError(opt.sanitize())
 
-	logs := newLogs()
-	defer logs.close()
-
 	ctx, cancel := context.WithCancel(context.Background())
 
 	exit := make(chan bool, 1)
 	go func() {
-		a.NotError(Watch(ctx, logs.Logs, opt))
+		a.NotError(Watch(ctx, opt))
 		exit <- true
 	}()
 	time.Sleep(500 * time.Millisecond) // 等待 go func() 启动

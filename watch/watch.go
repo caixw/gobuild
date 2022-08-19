@@ -16,12 +16,12 @@ import (
 // Watch 执行热编译服务
 //
 // 如果初始化参数有误，则反错误信息，如果是编译过程中出错，将直接将错误内容输出到 logs。
-func Watch(ctx context.Context, logs chan<- *Log, opt *Options) error {
+func Watch(ctx context.Context, opt *Options) error {
 	if err := opt.sanitize(); err != nil {
 		return err
 	}
 
-	b := opt.newBuilder(logs)
+	b := opt.newBuilder()
 
 	env, err := local.GoVersion()
 	if err != nil {

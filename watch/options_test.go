@@ -71,7 +71,9 @@ func TestOptions_sanitizeExts(t *testing.T) {
 
 	opt := &Options{}
 	opt.sanitizeExts()
-	a.Empty(opt.Exts).False(opt.anyExts)
+	a.Empty(opt.Exts).False(opt.anyExts).
+		NotNil(opt.Logger).
+		NotNil(opt.Printer)
 
 	opt = &Options{Exts: []string{".go", " ", "java", " .php"}}
 	opt.sanitizeExts()

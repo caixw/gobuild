@@ -33,8 +33,7 @@ func initWatch(o *cmdopt.CmdOpt, p *message.Printer) {
 
 func doWatch(p *message.Printer) cmdopt.DoFunc {
 	return func(w io.Writer) error {
-		logs := newConsoleLogs(watchShowIgnore, os.Stderr, os.Stdout)
-		defer logs.Stop()
+		logs := watch.NewConsoleLogger(watchShowIgnore, os.Stderr, os.Stdout)
 
 		cancel, err := watchWithCancel(p, logs)
 		if err != nil {
@@ -59,7 +58,7 @@ func doWatch(p *message.Printer) cmdopt.DoFunc {
 				}
 
 				buildTime = time.Now()
-				logs.Logs <- &watch.Log{Type: watch.LogTypeInfo, Message: p.Sprintf("配置文件被修改，重启热编译程序！")}
+				logs.Output(watch.LogTypeInfo, p.Sprintf("配置文件被修改，重启热编译程序！"))
 				cancel()
 				if cancel, err = watchWithCancel(p, logs); err != nil {
 					return err
@@ -71,7 +70,7 @@ func doWatch(p *message.Printer) cmdopt.DoFunc {
 	}
 }
 
-func watchWithCancel(p *message.Printer, logs *console) (context.CancelFunc, error) {
+func watchWithCancel(p *message.Printer, l watch.Logger) (context.CancelFunc, error) {
 	data, err := os.ReadFile(i.ConfigFilename)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, errors.New(p.Sprintf("未找到配置文件：%s", i.ConfigFilename))
@@ -84,6 +83,7 @@ func watchWithCancel(p *message.Printer, logs *console) (context.CancelFunc, err
 		return nil, err
 	}
 	o.Printer = p
+	o.Logger = l
 
 	if watchFS.NArg() == 0 {
 		wd, err := os.Getwd()
@@ -96,6 +96,6 @@ func watchWithCancel(p *message.Printer, logs *console) (context.CancelFunc, err
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	go gobuild.Watch(ctx, logs.Logs, o)
+	go gobuild.Watch(ctx, o)
 	return cancel, nil
 }
