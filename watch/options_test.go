@@ -33,6 +33,7 @@ func TestOptions_sanitize(t *testing.T) {
 
 	opt := &Options{}
 	a.Error(opt.sanitize()).
+		NotNil(opt.Logger).
 		NotNil(opt.Printer)
 
 	opt.Dirs = []string{"./"}
@@ -71,9 +72,7 @@ func TestOptions_sanitizeExts(t *testing.T) {
 
 	opt := &Options{}
 	opt.sanitizeExts()
-	a.Empty(opt.Exts).False(opt.anyExts).
-		NotNil(opt.Logger).
-		NotNil(opt.Printer)
+	a.Empty(opt.Exts).False(opt.anyExts)
 
 	opt = &Options{Exts: []string{".go", " ", "java", " .php"}}
 	opt.sanitizeExts()
