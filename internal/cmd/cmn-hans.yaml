@@ -34,10 +34,6 @@ messages:
     msg: |
       显示版本信息
 
-- key: 未指定模块名称
-  message:
-    msg: 未指定模块名称
-
 - key: 显示完整的版本号
   message:
     msg: 显示完整的版本号
@@ -89,9 +85,14 @@ messages:
     msg: |
       初始化项目
 
+      这将在当前目录下创建项目文件夹，并在项目文件夹下生成的必要的文件，
+      比如 gobuild 的配置文件 .gobuild.yaml，go.mod 文件，以及默认的 main
+      入口文件。
+      如果已经存在同名的文件夹，则仅在该目录下创建 .gobuild.yaml 文件。
+
       语法：
       gobuild init {mod}
 
       mod 
-        为 go.mod 中的模块名称，其最后一个目录元素也将作为文件名称在当前目录下创建，
-        同时还会创建 go.mod 文件和 .gobuild.yaml 文件，以及在 cmd 子目录的程序入口 main 方法。
+        为模块的名称，与 go.mod 中的模块名称相同，名称的最后一个路径元素
+        会被作为项目文件名称。可以为空，表示当前目录作为项目文件夹。
