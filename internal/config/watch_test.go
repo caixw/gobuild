@@ -9,10 +9,14 @@ import (
 	"github.com/issue9/assert/v3"
 )
 
-func TestRoot(t *testing.T) {
+func TestGetRoot(t *testing.T) {
 	a := assert.New(t, false)
 
 	wd, err := getRoot("./testdir/mod4/mod44")
+	a.NotError(err).
+		Equal(filepath.Base(wd), "mod4")
+
+	wd, err = getRoot("./testdir/mod4")
 	a.NotError(err).
 		Equal(filepath.Base(wd), "mod4")
 

@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -254,9 +255,14 @@ func recursivePaths(recursive bool, paths []string) ([]string, error) {
 			return err
 		}
 
-		if fi.IsDir() && (!strings.Contains(path, "/.") || !strings.Contains(path, "\\.")) { // 非隐藏的目录
-			ret = append(ret, path)
+		if !fi.IsDir() {
+			return nil
 		}
+
+		if fi.Name()[0] == '.' { // 隐藏的目录
+			return fs.SkipDir
+		}
+		ret = append(ret, path)
 		return nil
 	}
 

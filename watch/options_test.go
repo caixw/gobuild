@@ -51,6 +51,8 @@ func TestOptions_sanitize(t *testing.T) {
 }
 
 func pathsEqual(a *assert.Assertion, paths1, paths2 []string) {
+	a.TB().Helper()
+
 	a.Equal(len(paths1), len(paths2))
 
 LOOP:

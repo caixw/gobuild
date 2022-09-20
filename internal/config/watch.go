@@ -95,20 +95,19 @@ func getRoot(wd string) (string, error) {
 	return root(abs)
 }
 
-func root(parent string) (string, error) {
-	wd := filepath.Dir(parent)
-	if wd == "" || wd == parent {
-		return "", fs.ErrNotExist
-	}
-
-	path := wd + string(filepath.Separator) + Filename
+func root(curr string) (string, error) {
+	path := curr + string(filepath.Separator) + Filename
 	_, err := os.Stat(path)
 	switch {
 	case errors.Is(err, fs.ErrNotExist):
+		wd := filepath.Dir(curr)
+		if wd == "" || wd == curr {
+			return "", fs.ErrNotExist
+		}
 		return root(wd)
 	case err != nil:
 		return "", err
 	default:
-		return wd, nil
+		return curr, nil
 	}
 }
