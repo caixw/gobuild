@@ -68,6 +68,10 @@ func (b *builder) isIgnore(path string) bool {
 		return true
 	}
 
+	if b.goTidy && filepath.Base(path) == "go.mod" {
+		return false
+	}
+
 	for _, p := range b.excludes {
 		matched, err := filepath.Match(p, path)
 		if err != nil {
