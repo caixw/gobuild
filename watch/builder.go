@@ -183,7 +183,7 @@ func (b *builder) killApp() {
 }
 
 // 过滤掉不需要监视的目录。以下目录会被过滤掉：
-// 整个目录下都没需要监视的文件；
+// - 整个目录下都没需要监视的文件；
 func (b *builder) filterPaths(paths []string) []string {
 	ret := make([]string, 0, len(paths))
 

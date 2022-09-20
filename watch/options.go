@@ -85,6 +85,8 @@ type Options struct {
 	// 可以在此处指定这些需要跟踪的包。
 	//
 	// 如果 OutputName 中未指定目录的话，第一个目录会被当作工作目录使用。
+	//
+	// NOTE: 如果指定的目录下没有需要被监视的文件类型，那么该目录将被忽略。
 	Dirs  []string `xml:"dirs,omitempty" yaml:"dirs,omitempty" json:"dirs,omitempty"`
 	paths []string
 
