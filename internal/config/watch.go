@@ -26,8 +26,11 @@ func Watch(wd string, p *message.Printer, logs watch.Logger) error {
 	if err != nil {
 		return err
 	}
+	if err := os.Chdir(wd); err != nil { // 切换工作目录为项目根目录
+		return err
+	}
 
-	cancel, err := newWatcher(wd, p, logs)
+	cancel, err := newWatcher(p, logs)
 	if err != nil {
 		return err
 	}
@@ -38,7 +41,7 @@ func Watch(wd string, p *message.Printer, logs watch.Logger) error {
 	if err != nil {
 		return err
 	}
-	if err := watcher.Add(wd + string(filepath.Separator) + Filename); err != nil {
+	if err := watcher.Add(Filename); err != nil {
 		return err
 	}
 	defer watcher.Close()
@@ -54,7 +57,7 @@ func Watch(wd string, p *message.Printer, logs watch.Logger) error {
 			buildTime = time.Now()
 			logs.Output(watch.LogTypeInfo, p.Sprintf("配置文件被修改，重启热编译程序！"))
 			cancel()
-			if cancel, err = newWatcher(wd, p, logs); err != nil {
+			if cancel, err = newWatcher(p, logs); err != nil {
 				return err
 			}
 		case err := <-watcher.Errors:
@@ -63,8 +66,8 @@ func Watch(wd string, p *message.Printer, logs watch.Logger) error {
 	}
 }
 
-func newWatcher(wd string, p *message.Printer, l watch.Logger) (context.CancelFunc, error) {
-	data, err := os.ReadFile(wd + string(os.PathSeparator) + Filename)
+func newWatcher(p *message.Printer, l watch.Logger) (context.CancelFunc, error) {
+	data, err := os.ReadFile(Filename)
 	if errors.Is(err, fs.ErrNotExist) {
 		panic("配置文件不存在") // 由调用方 Watch 保证配置文件必定存在
 	} else if err != nil {
