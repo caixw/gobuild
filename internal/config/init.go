@@ -13,8 +13,6 @@ import (
 	"github.com/issue9/source"
 )
 
-const binBaseDir = "cmd"
-
 func Init(wd, name string) error {
 	base := path.Base(name)
 

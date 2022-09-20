@@ -7,6 +7,7 @@ import (
 
 	"github.com/caixw/gobuild/internal/config"
 	"github.com/caixw/gobuild/watch"
+	"golang.org/x/text/message"
 )
 
 type WatchOptions = watch.Options
@@ -26,3 +27,11 @@ func Watch(ctx context.Context, o *WatchOptions) error { return watch.Watch(ctx,
 //   - .gobuild.yaml 为 gobuild 的配置文件；
 //   - cmd/{base}/{base}.go 程序入口 main 函数，base 为 name 的最后一个元素；
 func Init(wd, name string) error { return config.Init(wd, name) }
+
+// WatchConfig 监视配置文件
+//
+// 如果配置文件发生变化，那么重启热编译程序；
+// 如果 wd 中不存在配置文件，则向上一级查找。
+func WatchConfig(wd string, p *message.Printer, logs watch.Logger) error {
+	return config.Watch(wd, p, logs)
+}

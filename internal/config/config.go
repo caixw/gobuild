@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// Package init 提供初始化项目的功能
+// Package config 提供操作配置文件的能力
 package config
 
 import (
@@ -14,6 +14,10 @@ import (
 	"github.com/caixw/gobuild/watch"
 )
 
+// 默认的 main 方法的父目录
+const binBaseDir = "cmd"
+
+// Filename 配置文件的文件名
 const Filename = ".gobuild.yaml"
 
 const fileHeader = `# 此文件由 gobuild<https://github.com/caixw/gobuild> 生成和使用
