@@ -5,7 +5,7 @@ package gobuild
 import (
 	"context"
 
-	i "github.com/caixw/gobuild/internal/init"
+	"github.com/caixw/gobuild/internal/config"
 	"github.com/caixw/gobuild/watch"
 )
 
@@ -25,4 +25,4 @@ func Watch(ctx context.Context, o *WatchOptions) error { return watch.Watch(ctx,
 //   - go.mod 以 name 作为模块名；
 //   - .gobuild.yaml 为 gobuild 的配置文件；
 //   - cmd/{base}/{base}.go 程序入口 main 函数，base 为 name 的最后一个元素；
-func Init(wd, name string) error { return i.Init(wd, name) }
+func Init(wd, name string) error { return config.Init(wd, name) }

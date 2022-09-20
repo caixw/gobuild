@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-package init
+package config
 
 import (
 	"io/fs"
@@ -21,7 +21,7 @@ func TestInit(t *testing.T) {
 		a := assert.New(t, false)
 		a.NotError(Init("testdir/mod2", "mod"))
 		a.FileExists("testdir/mod2/mod/go.mod")
-		a.FileExists(filepath.Join("testdir/mod2/mod/", ConfigFilename))
+		a.FileExists(filepath.Join("testdir/mod2/mod/", Filename))
 		a.FileExists(filepath.Join("testdir/mod2/mod/", binBaseDir, "mod/main.go"))
 		os.RemoveAll("testdir/mod2/mod")
 	})
@@ -30,8 +30,8 @@ func TestInit(t *testing.T) {
 		a := assert.New(t, false)
 		a.NotError(Init("testdir", "mod3"))
 		a.FileNotExists("testdir/mod3/go.mod")
-		a.FileExists(filepath.Join("testdir/mod3", ConfigFilename))
+		a.FileExists(filepath.Join("testdir/mod3", Filename))
 		a.FileNotExists(filepath.Join("testdir/mod3/", binBaseDir, "mod/main.go"))
-		os.RemoveAll(filepath.Join("testdir/mod3", ConfigFilename))
+		os.RemoveAll(filepath.Join("testdir/mod3", Filename))
 	})
 }

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-package init
+// Package init 提供初始化项目的功能
+package config
 
 import (
 	"io/fs"
@@ -13,9 +14,10 @@ import (
 	"github.com/caixw/gobuild/watch"
 )
 
-const ConfigFilename = ".gobuild.yaml"
+const Filename = ".gobuild.yaml"
 
-const fileheader = `# 此文件由 gobuild<https://github.com/caixw/gobuild> 生成和使用
+const fileHeader = `# 此文件由 gobuild<https://github.com/caixw/gobuild> 生成和使用
+
 `
 
 func initOptions(wd, base string) error {
@@ -23,7 +25,7 @@ func initOptions(wd, base string) error {
 	o := &watch.Options{
 		MainFiles:        path.Join("./", dir),
 		OutputName:       path.Join(dir, base),
-		Excludes:         []string{ConfigFilename},
+		Excludes:         []string{Filename},
 		Exts:             []string{".go", ".yaml", ".xml", ".yml", ".json"}, // 配置文件修改也重启
 		Recursive:        true,
 		Dirs:             []string{"./"},
@@ -35,8 +37,8 @@ func initOptions(wd, base string) error {
 		return err
 	}
 
-	d := make([]byte, 0, len(fileheader)+len(data))
-	d = append(d, []byte(fileheader)...)
+	d := make([]byte, 0, len(fileHeader)+len(data))
+	d = append(d, []byte(fileHeader)...)
 	d = append(d, data...)
-	return os.WriteFile(filepath.Join(wd, ConfigFilename), d, fs.ModePerm)
+	return os.WriteFile(filepath.Join(wd, Filename), d, fs.ModePerm)
 }

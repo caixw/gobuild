@@ -17,7 +17,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/caixw/gobuild"
-	i "github.com/caixw/gobuild/internal/init"
+	"github.com/caixw/gobuild/internal/config"
 	"github.com/caixw/gobuild/watch"
 )
 
@@ -44,7 +44,7 @@ func doWatch(p *message.Printer) cmdopt.DoFunc {
 		if err != nil {
 			return err
 		}
-		if err := watcher.Add(i.ConfigFilename); err != nil {
+		if err := watcher.Add(config.Filename); err != nil {
 			return err
 		}
 		defer watcher.Close()
@@ -71,9 +71,9 @@ func doWatch(p *message.Printer) cmdopt.DoFunc {
 }
 
 func watchWithCancel(p *message.Printer, l watch.Logger) (context.CancelFunc, error) {
-	data, err := os.ReadFile(i.ConfigFilename)
+	data, err := os.ReadFile(config.Filename)
 	if errors.Is(err, fs.ErrNotExist) {
-		return nil, errors.New(p.Sprintf("未找到配置文件：%s", i.ConfigFilename))
+		return nil, errors.New(p.Sprintf("未找到配置文件：%s", config.Filename))
 	} else if err != nil {
 		return nil, err
 	}

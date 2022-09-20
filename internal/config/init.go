@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// Package init 提供初始化项目的功能
-package init
+package config
 
 import (
 	"errors"
