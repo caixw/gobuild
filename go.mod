@@ -7,7 +7,7 @@ require (
 	github.com/issue9/localeutil v0.12.3
 	github.com/issue9/source v0.3.2
 	github.com/issue9/term/v3 v3.0.1
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.3.8
 	gopkg.in/yaml.v3 v3.0.1
 )
 
