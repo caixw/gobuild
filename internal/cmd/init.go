@@ -8,32 +8,29 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/caixw/gobuild"
 	"github.com/issue9/cmdopt"
 	"golang.org/x/text/message"
+
+	"github.com/caixw/gobuild"
 )
 
-var initFS *flag.FlagSet
-
 func initInit(o *cmdopt.CmdOpt, p *message.Printer) {
-	initFS = o.New("init", p.Sprintf("初始化项目"), doInit(p))
-}
+	o.New("init", p.Sprintf("初始化项目"), p.Sprintf("初始化项目"), func(fs *flag.FlagSet) cmdopt.DoFunc {
+		return func(w io.Writer) error {
+			wd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
 
-func doInit(p *message.Printer) cmdopt.DoFunc {
-	return func(w io.Writer) error {
-		wd, err := os.Getwd()
-		if err != nil {
-			return err
+			var name string
+			if fs.NArg() > 0 {
+				name = fs.Arg(0)
+			} else {
+				name = filepath.Base(wd) // 顺序不能乱，要先拿 name！
+				wd = filepath.Dir(wd)
+			}
+
+			return gobuild.Init(wd, name)
 		}
-
-		var name string
-		if initFS.NArg() > 0 {
-			name = initFS.Arg(0)
-		} else {
-			name = filepath.Base(wd) // 顺序不能乱，要先拿 name！
-			wd = filepath.Dir(wd)
-		}
-
-		return gobuild.Init(wd, name)
-	}
+	})
 }

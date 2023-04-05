@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"embed"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,21 +28,15 @@ const (
 
 func Exec() error {
 	p := getPrinter()
-	o := &cmdopt.CmdOpt{
-		Output:        os.Stdout,
-		Header:        p.Sprintf("gobuild 是 Go 的热编译工具，监视文件变化，并编译和运行程序。"),
-		Footer:        p.Sprintf("源代码采用 %s 开源许可证，并发布于 %s", license, url),
-		CommandsTitle: p.Sprintf("包含的子命令："),
-		OptionsTitle:  p.Sprintf("可用选项："),
-		NotFound: func(string) string {
-			return p.Sprintf("未找到子命令 %s")
-		},
-	}
+
+	usage := p.Sprintf("cmd.usage %s %s", license, url)
+
+	o := cmdopt.New(os.Stdout, flag.ExitOnError, usage, nil, func(s string) string { return p.Sprintf("未找到子命令 %s") })
 
 	initVersion(o, p)
 	initWatch(o, p)
 	initInit(o, p)
-	o.Help("help", p.Sprintf("显示帮助信息"))
+	o.New("help", p.Sprintf("显示帮助信息"), p.Sprintf("显示帮助信息"), cmdopt.Help(o))
 	return o.Exec(os.Args[1:])
 }
 
