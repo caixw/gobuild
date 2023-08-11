@@ -1,22 +1,23 @@
 // SPDX-License-Identifier: MIT
 
-package cmd
+package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
+	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/issue9/cmdopt"
 	"github.com/issue9/localeutil"
 	"golang.org/x/text/message"
-
-	"github.com/caixw/gobuild/internal/local"
 )
 
 var (
-	mainVersion = "1.1.0"
+	mainVersion = "1.3.0"
 	metadata    string
 	fullVersion = mainVersion
 
@@ -46,7 +47,7 @@ func initVersion(o *cmdopt.CmdOpt, p *message.Printer) {
 			}
 			fmt.Fprintf(w, "gobuild %s build with %s\n", version, runtime.Version())
 
-			if v, err := local.GoVersion(); err != nil {
+			if v, err := goVersion(); err != nil {
 				fmt.Fprintln(w, localeutil.Phrase("获取本地环境出错：%s", err.Error()).LocaleString(p))
 			} else {
 				fmt.Fprintln(w, localeutil.Phrase("本地环境 %s", v).LocaleString(p))
@@ -54,4 +55,15 @@ func initVersion(o *cmdopt.CmdOpt, p *message.Printer) {
 			return nil
 		}
 	})
+}
+
+// goVersion 返回本地 Go 的版本信息
+func goVersion() (string, error) {
+	var buf bytes.Buffer
+	cmd := exec.Command("go", "version")
+	cmd.Stdout = &buf
+	if err := cmd.Run(); err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(strings.TrimPrefix(buf.String(), "go version ")), nil
 }

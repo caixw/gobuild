@@ -4,14 +4,14 @@
 package watch
 
 import (
+	"bytes"
 	"context"
+	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/issue9/localeutil"
-
-	"github.com/caixw/gobuild/internal/local"
 )
 
 // Watch 执行热编译服务
@@ -24,7 +24,7 @@ func Watch(ctx context.Context, opt *Options) error {
 
 	b := opt.newBuilder()
 
-	env, err := local.GoVersion()
+	env, err := goVersion()
 	if err != nil {
 		return err
 	}
@@ -115,4 +115,14 @@ func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
 	}
 
 	return watcher, nil
+}
+
+func goVersion() (string, error) {
+	var buf bytes.Buffer
+	cmd := exec.Command("go", "version")
+	cmd.Stdout = &buf
+	if err := cmd.Run(); err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(strings.TrimPrefix(buf.String(), "go version ")), nil
 }

@@ -1,7 +1,11 @@
+github.com/caixw/gobuild v1.2.2 h1:0Gt5jz0RZvkIWNv9H4nHhQEip/AluWWXuTCBlE0Rxcc=
+github.com/caixw/gobuild v1.2.2/go.mod h1:DxFbbNuAZ4sLrDzfNCpn5jKSzfjGPssF4BdIPAN3f1Y=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
 github.com/issue9/assert/v3 v3.0.5 h1:Mlz/4v2Ph6ZDm3Fk3A1jhitH4M/2dkHeHNKe7tTZdH8=
 github.com/issue9/assert/v3 v3.0.5/go.mod h1:yft/uaskRpwQTyBT3n1zRl91SR1wNlO4fLZHzOa4bdM=
+github.com/issue9/cmdopt v0.13.0 h1:mLaa7R94a6MbCf+1GIt4YgFDW6fdt/nnL0AjgKgf8jQ=
+github.com/issue9/cmdopt v0.13.0/go.mod h1:l//IcugcBwX+vCc2KrgC4ylU6rEzhjQyxno7hWoLCDE=
 github.com/issue9/errwrap v0.3.1 h1:8g4lYJaGnoiXyZ1oZyH/7zPDGgw5RNiE9Q6ri9kE6Z8=
 github.com/issue9/errwrap v0.3.1/go.mod h1:HLR0e5iimd2aJXM9YrThOsRj3/6lMtk77lVp7zyvJ4E=
 github.com/issue9/localeutil v0.21.0 h1:Rux+bvLjtACLE7b8IQfhdFlSan7q1vlqPvtZAoXqeE4=

@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-package cmd
+package main
 
 import (
-	"embed"
 	"flag"
 	"fmt"
 	"os"
@@ -16,11 +15,9 @@ import (
 	"golang.org/x/text/message/catalog"
 	"gopkg.in/yaml.v3"
 
+	cl "github.com/caixw/gobuild/cmd/locales"
 	"github.com/caixw/gobuild/locales"
 )
-
-//go:embed *.yaml
-var localeFS embed.FS
 
 const (
 	url     = "https://github.com/caixw/gobuild"
@@ -49,7 +46,7 @@ func getPrinter() *localeutil.Printer {
 	tag, _ := localeutil.DetectUserLanguageTag()
 	c := catalog.NewBuilder(catalog.Fallback(tag))
 
-	l1, err := serialize.LoadFSGlob(&localeFS, "*.yaml", yaml.Unmarshal)
+	l1, err := serialize.LoadFSGlob(&cl.Locales, "*.yaml", yaml.Unmarshal)
 	if err != nil {
 		panic(err)
 	}

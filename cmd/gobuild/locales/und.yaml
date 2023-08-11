@@ -1,0 +1,35 @@
+id: und
+messages:
+    - key: 初始化项目
+      message:
+        msg: 初始化项目
+    - key: 是否显示被标记为 IGNORE 的日志内容
+      message:
+        msg: 是否显示被标记为 IGNORE 的日志内容
+    - key: 显示完整的版本号
+      message:
+        msg: 显示完整的版本号
+    - key: 显示帮助信息
+      message:
+        msg: 显示帮助信息
+    - key: 显示版本信息
+      message:
+        msg: 显示版本信息
+    - key: 显示版本信息 usage
+      message:
+        msg: 显示版本信息 usage
+    - key: 未找到子命令 %s
+      message:
+        msg: 未找到子命令 %s
+    - key: 本地环境 %s
+      message:
+        msg: 本地环境 %s
+    - key: 热编译代码
+      message:
+        msg: 热编译代码
+    - key: 热编译代码 usage
+      message:
+        msg: 热编译代码 usage
+    - key: 获取本地环境出错：%s
+      message:
+        msg: 获取本地环境出错：%s

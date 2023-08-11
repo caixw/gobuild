@@ -22,7 +22,7 @@ builds:
   - goos: windows
     goarch: arm64
 
-  main: ./cmd/gobuild
+  main: ./
 
   binary: gobuild
 
@@ -30,7 +30,7 @@ builds:
   - -trimpath
 
   ldflags:
-  - -s -w -X github.com/caixw/gobuild/internal/cmd.metadata={{time "20060102"}}.{{.FullCommit}} -X main.version={{.Tag}}
+  - -s -w -X main.metadata={{time "20060102"}}.{{.FullCommit}} -X main.version={{.Tag}}
 
 brews:
 - tap:

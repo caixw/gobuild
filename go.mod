@@ -3,7 +3,6 @@ module github.com/caixw/gobuild
 require (
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/issue9/assert/v3 v3.0.5
-	github.com/issue9/cmdopt v0.13.0
 	github.com/issue9/localeutil v0.21.0
 	github.com/issue9/source v0.5.1
 	github.com/issue9/term/v3 v3.2.1

@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
 
+//go:generate web locale -l=und -m -f=yaml ./
+//go:generate web update-locale -src=./locales/und.yaml -dest=./locales/zh-CN.yaml,./locales/zh-TW.yaml
+
 // 一个简单的 Go 语言热编译工具
 //
 // 监视指定目录(可同时监视多个目录)下文件的变化，触发 go build 指令，
@@ -7,10 +10,8 @@
 // 具体命令格式可使用 gobuild help 来查看。
 package main
 
-import "github.com/caixw/gobuild/internal/cmd"
-
 func main() {
-	if err := cmd.Exec(); err != nil {
+	if err := Exec(); err != nil {
 		panic(err)
 	}
 }
