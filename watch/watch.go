@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/issue9/localeutil"
 
 	"github.com/caixw/gobuild/internal/local"
 )
@@ -27,18 +28,18 @@ func Watch(ctx context.Context, opt *Options) error {
 	if err != nil {
 		return err
 	}
-	b.logf(LogTypeInfo, "当前环境参数如下：%s", env)
+	b.logf(LogTypeInfo, localeutil.Phrase("当前环境参数如下：%s", env))
 
-	b.logf(LogTypeInfo, "给程序传递了以下参数：%s", b.appArgs) // 输出提示信息
+	b.logf(LogTypeInfo, localeutil.Phrase("给程序传递了以下参数：%s", b.appArgs)) // 输出提示信息
 
 	switch { // 提示扩展名
 	case len(b.exts) == 0: // 允许不监视任意文件，但输出警告信息
-		b.logf(LogTypeWarn, "将 ext 设置为空值，意味着不监视任何文件的改变！")
+		b.logf(LogTypeWarn, localeutil.StringPhrase("将 ext 设置为空值，意味着不监视任何文件的改变！"))
 	case len(b.exts) > 0:
-		b.logf(LogTypeInfo, "系统将监视以下类型的文件：%s", b.exts)
+		b.logf(LogTypeInfo, localeutil.Phrase("系统将监视以下类型的文件：%s", b.exts))
 	}
 
-	b.logf(LogTypeInfo, "输出文件为：%s", b.appName) // 提示 appName
+	b.logf(LogTypeInfo, localeutil.Phrase("输出文件为：%s", b.appName)) // 提示 appName
 
 	return b.watch(ctx, opt.paths)
 }
@@ -59,41 +60,41 @@ func (b *builder) watch(ctx context.Context, paths []string) error {
 		case <-ctx.Done():
 			b.killApp()
 			b.killGo()
-			b.logf(LogTypeInfo, "用户取消")
+			b.logf(LogTypeInfo, localeutil.StringPhrase("用户取消"))
 			return nil
 		case event := <-watcher.Events:
 			if event.Op&fsnotify.Chmod == fsnotify.Chmod {
-				b.logf(LogTypeIgnore, "watcher.Events:忽略 %s 事件", event.String())
+				b.logf(LogTypeIgnore, localeutil.Phrase("watcher.Events:忽略 %s 事件", event.String()))
 				continue
 			}
 
 			if b.isIgnore(event.Name) { // 不需要监视的扩展名
-				b.logf(LogTypeIgnore, "watcher.Events:忽略不被监视的文件：%s", event.String())
+				b.logf(LogTypeIgnore, localeutil.Phrase("watcher.Events:忽略不被监视的文件：%s", event.String()))
 				continue
 			}
 
 			if time.Since(buildTime) <= b.watcherFreq {
-				b.logf(LogTypeIgnore, "watcher.Events:忽略短期内频繁修改的文件：%s", event.Name)
+				b.logf(LogTypeIgnore, localeutil.Phrase("watcher.Events:忽略短期内频繁修改的文件：%s", event.Name))
 				continue
 			}
 			buildTime = time.Now()
 
 			if event.Name == "go.mod" && b.goTidy {
-				b.logf(LogTypeInfo, "watcher.Events:%s 事件触发了 go mod tidy", event.String())
+				b.logf(LogTypeInfo, localeutil.Phrase("watcher.Events:%s 事件触发了 go mod tidy", event.String()))
 				go b.tidy()
 			} else {
-				b.logf(LogTypeInfo, "watcher.Events:%s 事件触发了编译", event.String())
+				b.logf(LogTypeInfo, localeutil.Phrase("watcher.Events:%s 事件触发了编译", event.String()))
 				go b.build()
 			}
 		case err := <-watcher.Errors:
-			b.logf(LogTypeWarn, "watcher.Errors：%s", err.Error())
+			b.logf(LogTypeWarn, localeutil.Phrase("watcher.Errors：%s", err.Error()))
 			return nil
 		} // end select
 	}
 }
 
 func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
-	b.logf(LogTypeInfo, "初始化监视器...")
+	b.logf(LogTypeInfo, localeutil.StringPhrase("初始化监视器..."))
 
 	// 初始化监视器
 	watcher, err := fsnotify.NewWatcher()
@@ -104,7 +105,7 @@ func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
 	paths = b.filterPaths(paths)
 
 	ps := strings.Join(paths, ",\n")
-	b.logf(LogTypeIgnore, "以下路径或是文件将被监视：%s", ps)
+	b.logf(LogTypeIgnore, localeutil.Phrase("以下路径或是文件将被监视：%s", ps))
 
 	for _, path := range paths {
 		if err := watcher.Add(path); err != nil {

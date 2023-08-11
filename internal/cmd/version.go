@@ -9,6 +9,7 @@ import (
 	"runtime"
 
 	"github.com/issue9/cmdopt"
+	"github.com/issue9/localeutil"
 	"golang.org/x/text/message"
 
 	"github.com/caixw/gobuild/internal/local"
@@ -22,6 +23,12 @@ var (
 	versionFull bool
 )
 
+const (
+	showVersion      = localeutil.StringPhrase("显示版本信息")
+	showVersionUsage = localeutil.StringPhrase("显示版本信息 usage")
+	fullVersionUsage = localeutil.StringPhrase("显示完整的版本号")
+)
+
 func init() {
 	if metadata != "" {
 		fullVersion += "+" + metadata
@@ -29,8 +36,8 @@ func init() {
 }
 
 func initVersion(o *cmdopt.CmdOpt, p *message.Printer) {
-	o.New("version", p.Sprintf("显示版本信息"), p.Sprintf("显示版本信息 usage"), func(fs *flag.FlagSet) cmdopt.DoFunc {
-		fs.BoolVar(&versionFull, "f", false, p.Sprintf("显示完整的版本号"))
+	o.New("version", showVersion.LocaleString(p), showVersionUsage.LocaleString(p), func(fs *flag.FlagSet) cmdopt.DoFunc {
+		fs.BoolVar(&versionFull, "f", false, fullVersionUsage.LocaleString(p))
 
 		return func(w io.Writer) error {
 			version := mainVersion
@@ -40,9 +47,9 @@ func initVersion(o *cmdopt.CmdOpt, p *message.Printer) {
 			fmt.Fprintf(w, "gobuild %s build with %s\n", version, runtime.Version())
 
 			if v, err := local.GoVersion(); err != nil {
-				fmt.Fprintln(w, p.Sprintf("获取本地环境出错：%s", err.Error()))
+				fmt.Fprintln(w, localeutil.Phrase("获取本地环境出错：%s", err.Error()).LocaleString(p))
 			} else {
-				fmt.Fprintln(w, p.Sprintf("本地环境 %s", v))
+				fmt.Fprintln(w, localeutil.Phrase("本地环境 %s", v).LocaleString(p))
 			}
 			return nil
 		}

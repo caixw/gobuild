@@ -49,8 +49,6 @@ brews:
 archives:
 - builds:
   - gobuild
-  replacements:
-    darwin: macOS
   format_overrides:
   - goos: windows
     format: zip

@@ -15,7 +15,7 @@ const (
 	LogTypeInfo
 	LogTypeWarn
 	LogTypeError
-	LogTypeIgnore // 默认情况下被忽略的信息，一般内容比较多，且价格不高的内容会显示在此通道。
+	LogTypeIgnore // 默认情况下被忽略的信息，一般内容比较多，且价值不高的内容会显示在此通道。
 	LogTypeApp    // 被编译程序返回的信息
 	LogTypeGo     // Go 编译器返回的信息
 )

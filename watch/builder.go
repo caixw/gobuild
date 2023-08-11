@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/issue9/localeutil"
 	"golang.org/x/text/message"
 )
 
@@ -58,8 +59,8 @@ func (opt *Options) newBuilder() *builder {
 }
 
 // 输出翻译后的内容
-func (b *builder) logf(typ int8, key message.Reference, msg ...interface{}) {
-	b.logs.Output(typ, b.p.Sprintf(key, msg...))
+func (b *builder) logf(typ int8, msg localeutil.LocaleStringer) {
+	b.logs.Output(typ, msg.LocaleString(b.p))
 }
 
 // 确定文件 path 是否属于被忽略的格式
@@ -75,7 +76,7 @@ func (b *builder) isIgnore(path string) bool {
 	for _, p := range b.excludes {
 		matched, err := filepath.Match(p, path)
 		if err != nil {
-			b.logf(LogTypeError, b.p.Sprintf(err.Error))
+			b.logf(LogTypeError, localeutil.Phrase(err.Error()))
 			return false
 		}
 		if matched {
@@ -98,17 +99,17 @@ func (b *builder) isIgnore(path string) bool {
 func (b *builder) tidy() {
 	b.killGo()
 
-	b.logf(LogTypeInfo, "执行 go mod tidy...")
+	b.logf(LogTypeInfo, localeutil.StringPhrase("执行 go mod tidy..."))
 
 	b.goCmd = exec.Command("go", "mod", "tidy")
 	b.goCmd.Stderr = asWriter(LogTypeGo, b.logs)
 	b.goCmd.Stdout = asWriter(LogTypeGo, b.logs)
 	if err := b.goCmd.Run(); err != nil {
-		b.logf(LogTypeError, "go mod tidy 失败：%s", err.Error())
+		b.logf(LogTypeError, localeutil.Phrase("go mod tidy 失败：%s", err.Error()))
 		return
 	}
 
-	b.logf(LogTypeSuccess, "go mod tidy 完成!")
+	b.logf(LogTypeSuccess, localeutil.StringPhrase("go mod tidy 完成!"))
 	b.goCmd = nil
 }
 
@@ -116,17 +117,17 @@ func (b *builder) tidy() {
 func (b *builder) build() {
 	b.killGo()
 
-	b.logf(LogTypeInfo, "编译代码...")
+	b.logf(LogTypeInfo, localeutil.StringPhrase("编译代码..."))
 
 	b.goCmd = exec.Command("go", b.goArgs...)
 	b.goCmd.Stderr = asWriter(LogTypeGo, b.logs)
 	b.goCmd.Stdout = asWriter(LogTypeGo, b.logs)
 	if err := b.goCmd.Run(); err != nil {
-		b.logf(LogTypeError, "编译失败：%s", err.Error())
+		b.logf(LogTypeError, localeutil.Phrase("编译失败：%s", err.Error()))
 		return
 	}
 
-	b.logf(LogTypeSuccess, "编译成功!")
+	b.logf(LogTypeSuccess, localeutil.StringPhrase("编译成功!"))
 	b.goCmd = nil
 
 	b.restartApp()
@@ -137,14 +138,14 @@ func (b *builder) killGo() {
 	defer b.goKillMux.Unlock()
 
 	if b.goCmd != nil && b.goCmd.Process != nil {
-		b.logf(LogTypeInfo, "中止旧的编译进程")
+		b.logf(LogTypeInfo, localeutil.StringPhrase("中止旧的编译进程"))
 		if err := b.goCmd.Process.Kill(); err != nil {
-			b.logf(LogTypeError, "中止旧的编译进程失败：%s", err.Error())
+			b.logf(LogTypeError, localeutil.Phrase("中止旧的编译进程失败：%s", err.Error()))
 		}
 		if err := b.goCmd.Wait(); err != nil {
-			b.logf(LogTypeError, "被中止编译进程非正常退出：%s", err.Error())
+			b.logf(LogTypeError, localeutil.Phrase("被中止编译进程非正常退出：%s", err.Error()))
 		}
-		b.logf(LogTypeSuccess, "旧的编译进程被终止!")
+		b.logf(LogTypeSuccess, localeutil.StringPhrase("旧的编译进程被终止!"))
 		b.goCmd = nil
 	}
 }
@@ -153,19 +154,19 @@ func (b *builder) killGo() {
 func (b *builder) restartApp() {
 	defer func() {
 		if err := recover(); err != nil {
-			b.logf(LogTypeError, "重启失败：%v", err)
+			b.logf(LogTypeError, localeutil.Phrase("重启失败：%v", err))
 		}
 	}()
 
 	b.killApp()
 
-	b.logf(LogTypeInfo, "启动新进程：%s", b.appName)
+	b.logf(LogTypeInfo, localeutil.Phrase("启动新进程：%s", b.appName))
 	b.appCmd = exec.Command(b.appName, b.appArgs...)
 	b.appCmd.Dir = b.appWD
 	b.appCmd.Stderr = asWriter(LogTypeApp, b.logs)
 	b.appCmd.Stdout = asWriter(LogTypeApp, b.logs)
 	if err := b.appCmd.Start(); err != nil {
-		b.logf(LogTypeError, "启动进程时出错：%s", err)
+		b.logf(LogTypeError, localeutil.Phrase("启动进程时出错：%s", err))
 	}
 }
 
@@ -174,14 +175,14 @@ func (b *builder) killApp() {
 	defer b.appKillMux.Unlock()
 
 	if b.appCmd != nil && b.appCmd.Process != nil {
-		b.logf(LogTypeInfo, "中止旧进程：%s", b.appName)
+		b.logf(LogTypeInfo, localeutil.Phrase("中止旧进程：%s", b.appName))
 		if err := b.appCmd.Process.Kill(); err != nil {
-			b.logf(LogTypeError, "中止旧进程失败：%s", err.Error())
+			b.logf(LogTypeError, localeutil.Phrase("中止旧进程失败：%s", err.Error()))
 		}
 		if err := b.appCmd.Wait(); err != nil {
-			b.logf(LogTypeError, "被中止进程非正常退出：%s", err.Error())
+			b.logf(LogTypeError, localeutil.Phrase("被中止进程非正常退出：%s", err.Error()))
 		}
-		b.logf(LogTypeSuccess, "旧进程被终止!")
+		b.logf(LogTypeSuccess, localeutil.StringPhrase("旧进程被终止!"))
 		b.appCmd = nil
 	}
 }
@@ -194,7 +195,7 @@ func (b *builder) filterPaths(paths []string) []string {
 	for _, dir := range paths {
 		fs, err := os.ReadDir(dir)
 		if err != nil {
-			b.logf(LogTypeError, err)
+			b.logf(LogTypeError, localeutil.Phrase(err.Error()))
 			continue
 		}
 

@@ -1,7 +1,5 @@
 
-languages:
-- cmn-hans
-- und
+id: zh-CN
 
 messages:
 - key: 当前环境参数如下：%s

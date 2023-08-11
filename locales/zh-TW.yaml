@@ -1,6 +1,5 @@
 
-languages:
-- cmn-hant
+id: zh-TW
 
 messages:
 - key: 当前环境参数如下：%s

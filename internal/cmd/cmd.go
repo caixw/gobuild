@@ -11,6 +11,7 @@ import (
 
 	"github.com/issue9/cmdopt"
 	"github.com/issue9/localeutil"
+	"github.com/issue9/localeutil/message/serialize"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
 	"gopkg.in/yaml.v3"
@@ -26,36 +27,61 @@ const (
 	license = "MIT"
 )
 
+const helpUsage = localeutil.StringPhrase("显示帮助信息")
+
 func Exec() error {
 	p := getPrinter()
 
 	usage := p.Sprintf("cmd.usage %s %s", license, url)
 
-	o := cmdopt.New(os.Stdout, flag.ExitOnError, usage, nil, func(s string) string { return p.Sprintf("未找到子命令 %s") })
+	o := cmdopt.New(os.Stdout, flag.ExitOnError, usage, nil, func(s string) string {
+		return localeutil.Phrase("未找到子命令 %s").LocaleString(p)
+	})
 
 	initVersion(o, p)
 	initWatch(o, p)
 	initInit(o, p)
-	o.New("help", p.Sprintf("显示帮助信息"), p.Sprintf("显示帮助信息"), cmdopt.Help(o))
+	cmdopt.Help(o, "help", helpUsage.LocaleString(p), helpUsage.LocaleString(p))
 	return o.Exec(os.Args[1:])
 }
 
-func getPrinter() *message.Printer {
+func getPrinter() *localeutil.Printer {
 	tag, _ := localeutil.DetectUserLanguageTag()
 	c := catalog.NewBuilder(catalog.Fallback(tag))
 
-	if err := localeutil.LoadMessageFromFSGlob(c, &localeFS, "*.yaml", yaml.Unmarshal); err != nil {
+	l1, err := serialize.LoadFSGlob(&localeFS, "*.yaml", yaml.Unmarshal)
+	if err != nil {
 		panic(err)
 	}
-	if err := localeutil.LoadMessageFromFSGlob(c, locales.Locales, "*.yaml", yaml.Unmarshal); err != nil {
+	for _, l := range l1 {
+		if err := l.Catalog(c); err != nil {
+			panic(err)
+		}
+	}
+
+	l2, err := serialize.LoadFSGlob(&locales.Locales, "*.yaml", yaml.Unmarshal)
+	if err != nil {
 		panic(err)
 	}
+	for _, l := range l2 {
+		if err := l.Catalog(c); err != nil {
+			panic(err)
+		}
+	}
+
 	p, err := os.Executable()
 	if err != nil { // 这里不退出
 		fmt.Fprintln(os.Stderr, err)
 	}
-	if err := localeutil.LoadMessageFromFSGlob(c, os.DirFS(filepath.Dir(p)), "*.yaml", yaml.Unmarshal); err != nil {
+
+	l3, err := serialize.LoadFSGlob(os.DirFS(filepath.Dir(p)), "*.yaml", yaml.Unmarshal)
+	if err != nil {
 		panic(err)
+	}
+	for _, l := range l3 {
+		if err := l.Catalog(c); err != nil {
+			panic(err)
+		}
 	}
 
 	return message.NewPrinter(tag, message.Catalog(c))

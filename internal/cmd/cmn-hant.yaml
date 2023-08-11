@@ -1,6 +1,5 @@
 
-languages:
-- cmn-hant
+id: cmn-hant
 
 messages:
 - key: 显示帮助信息

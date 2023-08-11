@@ -1,7 +1,5 @@
 
-languages:
-- cmn-hans
-- und
+id: cmn-hans
 
 messages:
 - key: 显示帮助信息
