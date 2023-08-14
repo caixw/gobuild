@@ -34,6 +34,12 @@ jobs:
       - name: Test
         run: go test -v -coverprofile='coverage.txt' -covermode=atomic ./...
 
+      - name: Test cmd
+        run: |
+          cd cmd/gobuild
+          go test -v
+
+
       - name: Upload Coverage report
         uses: codecov/codecov-action@v3
         with:

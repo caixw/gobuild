@@ -1,6 +1,6 @@
 module github.com/caixw/gobuild/cmd
 
-go 1.21.0
+go 1.21
 
 require (
 	github.com/caixw/gobuild v1.2.2
