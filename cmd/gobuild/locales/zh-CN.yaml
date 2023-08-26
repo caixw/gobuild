@@ -2,7 +2,19 @@ id: cmn-Hans
 messages:
     - key: 初始化项目
       message:
-        msg: "初始化项目\n\n这将在当前目录下创建项目文件夹，并在项目文件夹下生成的必要的文件，\n比如 gobuild 的配置文件 .gobuild.yaml，go.mod 文件，以及默认的 main\n入口文件。\n如果已经存在同名的文件夹，则仅在该目录下创建 .gobuild.yaml 文件。\n\n语法：\ngobuild init {mod}\n\nmod \n  为模块的名称，与 go.mod 中的模块名称相同，名称的最后一个路径元素\n  会被作为项目文件名称。可以为空，表示当前目录作为项目文件夹。\n"
+        msg: |
+          初始化项目
+          
+          这将在当前目录下创建项目文件夹，并在项目文件夹下生成的必要的文件，
+          比如 gobuild 的配置文件 .gobuild.yaml，go.mod 文件，以及默认的 main 入口文件。
+          如果已经存在同名的文件夹，则仅在该目录下创建 .gobuild.yaml 文件。
+          
+          语法：
+          gobuild init {mod}
+          
+          mod
+            为模块的名称，与 go.mod 中的模块名称相同，名称的最后一个路径元素
+            会被作为项目文件名称。可以为空，表示当前目录作为项目文件夹。
     - key: 是否显示被标记为 IGNORE 的日志内容
       message:
         msg: 是否显示不重要的提示信息

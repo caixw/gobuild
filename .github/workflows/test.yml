@@ -37,7 +37,7 @@ jobs:
       - name: Test cmd
         run: |
           cd cmd/gobuild
-          go test -v
+          go test -v ./...
 
 
       - name: Upload Coverage report
