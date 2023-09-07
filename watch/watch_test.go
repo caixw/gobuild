@@ -16,10 +16,8 @@ func TestWatch(t *testing.T) {
 	a := assert.New(t, false)
 
 	opt := &Options{
-		Logger:     NewConsoleLogger(true, io.Discard, io.Discard),
-		Dirs:       []string{"./testdir"},
-		MainFiles:  "./testdir/main.go",
-		OutputName: "outputName",
+		Logger:    NewConsoleLogger(true, io.Discard, io.Discard),
+		MainFiles: "./testdir/main.go",
 	}
 	a.NotError(opt.sanitize())
 
@@ -34,5 +32,5 @@ func TestWatch(t *testing.T) {
 	cancel()
 	time.Sleep(500 * time.Millisecond) // 等待 cancel 完成
 	<-exit
-	os.Remove("./testdir/outputName")
+	os.Remove("./testdir/testdir")
 }

@@ -3,6 +3,7 @@
 package watch
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -50,7 +51,7 @@ func (opt *Options) newBuilder() *builder {
 		watcherFreq: opt.WatcherFrequency,
 		p:           opt.Printer,
 
-		appWD:   filepath.Dir(opt.appName),
+		appWD:   opt.wd,
 		appArgs: opt.appArgs,
 
 		goTidy: opt.AutoTidy,
@@ -118,6 +119,8 @@ func (b *builder) build() {
 	b.killGo()
 
 	b.logf(LogTypeInfo, localeutil.StringPhrase("编译代码..."))
+
+	fmt.Println(b.goArgs)
 
 	b.goCmd = exec.Command("go", b.goArgs...)
 	b.goCmd.Stderr = asWriter(LogTypeGo, b.logs)

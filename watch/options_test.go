@@ -4,7 +4,6 @@ package watch
 
 import (
 	"encoding/xml"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -32,13 +31,14 @@ func TestOptions_sanitize(t *testing.T) {
 	a := assert.New(t, false)
 
 	opt := &Options{}
-	a.Error(opt.sanitize()).
+	a.NotError(opt.sanitize()).
 		NotNil(opt.Logger).
 		NotNil(opt.Printer)
 
-	opt.Dirs = []string{"./"}
+	opt.MainFiles = "./"
 	a.NotError(opt.sanitize()).
-		Equal(opt.WatcherFrequency, MinWatcherFrequency)
+		Equal(opt.WatcherFrequency, MinWatcherFrequency).
+		True(strings.HasSuffix(opt.appName, "watch"))
 
 	opt.Excludes = []string{}
 	a.NotError(opt.sanitize())
@@ -52,7 +52,6 @@ func TestOptions_sanitize(t *testing.T) {
 
 func pathsEqual(a *assert.Assertion, paths1, paths2 []string) {
 	a.TB().Helper()
-
 	a.Equal(len(paths1), len(paths2))
 
 LOOP:
@@ -74,7 +73,7 @@ func TestOptions_sanitizeExts(t *testing.T) {
 
 	opt := &Options{}
 	opt.sanitizeExts()
-	a.Empty(opt.Exts).False(opt.anyExts)
+	a.Equal(opt.Exts, []string{".go"}).False(opt.anyExts)
 
 	opt = &Options{Exts: []string{".go", " ", "java", " .php"}}
 	opt.sanitizeExts()
@@ -85,50 +84,21 @@ func TestOptions_sanitizeExts(t *testing.T) {
 	a.True(opt.anyExts)
 }
 
-func TestGetAppName(t *testing.T) {
-	a := assert.New(t, false)
-	goexe := os.Getenv("GOEXE")
-
-	name, err := getAppName("", "./testdir")
-	a.NotError(err).True(strings.HasSuffix(name, "testdir"+goexe), name)
-
-	name, err = getAppName("a", "./testdir/a")
-	a.NotError(err).True(strings.HasSuffix(name, "a"+goexe), name)
-
-	name, err = getAppName("a.exe", "./testdir")
-	a.NotError(err).True(strings.HasSuffix(name, "a.exe"), name)
-}
-
 func TestRecursivePath(t *testing.T) {
 	a := assert.New(t, false)
 
-	paths, err := recursivePaths(false, []string{"./testdir"})
-	a.NotError(err)
-	pathsEqual(a, paths, []string{
-		"./testdir",
-	})
-
-	paths, err = recursivePaths(true, []string{"./testdir"})
-	a.NotError(err)
-	pathsEqual(a, paths, []string{
-		"./testdir",
-		"testdir/testdir1",
-		"testdir/testdir2",
-		"testdir/testdir2/testdir3",
-	})
-
-	paths, err = recursivePaths(true, []string{"./testdir/testdir1", "./testdir/testdir2"})
+	paths, err := recursivePaths("./testdir/testdir1")
 	a.NotError(err)
 	pathsEqual(a, paths, []string{
 		"./testdir/testdir1",
-		"./testdir/testdir2",
-		"testdir/testdir2/testdir3",
 	})
 
-	paths, err = recursivePaths(true, []string{"./testdir/testdir2"})
+	paths, err = recursivePaths("./testdir")
 	a.NotError(err)
 	pathsEqual(a, paths, []string{
-		"./testdir/testdir2",
+		"./testdir",
+		// "testdir/testdir1",  // 有 go.mod
+		"testdir/testdir2",
 		"testdir/testdir2/testdir3",
 	})
 }

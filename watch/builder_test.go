@@ -11,17 +11,17 @@ import (
 func TestOptions_newBuilder(t *testing.T) {
 	a := assert.New(t, false)
 
-	opt := &Options{Dirs: []string{"./"}}
+	opt := &Options{}
 	a.NotError(opt.sanitize())
 	b := opt.newBuilder()
 	a.NotNil(b).False(b.anyExt)
 
-	opt = &Options{Dirs: []string{"./"}, Exts: []string{".a", "*", ".b"}}
+	opt = &Options{Exts: []string{".a", "*", ".b"}}
 	a.NotError(opt.sanitize())
 	b = opt.newBuilder()
 	a.NotNil(b).Equal(b.exts, []string{"*"}).True(b.anyExt)
 
-	opt = &Options{Dirs: []string{"./"}, Exts: []string{".a", ".b"}}
+	opt = &Options{Exts: []string{".a", ".b"}}
 	a.NotError(opt.sanitize())
 	b = opt.newBuilder()
 	a.NotNil(b).Equal(b.exts, []string{".a", ".b"}).False(b.anyExt)
@@ -30,31 +30,31 @@ func TestOptions_newBuilder(t *testing.T) {
 func TestBuilder_isIgnore(t *testing.T) {
 	a := assert.New(t, false)
 
-	// 未指定 exts，忽略所有。
-	opt := &Options{Dirs: []string{"./"}}
+	// 未指定 exts，表示 *.go。
+	opt := &Options{}
 	a.NotError(opt.sanitize())
 	b := opt.newBuilder()
 	a.NotNil(b)
-	a.True(b.isIgnore("./builder.go"))
+	a.False(b.isIgnore("./builder.go"))
 	a.True(b.isIgnore("./go.mod"))
 
 	// AutoTidy 自动监视 go.mod
-	opt = &Options{Dirs: []string{"./"}, AutoTidy: true}
+	opt = &Options{AutoTidy: true}
 	a.NotError(opt.sanitize())
 	b = opt.newBuilder()
 	a.NotNil(b)
-	a.True(b.isIgnore("./builder.go"))
+	a.False(b.isIgnore("./builder.go"))
 	a.False(b.isIgnore("./go.mod"))
 
 	// exts = "*"
-	opt = &Options{Dirs: []string{"./"}, Exts: []string{"*"}}
+	opt = &Options{Exts: []string{"*"}}
 	a.NotError(opt.sanitize())
 	b = opt.newBuilder()
 	a.NotNil(b)
 	a.False(b.isIgnore("builder.go")).
 		False(b.isIgnore("not-exists.file"))
 
-	opt = &Options{Dirs: []string{"./"}, Exts: []string{"*"}, Excludes: []string{"builder.go", "*_test.go"}}
+	opt = &Options{Exts: []string{"*"}, Excludes: []string{"builder.go", "*_test.go"}}
 	a.NotError(opt.sanitize())
 	b = opt.newBuilder()
 	a.NotNil(b)

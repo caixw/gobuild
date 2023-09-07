@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/issue9/source"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -39,17 +40,12 @@ type Options struct {
 	// 指定编译的文件
 	//
 	// 为 go build 最后的文件参数，可以为空，表示当前目录。
+	//
+	// 同时也会根据此值查找 go.mod 的项目根目录。
 	MainFiles string `xml:"main,omitempty" json:"main,omitempty" yaml:"main,omitempty"`
-
-	// 指定可执行文件输出的文件路径
-	//
-	// 为空表示默认值，若不带路径信息，会附加在 Dirs 的第一个路径上；
-	//
-	// windows 系统无须指定 .exe 扩展名，会自行添加。
-	//
-	// 如果带路径信息，则会使用该文件所在目录作为工作目录。
-	OutputName string `xml:"output,omitempty" json:"output,omitempty" yaml:"output,omitempty"`
-	appName    string
+	appName   string
+	paths     []string
+	wd        string
 
 	// 传递各个工具的参数
 	//
@@ -62,41 +58,25 @@ type Options struct {
 
 	// 指定监视的文件扩展名
 	//
-	// 为空表示不监视任何文件，如果指定了 *，表示所有文件类型，包括没有扩展名的文件。
+	// 如果指定了 *，表示所有文件类型，包括没有扩展名的文件。
+	// 为空表示 .go
 	Exts    []string `xml:"exts,omitempty" json:"exts,omitempty" yaml:"exts,omitempty"`
 	anyExts bool
 
 	// 忽略的文件
 	//
-	// 采用 [path.Match] 作为匹配方式。
+	// 采用 [path.Match] 作为匹配方式。默认为 *_test.go
 	Excludes []string `xml:"excludes>glob,omitempty" json:"excludes,omitempty" yaml:"excludes,omitempty"`
 
 	// 传递给编译成功后的程序的参数
 	AppArgs string `xml:"args,omitempty" yaml:"args,omitempty" json:"args,omitempty"`
 	appArgs []string
 
-	// 是否监视子目录
-	Recursive bool `xml:"recursive,omitempty" yaml:"recursive,omitempty" json:"recursive,omitempty"`
-
-	// 表示需要监视的目录
-	//
-	// 至少指定一个目录，第一个目录被当作主目录，将编译其下的文件作为执行主体。
-	// 如果你在 go.mod 中设置了 replace 或是更高级的 workspace 中有相关设置，
-	// 可以在此处指定这些需要跟踪的包。
-	//
-	// 如果 OutputName 中未指定目录的话，第一个目录会被当作工作目录使用。
-	//
-	// NOTE: 如果指定的目录下没有需要被监视的文件类型，那么该目录将被忽略。
-	Dirs  []string `xml:"dirs,omitempty" yaml:"dirs,omitempty" json:"dirs,omitempty"`
-	paths []string
-
 	// 监视器的更新频率
 	//
 	// 只有文件更新的时长超过此值，才会被定义为更新。防止文件频繁修改导致的频繁编译调用。
 	//
-	// 此值不能小于 [MinWatcherFrequency]。
-	//
-	// 默认值为 [MinWatcherFrequency]。
+	// 此值不能小于 [MinWatcherFrequency]。默认值为 [MinWatcherFrequency]。
 	WatcherFrequency time.Duration `xml:"freq,omitempty" yaml:"freq,omitempty" json:"freq,omitempty"`
 
 	// 传递给 go 命令的参数
@@ -142,7 +122,7 @@ func (f *Flags) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	return nil
 }
 
-func (opt *Options) sanitize() error {
+func (opt *Options) sanitize() (err error) {
 	if opt.Printer == nil {
 		opt.Printer = message.NewPrinter(language.Und)
 	}
@@ -151,6 +131,9 @@ func (opt *Options) sanitize() error {
 		opt.Logger = NewConsoleLogger(true, os.Stderr, os.Stdout)
 	}
 
+	if len(opt.Excludes) == 0 {
+		opt.Excludes = []string{"*_test.go"}
+	}
 	// 检测 glob 语法
 	for _, p := range opt.Excludes {
 		if _, err := filepath.Match(p, "abc"); err != nil {
@@ -158,26 +141,32 @@ func (opt *Options) sanitize() error {
 		}
 	}
 
-	if len(opt.Dirs) == 0 {
-		return errors.New(opt.Printer.Sprintf("字段 Dirs 不能为空"))
+	if opt.MainFiles == "" {
+		opt.MainFiles = "./"
 	}
-	wd, err := filepath.Abs(opt.Dirs[0])
+
+	// 根据 MainFiles 拿到 wd 和 appName
+	if last := opt.MainFiles[len(opt.MainFiles)-1]; last != '.' && last != '/' {
+		opt.wd = filepath.Dir(opt.MainFiles)
+	}
+	opt.wd, err = filepath.Abs(opt.wd)
 	if err != nil {
 		return err
 	}
-	opt.Dirs[0] = wd
+	opt.appName = filepath.Join(opt.wd, filepath.Base(opt.wd))
+	if goexe := os.Getenv("GOEXE"); goexe != "" {
+		opt.appName += goexe
+	}
 
-	if opt.appName, err = getAppName(opt.OutputName, wd); err != nil {
+	// 根据 wd 获取项目根目录，从而拿到需要监视的列表
+	// TODO 还有 go.work 中的内容应该也要拿到
+	if opt.paths, err = recursivePaths(opt.wd); err != nil {
 		return err
 	}
 
 	opt.sanitizeExts()
 
 	opt.appArgs = splitArgs(opt.AppArgs)
-
-	if opt.paths, err = recursivePaths(opt.Recursive, opt.Dirs); err != nil {
-		return err
-	}
 
 	if opt.WatcherFrequency == 0 {
 		opt.WatcherFrequency = MinWatcherFrequency
@@ -200,6 +189,10 @@ func (opt *Options) sanitize() error {
 }
 
 func (opt *Options) sanitizeExts() {
+	if len(opt.Exts) == 0 {
+		opt.Exts = []string{".go"}
+	}
+
 	exts := make([]string, 0, len(opt.Exts))
 	for _, ext := range opt.Exts {
 		ext = strings.TrimSpace(ext)
@@ -220,61 +213,41 @@ func (opt *Options) sanitizeExts() {
 	opt.Exts = exts
 }
 
-func getAppName(outputName, wd string) (string, error) {
-	if outputName == "" {
-		outputName = filepath.Base(wd)
-	}
-
-	goexe := os.Getenv("GOEXE")
-	if goexe != "" && !strings.HasSuffix(outputName, goexe) {
-		outputName += goexe
-	}
-
-	// 没有分隔符，表示仅有一个文件名，需要加上 wd
-	if strings.IndexByte(outputName, '/') < 0 || strings.IndexByte(outputName, filepath.Separator) < 0 {
-		outputName = filepath.Join(wd, outputName)
-	}
-
-	// 转成绝对路径
-	outputName, err := filepath.Abs(outputName)
-	if err != nil {
-		return "", err
-	}
-
-	return outputName, nil
-}
-
 // 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录
-func recursivePaths(recursive bool, paths []string) ([]string, error) {
-	if !recursive {
-		return paths, nil
+func recursivePaths(wd string) ([]string, error) {
+	mod, err := source.ModFile(wd)
+	if err != nil {
+		return nil, err
 	}
 
-	ret := []string{}
-
-	walk := func(path string, fi os.FileInfo, err error) error {
+	dirs := make([]string, 0, len(mod.Replace)+1)
+	err = filepath.WalkDir(wd, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if !fi.IsDir() {
+		if !d.IsDir() {
 			return nil
 		}
 
-		if fi.Name()[0] == '.' { // 隐藏的目录
-			return fs.SkipDir
+		if wd != p {
+			if d.Name()[0] == '.' { // 隐藏目录
+				return fs.SkipDir
+			}
+
+			stat, err := os.Stat(filepath.Join(p, "go.mod"))
+			if err == nil && !stat.IsDir() {
+				return fs.SkipDir
+			}
 		}
-		ret = append(ret, path)
+
+		dirs = append(dirs, p)
 		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
-
-	for _, path := range paths {
-		if err := filepath.Walk(path, walk); err != nil {
-			return nil, err
-		}
-	}
-
-	return ret, nil
+	return dirs, nil
 }
 
 func splitArgs(args string) []string {
