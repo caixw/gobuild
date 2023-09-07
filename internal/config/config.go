@@ -30,7 +30,6 @@ func initOptions(wd, base string) error {
 		MainFiles:        path.Join("./", dir),
 		Excludes:         []string{Filename},
 		Exts:             []string{".go", ".yaml", ".xml", ".yml", ".json"}, // 配置文件修改也重启
-		AutoTidy:         true,
 		WatcherFrequency: watch.MinWatcherFrequency,
 	}
 	data, err := yaml.Marshal(o)

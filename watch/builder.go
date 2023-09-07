@@ -30,10 +30,9 @@ type builder struct {
 	appArgs    []string  // 传递给 appCmd 的参数
 	appKillMux sync.Mutex
 
-	// go build 或是 go mod tidy 的运行环境
-	goTidy    bool      // 自动运行 go mod tidy
-	goCmd     *exec.Cmd // go build 或是 go mod 进程
-	goArgs    []string  // 传递给 go build 的参数，go mod tidy 忽略此参数。
+	// go build 的运行环境
+	goCmd     *exec.Cmd // go build 进程
+	goArgs    []string  // 传递给 go build 的参数。
 	goKillMux sync.Mutex
 }
 
@@ -54,7 +53,6 @@ func (opt *Options) newBuilder() *builder {
 		appWD:   opt.wd,
 		appArgs: opt.appArgs,
 
-		goTidy: opt.AutoTidy,
 		goArgs: opt.goCmdArgs,
 	}
 }
@@ -70,8 +68,8 @@ func (b *builder) isIgnore(path string) bool {
 		return true
 	}
 
-	if b.goTidy && filepath.Base(path) == "go.mod" {
-		return false
+	if strings.HasSuffix(path, "_test.go") {
+		return true
 	}
 
 	for _, p := range b.excludes {
@@ -95,23 +93,6 @@ func (b *builder) isIgnore(path string) bool {
 	}
 
 	return true
-}
-
-func (b *builder) tidy() {
-	b.killGo()
-
-	b.logf(LogTypeInfo, localeutil.StringPhrase("执行 go mod tidy..."))
-
-	b.goCmd = exec.Command("go", "mod", "tidy")
-	b.goCmd.Stderr = asWriter(LogTypeGo, b.logs)
-	b.goCmd.Stdout = asWriter(LogTypeGo, b.logs)
-	if err := b.goCmd.Run(); err != nil {
-		b.logf(LogTypeError, localeutil.Phrase("go mod tidy 失败：%s", err.Error()))
-		return
-	}
-
-	b.logf(LogTypeSuccess, localeutil.StringPhrase("go mod tidy 完成!"))
-	b.goCmd = nil
 }
 
 // 开始编译代码

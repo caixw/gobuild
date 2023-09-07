@@ -1,17 +1,8 @@
 id: zh-TW
 messages:
-    - key: go mod tidy 失败：%s
-      message:
-        msg: go mod tidy 失：%s
-    - key: go mod tidy 完成!
-      message:
-        msg: go mod tidy 完成!
     - key: watcher.Errors：%s
       message:
         msg: 監視器錯誤：%s
-    - key: watcher.Events:%s 事件触发了 go mod tidy
-      message:
-        msg: watcher.Events:%s 事件觸發了 go mod tidy
     - key: watcher.Events:%s 事件触发了编译
       message:
         msg: '%s 事件觸發了編譯'
@@ -54,9 +45,6 @@ messages:
     - key: 当前环境参数如下：%s
       message:
         msg: 當前環境參數如下：%s
-    - key: 执行 go mod tidy...
-      message:
-        msg: 執行 go mod tidy...
     - key: 旧的编译进程被终止!
       message:
         msg: 舊的編譯進程被終止!

@@ -38,14 +38,6 @@ func TestBuilder_isIgnore(t *testing.T) {
 	a.False(b.isIgnore("./builder.go"))
 	a.True(b.isIgnore("./go.mod"))
 
-	// AutoTidy 自动监视 go.mod
-	opt = &Options{AutoTidy: true}
-	a.NotError(opt.sanitize())
-	b = opt.newBuilder()
-	a.NotNil(b)
-	a.False(b.isIgnore("./builder.go"))
-	a.False(b.isIgnore("./go.mod"))
-
 	// exts = "*"
 	opt = &Options{Exts: []string{"*"}}
 	a.NotError(opt.sanitize())

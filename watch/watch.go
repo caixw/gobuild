@@ -79,13 +79,8 @@ func (b *builder) watch(ctx context.Context, paths []string) error {
 			}
 			buildTime = time.Now()
 
-			if event.Name == "go.mod" && b.goTidy {
-				b.logf(LogTypeInfo, localeutil.Phrase("watcher.Events:%s 事件触发了 go mod tidy", event.String()))
-				go b.tidy()
-			} else {
-				b.logf(LogTypeInfo, localeutil.Phrase("watcher.Events:%s 事件触发了编译", event.String()))
-				go b.build()
-			}
+			b.logf(LogTypeInfo, localeutil.Phrase("watcher.Events:%s 事件触发了编译", event.String()))
+			go b.build()
 		case err := <-watcher.Errors:
 			b.logf(LogTypeWarn, localeutil.Phrase("watcher.Errors：%s", err.Error()))
 			return nil

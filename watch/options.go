@@ -18,7 +18,7 @@ import (
 )
 
 // MinWatcherFrequency 监视器更新频率的最小值
-const MinWatcherFrequency = 1 * time.Second
+const MinWatcherFrequency = time.Second
 
 // Options 热编译的选项
 type Options struct {
@@ -33,9 +33,6 @@ type Options struct {
 	//
 	// 如为空，则被初始化 *ConsoleLogger 对象。
 	Logger Logger `xml:"-" json:"-" yaml:"-"`
-
-	// 在 go.mod 发生变化自动运行 go mod tidy
-	AutoTidy bool `xml:"tidy,omitempty" json:"tidy,omitempty" yaml:"tidy,omitempty"`
 
 	// 指定编译的文件
 	//
@@ -65,7 +62,8 @@ type Options struct {
 
 	// 忽略的文件
 	//
-	// 采用 [path.Match] 作为匹配方式。默认为 *_test.go
+	// 采用 [path.Match] 作为匹配方式。_test.go 始终被忽略，不需要在此指定。
+	// 默认为空。
 	Excludes []string `xml:"excludes>glob,omitempty" json:"excludes,omitempty" yaml:"excludes,omitempty"`
 
 	// 传递给编译成功后的程序的参数
@@ -131,9 +129,6 @@ func (opt *Options) sanitize() (err error) {
 		opt.Logger = NewConsoleLogger(true, os.Stderr, os.Stdout)
 	}
 
-	if len(opt.Excludes) == 0 {
-		opt.Excludes = []string{"*_test.go"}
-	}
 	// 检测 glob 语法
 	for _, p := range opt.Excludes {
 		if _, err := filepath.Match(p, "abc"); err != nil {
