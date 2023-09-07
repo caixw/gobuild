@@ -15,9 +15,7 @@ import (
 	"github.com/caixw/gobuild"
 )
 
-const (
-	initUsage = localeutil.StringPhrase("初始化项目")
-)
+const initUsage = localeutil.StringPhrase("初始化项目")
 
 func initInit(o *cmdopt.CmdOpt, p *message.Printer) {
 	o.New("init", initUsage.LocaleString(p), initUsage.LocaleString(p), func(fs *flag.FlagSet) cmdopt.DoFunc {
