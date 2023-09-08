@@ -1,5 +1,3 @@
-github.com/caixw/gobuild v1.3.0 h1:ScA/HNnymhuKfchwnmSj+Y7qVncXEYAOdB4KeG96G8k=
-github.com/caixw/gobuild v1.3.0/go.mod h1:T3Q1O7O1gu3559EVXY1ncv1dx6N63CYHSg/b7/rGJZU=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
 github.com/issue9/assert/v3 v3.0.5 h1:Mlz/4v2Ph6ZDm3Fk3A1jhitH4M/2dkHeHNKe7tTZdH8=
@@ -14,13 +12,13 @@ github.com/issue9/sliceutil v0.15.0 h1:E6Xnl3FY5h0ZGNzyx1VEFAfGdParaq/BkX1QQR0uF
 github.com/issue9/sliceutil v0.15.0/go.mod h1:n9meV7AamDhmehOBuV4GrxW3yw7O1cZmLx3Xizg1bps=
 github.com/issue9/source v0.5.2 h1:mXGTDMJoR4juH4fz1sOXpBwMkym3sfg7j5EqaH+oVQk=
 github.com/issue9/source v0.5.2/go.mod h1:Q8AlOSRvkLWkNPIn3+G6vtPXV+5tfZkHHzOW3d7kP+Q=
-github.com/issue9/term/v3 v3.2.1 h1:ZpINlQx50hGbGkqSNfy5ZXAizCayeEUan0ymY/790ps=
-github.com/issue9/term/v3 v3.2.1/go.mod h1:/r8biPgdaWLKy/bful0S/I8nf/S8hjGoZ/NX5YmMcRw=
+github.com/issue9/term/v3 v3.2.2 h1:Vp6atRzFDGbzRlo8jN2Ldjwnod2jWQJ3AItwR4LJTWc=
+github.com/issue9/term/v3 v3.2.2/go.mod h1:nVpa9D/rr25cdAC1rpfQ4sxx6arYlOcreB4jyg73h4Y=
 golang.org/x/mod v0.12.0 h1:rmsUpXtvNzj340zd98LZ4KntptpfRHwpFOHG188oHXc=
 golang.org/x/mod v0.12.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
 golang.org/x/sys v0.0.0-20220908164124-27713097b956/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.11.0 h1:eG7RXZHdqOJ1i+0lgLgCpSXAp6M3LYlAo6osgSi0xOM=
-golang.org/x/sys v0.11.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.12.0 h1:CM0HF96J0hcLAwsHPJZjfdNzs0gftsLfgKt57wWHJ0o=
+golang.org/x/sys v0.12.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/text v0.13.0 h1:ablQoSUd0tRdKxZewP80B+BaqeKJuVhuRxj/dkrun3k=
 golang.org/x/text v0.13.0/go.mod h1:TvPlkZtksWOMsz7fbANvkp4WM8x/WCo/om8BMLbz+aE=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
