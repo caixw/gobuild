@@ -3,29 +3,12 @@
 package watch
 
 import (
-	"encoding/xml"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/issue9/assert/v3"
 )
-
-var (
-	_ xml.Marshaler   = Flags{}
-	_ xml.Unmarshaler = &Flags{}
-)
-
-func TestFlags_Marshal(t *testing.T) {
-	a := assert.New(t, false)
-	f := Flags{"k1": "v1"}
-	data, err := xml.Marshal(f)
-	a.NotError(err).Equal(string(data), "<Flags><k1>v1</k1></Flags>")
-
-	f2 := Flags{}
-	a.NotError(xml.Unmarshal(data, &f2))
-	a.Equal(f, f2)
-}
 
 func TestOptions_sanitize(t *testing.T) {
 	a := assert.New(t, false)

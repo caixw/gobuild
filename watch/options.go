@@ -3,9 +3,7 @@
 package watch
 
 import (
-	"encoding/xml"
 	"errors"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -44,30 +42,24 @@ type Options struct {
 	paths     []string
 	wd        string
 
-	// 传递各个工具的参数
+	// 传递给编译器的参数
 	//
-	// 大致有以下几个，具体可参考 go build 的 xxflags 系列参数。
-	//  - asm   --> asmflags
-	//  - gccgo --> gccgoflags
-	//  - gc    --> gcflags
-	//  - ld    --> ldflags
-	Flags Flags `xml:"flags,omitempty" json:"flags,omitempty" yaml:"flags,omitempty"`
+	// 即传递给 go build 命令的参数，但是不应该包含 -o 等参数
+	Args []string `xml:"args,omitempty" json:"args,omitempty" yaml:"args,omitempty"`
 
 	// 指定监视的文件扩展名
 	//
-	// 如果指定了 *，表示所有文件类型，包括没有扩展名的文件。
-	// 为空表示 .go
+	// 如果指定了 *，表示所有文件类型，包括没有扩展名的文件。默认为 .go。
 	Exts    []string `xml:"exts,omitempty" json:"exts,omitempty" yaml:"exts,omitempty"`
 	anyExts bool
 
 	// 忽略的文件
 	//
-	// 采用 [path.Match] 作为匹配方式。_test.go 始终被忽略，不需要在此指定。
-	// 默认为空。
+	// 采用 [path.Match] 作为匹配方式。_test.go 始终被忽略，不需要在此指定。默认为空。
 	Excludes []string `xml:"excludes>glob,omitempty" json:"excludes,omitempty" yaml:"excludes,omitempty"`
 
 	// 传递给编译成功后的程序的参数
-	AppArgs string `xml:"args,omitempty" yaml:"args,omitempty" json:"args,omitempty"`
+	AppArgs string `xml:"appArgs,omitempty" yaml:"appArgs,omitempty" json:"appArgs,omitempty"`
 	appArgs []string
 
 	// 监视器的更新频率
@@ -79,45 +71,6 @@ type Options struct {
 
 	// 传递给 go 命令的参数
 	goCmdArgs []string
-}
-
-type Flags map[string]string
-
-type xmlFlagEntry struct {
-	XMLName xml.Name
-	Value   string `xml:",chardata"`
-}
-
-func (f Flags) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	tokens := []xml.Token{start}
-	for key, value := range f {
-		t := xml.StartElement{Name: xml.Name{Local: key}}
-		tokens = append(tokens, t, xml.CharData(value), xml.EndElement{Name: t.Name})
-	}
-	tokens = append(tokens, xml.EndElement{Name: start.Name})
-
-	for _, t := range tokens {
-		err := e.EncodeToken(t)
-		if err != nil {
-			return err
-		}
-	}
-	return e.Flush()
-}
-
-func (f *Flags) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
-	*f = Flags{}
-
-	for {
-		e := xmlFlagEntry{}
-		if err := d.Decode(&e); err == io.EOF {
-			break
-		} else if err != nil {
-			return err
-		}
-		(*f)[e.XMLName.Local] = e.Value
-	}
-	return nil
 }
 
 func (opt *Options) sanitize() (err error) {
@@ -154,7 +107,8 @@ func (opt *Options) sanitize() (err error) {
 	}
 
 	// 根据 wd 获取项目根目录，从而拿到需要监视的列表
-	// TODO 还有 go.work 中的内容应该也要拿到
+	//
+	// TODO 处理 go.work 中的内容
 	if opt.paths, err = recursivePaths(opt.wd); err != nil {
 		return err
 	}
@@ -171,10 +125,7 @@ func (opt *Options) sanitize() (err error) {
 
 	// 初始化 goCmd 的参数
 	args := []string{"build", "-o", opt.appName}
-	for k, v := range opt.Flags {
-		args = append(args, "-"+k+"flags", v)
-	}
-	args = append(args, "-v")
+	args = append(args, opt.Args...)
 	if len(opt.MainFiles) > 0 {
 		args = append(args, opt.MainFiles)
 	}
