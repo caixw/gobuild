@@ -49,10 +49,8 @@ func initWatch(o *cmdopt.CmdOpt, p *message.Printer) {
 			if err := yaml.Unmarshal(data, o); err != nil {
 				return err
 			}
-			o.Logger = logs
-			o.Printer = p
 
-			return gobuild.Watch(context.Background(), o)
+			return gobuild.Watch(context.Background(), p, logs, o)
 		}
 	})
 }

@@ -6,23 +6,33 @@ package watch
 import (
 	"bytes"
 	"context"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/issue9/localeutil"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 // Watch 执行热编译服务
 //
 // 如果初始化参数有误，则反错误信息，如果是编译过程中出错，将直接将错误内容输出到 logs。
-func Watch(ctx context.Context, opt *Options) error {
+func Watch(ctx context.Context, p *message.Printer, l Logger, opt *Options) error {
 	if err := opt.sanitize(); err != nil {
 		return err
 	}
 
-	b := opt.newBuilder()
+	if p == nil {
+		p = message.NewPrinter(language.Und)
+	}
+	if l == nil {
+		l = NewConsoleLogger(false, os.Stderr, os.Stdout)
+	}
+
+	b := opt.newBuilder(p, l)
 
 	env, err := goVersion()
 	if err != nil {

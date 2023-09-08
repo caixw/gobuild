@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/issue9/source"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
 )
 
 // MinWatcherFrequency 监视器更新频率的最小值
@@ -21,16 +19,6 @@ const MinWatcherFrequency = time.Second
 // Options 热编译的选项
 type Options struct {
 	XMLName struct{} `xml:"gobuild" json:"-" yaml:"-"`
-
-	// 指定本地化的输出对象
-	//
-	// 如果为空，表示原样输出，不具备本地化的功能。
-	Printer *message.Printer `xml:"-" json:"-" yaml:"-"`
-
-	// 日志输出对象
-	//
-	// 如为空，则被初始化 *ConsoleLogger 对象。
-	Logger Logger `xml:"-" json:"-" yaml:"-"`
 
 	// 指定编译的文件
 	//
@@ -74,14 +62,6 @@ type Options struct {
 }
 
 func (opt *Options) sanitize() (err error) {
-	if opt.Printer == nil {
-		opt.Printer = message.NewPrinter(language.Und)
-	}
-
-	if opt.Logger == nil {
-		opt.Logger = NewConsoleLogger(true, os.Stderr, os.Stdout)
-	}
-
 	// 检测 glob 语法
 	for _, p := range opt.Excludes {
 		if _, err := filepath.Match(p, "abc"); err != nil {

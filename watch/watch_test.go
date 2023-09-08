@@ -14,9 +14,9 @@ import (
 
 func TestWatch(t *testing.T) {
 	a := assert.New(t, false)
+	l := NewConsoleLogger(true, io.Discard, io.Discard)
 
 	opt := &Options{
-		Logger:    NewConsoleLogger(true, io.Discard, io.Discard),
 		MainFiles: "./testdir/main.go",
 	}
 	a.NotError(opt.sanitize())
@@ -25,7 +25,7 @@ func TestWatch(t *testing.T) {
 
 	exit := make(chan bool, 1)
 	go func() {
-		a.NotError(Watch(ctx, opt))
+		a.NotError(Watch(ctx, nil, l, opt))
 		exit <- true
 	}()
 	time.Sleep(500 * time.Millisecond) // 等待 go func() 启动

@@ -14,9 +14,7 @@ func TestOptions_sanitize(t *testing.T) {
 	a := assert.New(t, false)
 
 	opt := &Options{}
-	a.NotError(opt.sanitize()).
-		NotNil(opt.Logger).
-		NotNil(opt.Printer)
+	a.NotError(opt.sanitize())
 
 	opt.MainFiles = "./"
 	a.NotError(opt.sanitize()).

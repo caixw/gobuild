@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/issue9/localeutil"
-	"golang.org/x/text/message"
 )
 
 type builder struct {
@@ -22,7 +21,7 @@ type builder struct {
 	appName     string // 输出的程序文件
 	logs        Logger
 	watcherFreq time.Duration
-	p           *message.Printer
+	p           *localeutil.Printer
 
 	// 被编译程序的执行环境
 	appWD      string    // 工作目录
@@ -36,7 +35,7 @@ type builder struct {
 	goKillMux sync.Mutex
 }
 
-func (opt *Options) newBuilder() *builder {
+func (opt *Options) newBuilder(p *localeutil.Printer, l Logger) *builder {
 	exts := opt.Exts
 	if opt.anyExts {
 		exts = []string{"*"}
@@ -46,9 +45,9 @@ func (opt *Options) newBuilder() *builder {
 		anyExt:      opt.anyExts,
 		excludes:    opt.Excludes,
 		appName:     opt.appName,
-		logs:        opt.Logger,
+		logs:        l,
 		watcherFreq: opt.WatcherFrequency,
-		p:           opt.Printer,
+		p:           p,
 
 		appWD:   opt.wd,
 		appArgs: opt.appArgs,
