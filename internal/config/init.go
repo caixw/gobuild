@@ -13,7 +13,7 @@ import (
 	"github.com/issue9/source"
 )
 
-func Init(wd, name string) error {
+func Init(wd, name, configFilename string) error {
 	base := path.Base(name)
 
 	wd = filepath.Join(wd, base)
@@ -35,7 +35,7 @@ func Init(wd, name string) error {
 			return err
 		}
 		if len(dirs) > 0 {
-			return initOptions(wd, base)
+			return initOptions(wd, base, configFilename)
 		}
 	}
 
@@ -53,7 +53,7 @@ func Init(wd, name string) error {
 		return err
 	}
 
-	return initOptions(wd, base)
+	return initOptions(wd, base, configFilename)
 }
 
 func initCmd(wd, base string) error {

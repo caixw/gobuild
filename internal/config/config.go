@@ -17,18 +17,15 @@ import (
 // 默认的 main 方法的父目录
 const binBaseDir = "cmd"
 
-// Filename 配置文件的文件名
-const Filename = ".gobuild.yaml"
-
 const fileHeader = `# 此文件由 gobuild<https://github.com/caixw/gobuild> 生成和使用
 
 `
 
-func initOptions(wd, base string) error {
+func initOptions(wd, base, configFilename string) error {
 	dir := path.Join(binBaseDir, base)
 	o := &watch.Options{
 		MainFiles:        path.Join("./", dir),
-		Excludes:         []string{Filename},
+		Excludes:         []string{configFilename},
 		Exts:             []string{".go", ".yaml", ".xml", ".yml", ".json"}, // 配置文件修改也重启
 		WatcherFrequency: watch.MinWatcherFrequency,
 	}
@@ -40,5 +37,5 @@ func initOptions(wd, base string) error {
 	d := make([]byte, 0, len(fileHeader)+len(data))
 	d = append(d, []byte(fileHeader)...)
 	d = append(d, data...)
-	return os.WriteFile(filepath.Join(wd, Filename), d, fs.ModePerm)
+	return os.WriteFile(filepath.Join(wd, configFilename), d, fs.ModePerm)
 }

@@ -17,6 +17,8 @@ import (
 
 const initUsage = localeutil.StringPhrase("初始化项目")
 
+const configFilename = ".gobuild.yaml"
+
 func initInit(o *cmdopt.CmdOpt, p *message.Printer) {
 	o.New("init", initUsage.LocaleString(p), initUsage.LocaleString(p), func(fs *flag.FlagSet) cmdopt.DoFunc {
 		return func(w io.Writer) error {
@@ -33,7 +35,7 @@ func initInit(o *cmdopt.CmdOpt, p *message.Printer) {
 				wd = filepath.Dir(wd)
 			}
 
-			return gobuild.Init(wd, name)
+			return gobuild.Init(wd, name, configFilename)
 		}
 	})
 }
