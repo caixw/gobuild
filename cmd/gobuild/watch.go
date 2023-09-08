@@ -29,7 +29,7 @@ func initWatch(o *cmdopt.CmdOpt, p *message.Printer) {
 		fs.BoolVar(&watchShowIgnore, "i", false, showIgnoreUsage.LocaleString(p))
 
 		return func(w io.Writer) error {
-			logs := gobuild.NewConsoleLogger(watchShowIgnore, os.Stdout)
+			logs := gobuild.NewConsoleLogger(watchShowIgnore, os.Stdout, nil, nil)
 
 			wd, err := os.Getwd()
 			if err != nil {

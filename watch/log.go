@@ -20,6 +20,28 @@ const (
 	LogTypeGo     // Go 编译器返回的信息
 )
 
+var (
+	defaultColors = map[int8]colors.Color{
+		LogTypeSuccess: colors.Green,
+		LogTypeInfo:    colors.Blue,
+		LogTypeWarn:    colors.Yellow,
+		LogTypeError:   colors.Red,
+		LogTypeIgnore:  colors.Default,
+		LogTypeApp:     colors.Magenta,
+		LogTypeGo:      colors.Cyan,
+	}
+
+	defaultPrefixes = map[int8]string{
+		LogTypeSuccess: "[SUCC] ",
+		LogTypeInfo:    "[INFO] ",
+		LogTypeWarn:    "[WARN] ",
+		LogTypeError:   "[ERRO] ",
+		LogTypeIgnore:  "[IGNO] ",
+		LogTypeApp:     "[APP] ",
+		LogTypeGo:      "[GO] ",
+	}
+)
+
 type (
 	// Logger 热编译过程中的日志接收对象
 	Logger interface {
@@ -37,12 +59,8 @@ type (
 	consoleLogger struct {
 		out        io.Writer
 		showIgnore bool
-		writers    map[int8]*consoleWriter
-	}
-
-	consoleWriter struct {
-		color  colors.Color
-		prefix string
+		colors     map[int8]colors.Color
+		prefixes   map[int8]string
 	}
 )
 
@@ -58,32 +76,26 @@ func (c *consoleLogger) Output(t int8, msg string) {
 		return
 	}
 
-	w := c.writers[t]
-	colors.Fprint(c.out, colors.Normal, w.color, colors.Default, w.prefix)
+	colors.Fprint(c.out, colors.Normal, c.colors[t], colors.Default, c.prefixes[t])
 	msg = strings.TrimRight(msg, "\n")
 	colors.Fprintln(c.out, colors.Normal, colors.Default, colors.Default, msg)
 }
 
 // NewConsoleLogger 将日志输出到控制台的 Logger 实现
-func NewConsoleLogger(showIgnore bool, out io.Writer) Logger {
-	newCW := func(out io.Writer, color colors.Color, prefix string) *consoleWriter {
-		return &consoleWriter{
-			color:  color,
-			prefix: prefix,
-		}
+//
+// colors 和 prefixes 可以为 nil，会采用默认值。
+func NewConsoleLogger(showIgnore bool, out io.Writer, colors map[int8]colors.Color, prefixes map[int8]string) Logger {
+	if colors == nil {
+		colors = defaultColors
+	}
+	if prefixes == nil {
+		prefixes = defaultPrefixes
 	}
 
 	return &consoleLogger{
 		out:        out,
 		showIgnore: showIgnore,
-		writers: map[int8]*consoleWriter{
-			LogTypeSuccess: newCW(out, colors.Green, "[SUCC] "),
-			LogTypeInfo:    newCW(out, colors.Blue, "[INFO] "),
-			LogTypeWarn:    newCW(out, colors.Yellow, "[WARN] "),
-			LogTypeError:   newCW(out, colors.Red, "[ERRO] "),
-			LogTypeIgnore:  newCW(out, colors.Default, "[IGNO] "),
-			LogTypeApp:     newCW(out, colors.Magenta, "[APP] "),
-			LogTypeGo:      newCW(out, colors.Cyan, "[GO] "),
-		},
+		colors:     colors,
+		prefixes:   prefixes,
 	}
 }

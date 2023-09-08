@@ -13,7 +13,7 @@ import (
 
 func TestOptions_newBuilder(t *testing.T) {
 	a := assert.New(t, false)
-	l := NewConsoleLogger(false, io.Discard)
+	l := NewConsoleLogger(false, io.Discard, nil, nil)
 	p := message.NewPrinter(language.Und)
 
 	opt := &Options{}
@@ -34,7 +34,7 @@ func TestOptions_newBuilder(t *testing.T) {
 
 func TestBuilder_isIgnore(t *testing.T) {
 	a := assert.New(t, false)
-	l := NewConsoleLogger(false, io.Discard)
+	l := NewConsoleLogger(false, io.Discard, nil, nil)
 	p := message.NewPrinter(language.Und)
 
 	// 未指定 exts，表示 *.go。

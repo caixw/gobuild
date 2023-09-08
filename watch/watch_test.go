@@ -10,11 +10,13 @@ import (
 	"time"
 
 	"github.com/issue9/assert/v3"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 func TestWatch(t *testing.T) {
 	a := assert.New(t, false)
-	l := NewConsoleLogger(true, io.Discard)
+	l := NewConsoleLogger(true, io.Discard, nil, nil)
 
 	opt := &Options{
 		MainFiles: "./testdir/main.go",
@@ -25,7 +27,7 @@ func TestWatch(t *testing.T) {
 
 	exit := make(chan bool, 1)
 	go func() {
-		a.NotError(Watch(ctx, nil, l, opt))
+		a.NotError(Watch(ctx, message.NewPrinter(language.SimplifiedChinese), l, opt))
 		exit <- true
 	}()
 	time.Sleep(500 * time.Millisecond) // 等待 go func() 启动

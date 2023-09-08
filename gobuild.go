@@ -14,6 +14,7 @@ import (
 
 	"github.com/caixw/gobuild/internal/config"
 	"github.com/caixw/gobuild/watch"
+	"github.com/issue9/term/v3/colors"
 )
 
 type (
@@ -43,6 +44,8 @@ func Watch(ctx context.Context, p *message.Printer, l Logger, o *WatchOptions) e
 func Init(wd, name, configFilename string) error { return config.Init(wd, name, configFilename) }
 
 // NewConsoleLogger 将日志输出到控制台的 Logger 实现
-func NewConsoleLogger(showIgnore bool, out io.Writer) Logger {
-	return watch.NewConsoleLogger(showIgnore, out)
+//
+// colors 和 prefixes 可以为 nil，会采用默认值。
+func NewConsoleLogger(showIgnore bool, out io.Writer, colors map[int8]colors.Color, prefixes map[int8]string) Logger {
+	return watch.NewConsoleLogger(showIgnore, out, colors, prefixes)
 }

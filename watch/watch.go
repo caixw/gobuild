@@ -6,14 +6,12 @@ package watch
 import (
 	"bytes"
 	"context"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/issue9/localeutil"
-	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
@@ -23,13 +21,6 @@ import (
 func Watch(ctx context.Context, p *message.Printer, l Logger, opt *Options) error {
 	if err := opt.sanitize(); err != nil {
 		return err
-	}
-
-	if p == nil {
-		p = message.NewPrinter(language.Und)
-	}
-	if l == nil {
-		l = NewConsoleLogger(false, os.Stdout)
 	}
 
 	b := opt.newBuilder(p, l)

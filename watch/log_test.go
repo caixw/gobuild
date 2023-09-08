@@ -14,7 +14,7 @@ func TestLogger(t *testing.T) {
 	a := assert.New(t, false)
 
 	out := new(bytes.Buffer)
-	logs := NewConsoleLogger(true, out)
+	logs := NewConsoleLogger(true, out, nil, nil)
 	a.NotNil(logs)
 
 	logs.Output(LogTypeError, "error")
@@ -28,7 +28,7 @@ func TestLogger(t *testing.T) {
 
 	// ignore=false
 	out.Reset()
-	logs = NewConsoleLogger(false, out)
+	logs = NewConsoleLogger(false, out, nil, nil)
 	a.NotNil(logs)
 	logs.Output(LogTypeIgnore, "message")
 	time.Sleep(300 * time.Microsecond)
@@ -38,7 +38,7 @@ func TestLogger(t *testing.T) {
 func TestAsWriter(t *testing.T) {
 	a := assert.New(t, false)
 	out := &bytes.Buffer{}
-	logs := NewConsoleLogger(true, out)
+	logs := NewConsoleLogger(true, out, nil, nil)
 	a.NotNil(logs)
 
 	w := asWriter(LogTypeInfo, logs)
