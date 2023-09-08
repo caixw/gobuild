@@ -12,7 +12,7 @@ gobuild 是一个简单的 Go 代码热编译工具。
 
 - 采用配置文件，表达更加方便和直观；
 - 自动生成配置文件；
-- 可以设置多个监视目录；
+- 自动监视 go.mod 中的 Replace 目录；
 - 本地化支持；
 
 ## 命令行语法
@@ -49,11 +49,6 @@ gobuild watch [options]
  appArgs    | string       | 传递给编译成功后的程序的参数
  freq       | duration     | 监视器的更新频率
  excludes   | []string     | 忽略的文件，glob 格式，高于 exts 配置项。
-
-## 支持平台
-
-平台支持依赖 [colors](https://github.com/issue9/term) 与 [fsnotify](https://github.com/fsnotify/fsnotify) 两个模块，
-目前支持以下平台：windows, linux, macOS, BSD。
 
 ## 安装
 
