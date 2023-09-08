@@ -10,13 +10,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/caixw/gobuild"
 	"github.com/issue9/cmdopt"
 	"github.com/issue9/localeutil"
 	"golang.org/x/text/message"
 	"gopkg.in/yaml.v3"
-
-	"github.com/caixw/gobuild"
-	"github.com/caixw/gobuild/watch"
 )
 
 const (
@@ -31,7 +29,7 @@ func initWatch(o *cmdopt.CmdOpt, p *message.Printer) {
 		fs.BoolVar(&watchShowIgnore, "i", false, showIgnoreUsage.LocaleString(p))
 
 		return func(w io.Writer) error {
-			logs := watch.NewConsoleLogger(watchShowIgnore, os.Stderr, os.Stdout)
+			logs := gobuild.NewConsoleLogger(watchShowIgnore, os.Stdout)
 
 			wd, err := os.Getwd()
 			if err != nil {
@@ -45,7 +43,7 @@ func initWatch(o *cmdopt.CmdOpt, p *message.Printer) {
 				return err
 			}
 
-			o := &watch.Options{}
+			o := &gobuild.WatchOptions{}
 			if err := yaml.Unmarshal(data, o); err != nil {
 				return err
 			}

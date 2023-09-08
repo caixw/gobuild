@@ -8,6 +8,7 @@ package gobuild
 
 import (
 	"context"
+	"io"
 
 	"golang.org/x/text/message"
 
@@ -40,3 +41,8 @@ func Watch(ctx context.Context, p *message.Printer, l Logger, o *WatchOptions) e
 //   - configFilename 指定的文件名作为 gobuild 的配置文件；
 //   - cmd/{base}/{base}.go 程序入口 main 函数，base 为 name 的最后一个元素；
 func Init(wd, name, configFilename string) error { return config.Init(wd, name, configFilename) }
+
+// NewConsoleLogger 将日志输出到控制台的 Logger 实现
+func NewConsoleLogger(showIgnore bool, out io.Writer) Logger {
+	return watch.NewConsoleLogger(showIgnore, out)
+}

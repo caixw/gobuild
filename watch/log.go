@@ -35,12 +35,12 @@ type (
 	}
 
 	consoleLogger struct {
+		out        io.Writer
 		showIgnore bool
 		writers    map[int8]*consoleWriter
 	}
 
 	consoleWriter struct {
-		out    io.Writer
 		color  colors.Color
 		prefix string
 	}
@@ -59,31 +59,31 @@ func (c *consoleLogger) Output(t int8, msg string) {
 	}
 
 	w := c.writers[t]
-	colors.Fprint(w.out, colors.Normal, w.color, colors.Default, w.prefix)
+	colors.Fprint(c.out, colors.Normal, w.color, colors.Default, w.prefix)
 	msg = strings.TrimRight(msg, "\n")
-	colors.Fprintln(w.out, colors.Normal, colors.Default, colors.Default, msg)
+	colors.Fprintln(c.out, colors.Normal, colors.Default, colors.Default, msg)
 }
 
-// NewConsoleLogger 返回将日志输出到控制台的 Logger 接口实现
-func NewConsoleLogger(showIgnore bool, err, out io.Writer) Logger {
+// NewConsoleLogger 将日志输出到控制台的 Logger 实现
+func NewConsoleLogger(showIgnore bool, out io.Writer) Logger {
 	newCW := func(out io.Writer, color colors.Color, prefix string) *consoleWriter {
 		return &consoleWriter{
-			out:    out,
 			color:  color,
 			prefix: prefix,
 		}
 	}
 
 	return &consoleLogger{
+		out:        out,
 		showIgnore: showIgnore,
 		writers: map[int8]*consoleWriter{
 			LogTypeSuccess: newCW(out, colors.Green, "[SUCC] "),
 			LogTypeInfo:    newCW(out, colors.Blue, "[INFO] "),
-			LogTypeWarn:    newCW(err, colors.Magenta, "[WARN] "),
-			LogTypeError:   newCW(err, colors.Red, "[ERRO] "),
+			LogTypeWarn:    newCW(out, colors.Yellow, "[WARN] "),
+			LogTypeError:   newCW(out, colors.Red, "[ERRO] "),
 			LogTypeIgnore:  newCW(out, colors.Default, "[IGNO] "),
-			LogTypeApp:     newCW(out, colors.Default, "[APP] "),
-			LogTypeGo:      newCW(out, colors.Default, "[GO] "),
+			LogTypeApp:     newCW(out, colors.Magenta, "[APP] "),
+			LogTypeGo:      newCW(out, colors.Cyan, "[GO] "),
 		},
 	}
 }

@@ -14,7 +14,7 @@ import (
 
 func TestWatch(t *testing.T) {
 	a := assert.New(t, false)
-	l := NewConsoleLogger(true, io.Discard, io.Discard)
+	l := NewConsoleLogger(true, io.Discard)
 
 	opt := &Options{
 		MainFiles: "./testdir/main.go",

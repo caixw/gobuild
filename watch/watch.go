@@ -29,7 +29,7 @@ func Watch(ctx context.Context, p *message.Printer, l Logger, opt *Options) erro
 		p = message.NewPrinter(language.Und)
 	}
 	if l == nil {
-		l = NewConsoleLogger(false, os.Stderr, os.Stdout)
+		l = NewConsoleLogger(false, os.Stdout)
 	}
 
 	b := opt.newBuilder(p, l)
