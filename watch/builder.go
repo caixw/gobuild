@@ -3,7 +3,6 @@
 package watch
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -95,8 +94,6 @@ func (b *builder) build() {
 
 	b.systemLog(Info, localeutil.StringPhrase("编译代码..."))
 
-	fmt.Println(b.goArgs)
-
 	b.goCmd = exec.Command("go", b.goArgs...)
 	b.goCmd.Stderr = asWriter(Go, Error, b.logs)
 	b.goCmd.Stdout = asWriter(Go, Info, b.logs)
@@ -132,7 +129,7 @@ func (b *builder) killGo() {
 func (b *builder) restartApp() {
 	defer func() {
 		if err := recover(); err != nil {
-			b.systemLog(Error, localeutil.Phrase("重启失败：%v", err))
+			b.systemLog(Error, localeutil.Phrase("重启失败：%s", err))
 		}
 	}()
 

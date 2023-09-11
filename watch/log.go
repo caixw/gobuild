@@ -74,6 +74,7 @@ func (c *consoleLogger) Output(source string, t int8, msg string) {
 	if s, found := c.sources[source]; found {
 		source = s
 	}
+	source = "[" + source + "] "
 
 	colors.Fprint(c.out, colors.Normal, c.colors[t], colors.Default, source)
 	msg = strings.TrimRight(msg, "\n")

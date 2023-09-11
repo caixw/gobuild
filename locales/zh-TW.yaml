@@ -78,6 +78,6 @@ messages:
     - key: 输出文件为：%s
       message:
         msg: 输出文件为：%s
-    - key: 重启失败：%v
+    - key: 重启失败：%s
       message:
-        msg: 重啟失敗：%v
+        msg: 重啟失敗：%s
