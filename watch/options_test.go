@@ -68,19 +68,25 @@ func TestOptions_sanitizeExts(t *testing.T) {
 func TestRecursivePath(t *testing.T) {
 	a := assert.New(t, false)
 
+	abs := func(s string) string {
+		ss, err := filepath.Abs(s)
+		a.NotError(err).NotEmpty(ss)
+		return ss
+	}
+
 	paths, err := recursivePaths("./testdir/testdir1")
 	a.NotError(err)
 	pathsEqual(a, paths, []string{
-		"./testdir/testdir1",
+		abs("./testdir/testdir1"),
 	})
 
-	paths, err = recursivePaths("./testdir")
+	paths, err = recursivePaths("./testdir/testdir2")
 	a.NotError(err)
 	pathsEqual(a, paths, []string{
-		"./testdir",
+		abs("./testdir"),
 		// "testdir/testdir1",  // 有 go.mod
-		"testdir/testdir2",
-		"testdir/testdir2/testdir3",
+		abs("testdir/testdir2"),
+		abs("testdir/testdir2/testdir3"),
 	})
 }
 

@@ -146,8 +146,13 @@ func recursivePaths(wd string) ([]string, error) {
 		return nil, err
 	}
 
+	root, err := source.ModDir(wd)
+	if err != nil {
+		return nil, err
+	}
+
 	dirs := make([]string, 0, len(mod.Replace)+1)
-	err = filepath.WalkDir(wd, func(p string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -156,7 +161,7 @@ func recursivePaths(wd string) ([]string, error) {
 			return nil
 		}
 
-		if wd != p {
+		if root != p {
 			if d.Name()[0] == '.' { // 隐藏目录
 				return fs.SkipDir
 			}
