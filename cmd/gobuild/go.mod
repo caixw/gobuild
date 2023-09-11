@@ -14,7 +14,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/issue9/errwrap v0.3.1 // indirect
 	github.com/issue9/sliceutil v0.15.0 // indirect
-	github.com/issue9/source v0.5.2 // indirect
+	github.com/issue9/source v0.6.1 // indirect
 	github.com/issue9/term/v3 v3.2.2 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
