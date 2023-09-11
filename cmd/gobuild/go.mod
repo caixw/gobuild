@@ -3,7 +3,7 @@ module github.com/caixw/gobuild/cmd
 go 1.21
 
 require (
-	github.com/caixw/gobuild v1.4.0
+	github.com/caixw/gobuild v1.5.0
 	github.com/issue9/cmdopt v0.13.0
 	github.com/issue9/localeutil v0.21.1
 	golang.org/x/text v0.13.0

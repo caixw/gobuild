@@ -29,18 +29,18 @@ func Watch(ctx context.Context, p *message.Printer, l Logger, opt *Options) erro
 	if err != nil {
 		return err
 	}
-	b.logf(LogTypeInfo, localeutil.Phrase("当前环境参数如下：%s", env))
+	b.systemLog(Info, localeutil.Phrase("当前环境参数如下：%s", env))
 
-	b.logf(LogTypeInfo, localeutil.Phrase("给程序传递了以下参数：%s", b.appArgs)) // 输出提示信息
+	b.systemLog(Info, localeutil.Phrase("给程序传递了以下参数：%s", b.appArgs)) // 输出提示信息
 
 	switch { // 提示扩展名
 	case len(b.exts) == 0: // 允许不监视任意文件，但输出警告信息
-		b.logf(LogTypeWarn, localeutil.StringPhrase("将 ext 设置为空值，意味着不监视任何文件的改变！"))
+		b.systemLog(Warn, localeutil.StringPhrase("将 ext 设置为空值，意味着不监视任何文件的改变！"))
 	case len(b.exts) > 0:
-		b.logf(LogTypeInfo, localeutil.Phrase("系统将监视以下类型的文件：%s", b.exts))
+		b.systemLog(Info, localeutil.Phrase("系统将监视以下类型的文件：%s", b.exts))
 	}
 
-	b.logf(LogTypeInfo, localeutil.Phrase("输出文件为：%s", b.appName)) // 提示 appName
+	b.systemLog(Info, localeutil.Phrase("输出文件为：%s", b.appName)) // 提示 appName
 
 	return b.watch(ctx, opt.paths)
 }
@@ -61,36 +61,36 @@ func (b *builder) watch(ctx context.Context, paths []string) error {
 		case <-ctx.Done():
 			b.killApp()
 			b.killGo()
-			b.logf(LogTypeInfo, localeutil.StringPhrase("用户取消"))
+			b.systemLog(Info, localeutil.StringPhrase("用户取消"))
 			return nil
 		case event := <-watcher.Events:
 			if event.Op&fsnotify.Chmod == fsnotify.Chmod {
-				b.logf(LogTypeIgnore, localeutil.Phrase("watcher.Events:忽略 %s 事件", event.String()))
+				b.systemLog(Ignore, localeutil.Phrase("watcher.Events:忽略 %s 事件", event.String()))
 				continue
 			}
 
 			if b.isIgnore(event.Name) { // 不需要监视的扩展名
-				b.logf(LogTypeIgnore, localeutil.Phrase("watcher.Events:忽略不被监视的文件：%s", event.String()))
+				b.systemLog(Ignore, localeutil.Phrase("watcher.Events:忽略不被监视的文件：%s", event.String()))
 				continue
 			}
 
 			if time.Since(buildTime) <= b.watcherFreq {
-				b.logf(LogTypeIgnore, localeutil.Phrase("watcher.Events:忽略短期内频繁修改的文件：%s", event.Name))
+				b.systemLog(Ignore, localeutil.Phrase("watcher.Events:忽略短期内频繁修改的文件：%s", event.Name))
 				continue
 			}
 			buildTime = time.Now()
 
-			b.logf(LogTypeInfo, localeutil.Phrase("watcher.Events:%s 事件触发了编译", event.String()))
+			b.systemLog(Info, localeutil.Phrase("watcher.Events:%s 事件触发了编译", event.String()))
 			go b.build()
 		case err := <-watcher.Errors:
-			b.logf(LogTypeWarn, localeutil.Phrase("watcher.Errors：%s", err.Error()))
+			b.systemLog(Warn, localeutil.Phrase("watcher.Errors：%s", err.Error()))
 			return nil
 		} // end select
 	}
 }
 
 func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
-	b.logf(LogTypeInfo, localeutil.StringPhrase("初始化监视器..."))
+	b.systemLog(Info, localeutil.StringPhrase("初始化监视器..."))
 
 	// 初始化监视器
 	watcher, err := fsnotify.NewWatcher()
@@ -101,7 +101,7 @@ func (b *builder) initWatcher(paths []string) (*fsnotify.Watcher, error) {
 	paths = b.filterPaths(paths)
 
 	ps := strings.Join(paths, ",\n")
-	b.logf(LogTypeIgnore, localeutil.Phrase("以下路径或是文件将被监视：%s", ps))
+	b.systemLog(Ignore, localeutil.Phrase("以下路径或是文件将被监视：%s", ps))
 
 	for _, path := range paths {
 		if err := watcher.Add(path); err != nil {

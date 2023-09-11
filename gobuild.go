@@ -10,11 +10,11 @@ import (
 	"context"
 	"io"
 
+	"github.com/issue9/term/v3/colors"
 	"golang.org/x/text/message"
 
 	"github.com/caixw/gobuild/internal/config"
 	"github.com/caixw/gobuild/watch"
-	"github.com/issue9/term/v3/colors"
 )
 
 type (
@@ -45,7 +45,9 @@ func Init(wd, name, configFilename string) error { return config.Init(wd, name, 
 
 // NewConsoleLogger 将日志输出到控制台的 Logger 实现
 //
-// colors 和 prefixes 可以为 nil，会采用默认值。
-func NewConsoleLogger(showIgnore bool, out io.Writer, colors map[int8]colors.Color, prefixes map[int8]string) Logger {
-	return watch.NewConsoleLogger(showIgnore, out, colors, prefixes)
+// colors 表示各类日志的颜色值；
+// sources 表示各类信息源的名称；
+// colors 和 sources 可以为 nil，会采用默认值。
+func NewConsoleLogger(showIgnore bool, out io.Writer, colors map[int8]colors.Color, sources map[string]string) Logger {
+	return watch.NewConsoleLogger(showIgnore, out, colors, sources)
 }

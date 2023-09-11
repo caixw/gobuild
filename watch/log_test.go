@@ -17,12 +17,12 @@ func TestLogger(t *testing.T) {
 	logs := NewConsoleLogger(true, out, nil, nil)
 	a.NotNil(logs)
 
-	logs.Output(LogTypeError, "error")
+	logs.Output(System, Error, "error")
 	time.Sleep(300 * time.Microsecond)
 	a.NotEmpty(out.String())
 
 	out.Reset()
-	logs.Output(LogTypeIgnore, "message")
+	logs.Output(System, Ignore, "message")
 	time.Sleep(300 * time.Microsecond)
 	a.NotEmpty(out.String())
 
@@ -30,7 +30,7 @@ func TestLogger(t *testing.T) {
 	out.Reset()
 	logs = NewConsoleLogger(false, out, nil, nil)
 	a.NotNil(logs)
-	logs.Output(LogTypeIgnore, "message")
+	logs.Output(System, Ignore, "message")
 	time.Sleep(300 * time.Microsecond)
 	a.Empty(out.String())
 }
@@ -41,13 +41,13 @@ func TestAsWriter(t *testing.T) {
 	logs := NewConsoleLogger(true, out, nil, nil)
 	a.NotNil(logs)
 
-	w := asWriter(LogTypeInfo, logs)
+	w := asWriter(System, Info, logs)
 	n, err := w.Write([]byte("abc"))
 	a.NotError(err).Equal(n, 3)
 	time.Sleep(300 * time.Microsecond)
 	a.Contains(out.String(), "abc")
 
-	w = asWriter(LogTypeError, logs)
+	w = asWriter(System, Error, logs)
 	n, err = w.Write([]byte("defg"))
 	a.NotError(err).Equal(n, 4)
 	time.Sleep(300 * time.Microsecond)
