@@ -74,8 +74,11 @@ func (opt *Options) sanitize() (err error) {
 	}
 
 	// 根据 MainFiles 拿到 wd 和 appName
-	if last := opt.MainFiles[len(opt.MainFiles)-1]; last != '.' && last != '/' {
-		opt.wd = filepath.Dir(opt.MainFiles)
+
+	// MainFiles 可能是 *.go 等非正常的目录结构，根据最后一个字符作简单判断。
+	opt.wd = opt.MainFiles
+	if last := opt.wd[len(opt.wd)-1]; last != '.' && last != '/' {
+		opt.wd = filepath.Dir(opt.wd)
 	}
 	opt.wd, err = filepath.Abs(opt.wd)
 	if err != nil {

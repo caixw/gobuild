@@ -71,7 +71,7 @@ func TestRecursivePath(t *testing.T) {
 	abs := func(s string) string {
 		ss, err := filepath.Abs(s)
 		a.NotError(err).NotEmpty(ss)
-		return ss
+		return filepath.ToSlash(ss)
 	}
 
 	paths, err := recursivePaths("./testdir/testdir1")
