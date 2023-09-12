@@ -101,3 +101,19 @@ func TestSplitArgs(t *testing.T) {
 	a.Equal(splitArgs(`aa=1 bb ""`), []string{"aa", "1", "bb"})
 	a.Equal(splitArgs(`  ""`), []string{})
 }
+
+func TestGetWD(t *testing.T) {
+	a := assert.New(t, false)
+
+	wd, err := getWD("./")
+	a.NotError(err).NotEmpty(wd)
+
+	wd, err = getWD("./testdir")
+	a.NotError(err).True(strings.HasSuffix(wd, "testdir"))
+
+	wd, err = getWD("./testdir/go.mod")
+	a.NotError(err).True(strings.HasSuffix(wd, "testdir"))
+
+	wd, err = getWD("./testdir/*.go")
+	a.NotError(err).True(strings.HasSuffix(wd, "testdir"))
+}

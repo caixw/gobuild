@@ -76,14 +76,11 @@ func (opt *Options) sanitize() (err error) {
 	// 根据 MainFiles 拿到 wd 和 appName
 
 	// MainFiles 可能是 *.go 等非正常的目录结构，根据最后一个字符作简单判断。
-	opt.wd = opt.MainFiles
-	if last := opt.wd[len(opt.wd)-1]; last != '.' && last != '/' {
-		opt.wd = filepath.Dir(opt.wd)
-	}
-	opt.wd, err = filepath.Abs(opt.wd)
+	opt.wd, err = getWD(opt.MainFiles)
 	if err != nil {
 		return err
 	}
+	// BUG: 如果获得的 opt.wd == /，那么 appName 将是个非法值。
 	opt.appName = filepath.Join(opt.wd, filepath.Base(opt.wd))
 	if goexe := os.Getenv("GOEXE"); goexe != "" {
 		opt.appName += goexe
@@ -115,6 +112,22 @@ func (opt *Options) sanitize() (err error) {
 	opt.goCmdArgs = args
 
 	return nil
+}
+
+func getWD(mainFiles string) (wd string, err error) {
+	if wd, err = filepath.Abs(mainFiles); err != nil {
+		return "", err
+	}
+
+	// 不以路径分隔符结尾的，wd 可能表示的是文件，而不是目录。
+	if last := wd[len(wd)-1]; last != '/' && last != filepath.Separator {
+		stat, err := os.Stat(wd)
+		if err != nil || !stat.IsDir() { // err!=nil 可能 wd 不是一个正常的文件表示，比如 ./*.go
+			wd = filepath.Dir(wd)
+		}
+	}
+
+	return wd, nil
 }
 
 func (opt *Options) sanitizeExts() {
