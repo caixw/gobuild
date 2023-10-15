@@ -99,6 +99,6 @@ func NewConsoleLogger(showIgnore bool, out io.Writer, colors map[int8]colors.Col
 	}
 }
 
-func (b *builder) systemLog(typ int8, msg localeutil.LocaleStringer) {
+func (b *builder) systemLog(typ int8, msg localeutil.Stringer) {
 	b.logs.Output(System, typ, msg.LocaleString(b.p))
 }

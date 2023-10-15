@@ -43,39 +43,22 @@ func Exec() error {
 }
 
 func getPrinter() *localeutil.Printer {
-	tag, _ := localeutil.DetectUserLanguageTag()
-	c := catalog.NewBuilder(catalog.Fallback(tag))
-
-	l1, err := serialize.LoadFSGlob(&cl.Locales, "*.yaml", yaml.Unmarshal)
-	if err != nil {
-		panic(err)
-	}
-	for _, l := range l1 {
-		if err := l.Catalog(c); err != nil {
-			panic(err)
-		}
-	}
-
-	l2, err := serialize.LoadFSGlob(&locales.Locales, "*.yaml", yaml.Unmarshal)
-	if err != nil {
-		panic(err)
-	}
-	for _, l := range l2 {
-		if err := l.Catalog(c); err != nil {
-			panic(err)
-		}
-	}
-
 	p, err := os.Executable()
 	if err != nil { // 这里不退出
 		fmt.Fprintln(os.Stderr, err)
 	}
 
-	l3, err := serialize.LoadFSGlob(os.DirFS(filepath.Dir(p)), "*.yaml", yaml.Unmarshal)
+	ls, err := serialize.LoadFSGlob(func(s string) serialize.UnmarshalFunc {
+		return yaml.Unmarshal
+	}, "*.yaml", cl.Locales, locales.Locales, os.DirFS(filepath.Dir(p)))
 	if err != nil {
 		panic(err)
 	}
-	for _, l := range l3 {
+
+	tag, _ := localeutil.DetectUserLanguageTag()
+	c := catalog.NewBuilder(catalog.Fallback(tag))
+
+	for _, l := range ls {
 		if err := l.Catalog(c); err != nil {
 			panic(err)
 		}
