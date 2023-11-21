@@ -157,15 +157,11 @@ func (opt *Options) sanitizeExts() {
 
 // 根据 recursive 值确定是否递归查找 paths 每个目录下的子目录
 func recursivePaths(wd string) ([]string, error) {
-	mod, err := source.ModFile(wd)
+	p, mod, err := source.ModFile(wd)
 	if err != nil {
 		return nil, err
 	}
-
-	root, err := source.ModDir(wd)
-	if err != nil {
-		return nil, err
-	}
+	root := filepath.Dir(p)
 
 	dirs := make([]string, 0, len(mod.Replace)+1)
 	err = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {

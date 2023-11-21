@@ -8,8 +8,8 @@ github.com/issue9/localeutil v0.24.0 h1:EnqsgkhWXqQXU+RM9ISAYnBaxxZYi3ec+6Z+AlxG
 github.com/issue9/localeutil v0.24.0/go.mod h1:JvTb8B/2oVEZU1VHrBJXPHlE/1gZJFRMcF/ziKD8JJY=
 github.com/issue9/sliceutil v0.15.0 h1:E6Xnl3FY5h0ZGNzyx1VEFAfGdParaq/BkX1QQR0uFwI=
 github.com/issue9/sliceutil v0.15.0/go.mod h1:n9meV7AamDhmehOBuV4GrxW3yw7O1cZmLx3Xizg1bps=
-github.com/issue9/source v0.6.3 h1:D4RFuEWKPjOeHd1YUoGAKIJV3v2++d7MHCehtDbMXxI=
-github.com/issue9/source v0.6.3/go.mod h1:2EHVCbKxWmiLgW44gbNeNunksR52IRLl6Ph+cr842ZE=
+github.com/issue9/source v0.7.0 h1:4rmXN3STbF9w+19eQeVLhZ6+5FAhdLbX0DJlhW4C8ys=
+github.com/issue9/source v0.7.0/go.mod h1:2EHVCbKxWmiLgW44gbNeNunksR52IRLl6Ph+cr842ZE=
 github.com/issue9/term/v3 v3.2.4 h1:bCY0uk8lLaY6XLbZdYQVl5e0CqJkGxV8EYJxJGFv8xU=
 github.com/issue9/term/v3 v3.2.4/go.mod h1:f8L2Pdh6t/i1hfWFxrN9r2W1n4bNMEq/sKmS9RQSaAg=
 golang.org/x/mod v0.14.0 h1:dGoOF9QVLYng8IHTm7BAyWqCqSheQ5pYWGhzW00YJr0=

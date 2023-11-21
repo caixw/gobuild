@@ -4,7 +4,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/issue9/assert/v3 v3.1.0
 	github.com/issue9/localeutil v0.24.0
-	github.com/issue9/source v0.6.3
+	github.com/issue9/source v0.7.0
 	github.com/issue9/term/v3 v3.2.4
 	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v3 v3.0.1
