@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/caixw/gobuild v1.6.4
 	github.com/issue9/cmdopt v0.13.0
-	github.com/issue9/localeutil v0.24.0
+	github.com/issue9/localeutil v0.24.1
 	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v3 v3.0.1
 )
