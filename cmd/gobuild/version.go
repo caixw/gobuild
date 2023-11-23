@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	mainVersion = "1.3.0"
+	mainVersion = "1.7.3"
 	metadata    string
 	fullVersion = mainVersion
 
