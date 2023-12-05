@@ -10,7 +10,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/issue9/source"
+	"github.com/issue9/source/codegen"
 )
 
 func Init(wd, name, configFilename string) error {
@@ -61,7 +61,7 @@ func initCmd(wd, base string) error {
 	if err := os.MkdirAll(cmd, fs.ModePerm); err != nil {
 		return err
 	}
-	return source.DumpGoSource(filepath.Join(cmd, "main.go"), []byte(code))
+	return codegen.Dump(filepath.Join(cmd, "main.go"), []byte(code), fs.ModePerm)
 }
 
 const code = `package main
