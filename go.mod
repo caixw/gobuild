@@ -2,11 +2,11 @@ module github.com/caixw/gobuild
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/issue9/assert/v4 v4.2.0
-	github.com/issue9/localeutil v0.26.5
-	github.com/issue9/source v0.9.1
+	github.com/issue9/assert/v4 v4.3.0
+	github.com/issue9/localeutil v0.26.7
+	github.com/issue9/source v0.10.0
 	github.com/issue9/term/v3 v3.2.8
-	golang.org/x/text v0.14.0
+	golang.org/x/text v0.15.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
