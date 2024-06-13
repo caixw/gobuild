@@ -33,7 +33,7 @@ builds:
   - -s -w -X main.metadata={{time "20060102"}}.{{.FullCommit}} -X main.version={{.Tag}}
 
 brews:
-- tap:
+- repository:
     owner: caixw
     name: homebrew-brew
   url_template: "https://github.com/caixw/gobuild/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
@@ -41,7 +41,7 @@ brews:
   commit_author:
     name: goreleaserbot
     email: goreleaser@carlosbecker.com
-  folder: Formula
+  directory: Formula
   homepage: "https://github.com/caixw/gobuild"
   description: Go 热编译工具
   license: MIT
@@ -67,4 +67,4 @@ checksum:
   algorithm: sha256
 
 changelog:
-  skip: true
+  disable: true
