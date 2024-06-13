@@ -13,7 +13,6 @@ import (
 	"github.com/issue9/cmdopt"
 	"github.com/issue9/localeutil"
 	"github.com/issue9/localeutil/message/serialize"
-	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
 	"gopkg.in/yaml.v3"
 
@@ -66,5 +65,5 @@ func getPrinter() *localeutil.Printer {
 		}
 	}
 
-	return message.NewPrinter(tag, message.Catalog(c))
+	return localeutil.NewPrinter(c, tag)
 }
