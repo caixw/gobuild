@@ -24,9 +24,8 @@ const fileHeader = `# 此文件由 gobuild<https://github.com/caixw/gobuild> 生
 `
 
 func initOptions(wd, base, configFilename string) error {
-	dir := path.Join(binBaseDir, base)
 	o := &watch.Options{
-		MainFiles:        path.Join("./", dir),
+		MainFiles:        "./" + path.Join(binBaseDir, base), // path.Join 会将 ./ 去除，所以 ./ 不能在 path.Join 中。
 		Excludes:         []string{configFilename},
 		Exts:             []string{".go", ".yaml", ".xml", ".yml", ".json"}, // 配置文件修改也重启
 		WatcherFrequency: watch.MinWatcherFrequency,
