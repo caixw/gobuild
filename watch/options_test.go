@@ -6,6 +6,7 @@ package watch
 
 import (
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -21,7 +22,12 @@ func TestOptions_sanitize(t *testing.T) {
 	opt.MainFiles = "./"
 	a.NotError(opt.sanitize()).
 		Equal(opt.WatcherFrequency, MinWatcherFrequency).
-		True(strings.HasSuffix(opt.appName, "watch"))
+		When(runtime.GOOS == "windows", func(a *assert.Assertion) {
+			a.True(strings.HasSuffix(opt.appName, "watch.exe"))
+		}).
+		When(runtime.GOOS != "windows", func(a *assert.Assertion) {
+			a.True(strings.HasSuffix(opt.appName, "watch"))
+		})
 
 	opt.Excludes = []string{}
 	a.NotError(opt.sanitize())

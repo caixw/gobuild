@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -84,8 +85,8 @@ func (opt *Options) sanitize() (err error) {
 	}
 	// BUG: 如果获得的 opt.wd == /，那么 appName 将是个非法值。
 	opt.appName = filepath.Join(opt.wd, filepath.Base(opt.wd))
-	if goexe := os.Getenv("GOEXE"); goexe != "" {
-		opt.appName += goexe
+	if runtime.GOOS == "windows" {
+		opt.appName += ".exe"
 	}
 
 	// 根据 wd 获取项目根目录，从而拿到需要监视的列表
