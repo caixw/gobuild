@@ -1,4 +1,5 @@
-id: cmn-Hant
+languages:
+    - zh-Hant
 messages:
     - key: 初始化项目
       message:

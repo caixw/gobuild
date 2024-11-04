@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 //go:generate web locale -l=und -m -f=yaml ./
-//go:generate web update-locale -src=./locales/und.yaml -dest=./locales/cmn-Hans.yaml,./locales/cmn-Hant.yaml
+//go:generate web update-locale -src=./locales/und.yaml -dest=./locales/zh.yaml,./locales/zh-Hant.yaml
 
 // Package gobuild 热编译 Go 代码
 package gobuild

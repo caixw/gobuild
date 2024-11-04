@@ -1,4 +1,5 @@
-id: und
+languages:
+    - und
 messages:
     - key: watcher.Errors：%s
       message:

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 //go:generate web locale -l=und -m -f=yaml ./
-//go:generate web update-locale -src=./locales/und.yaml -dest=./locales/cmn-Hans.yaml,./locales/cmn-Hant.yaml
+//go:generate web update-locale -src=./locales/und.yaml -dest=./locales/zh.yaml,./locales/zh-Hant.yaml
 
 // 一个简单的 Go 语言热编译工具
 //

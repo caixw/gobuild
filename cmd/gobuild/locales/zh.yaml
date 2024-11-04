@@ -1,4 +1,6 @@
-id: cmn-Hans
+languages:
+    - zh-Hans
+    - cmn-Hans
 messages:
     - key: 初始化项目
       message:
