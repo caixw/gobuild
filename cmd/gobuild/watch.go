@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2015-2024 caixw
+// SPDX-FileCopyrightText: 2015-2025 caixw
 //
 // SPDX-License-Identifier: MIT
 
@@ -13,10 +13,10 @@ import (
 	"path/filepath"
 
 	"github.com/caixw/gobuild"
+	"github.com/goccy/go-yaml"
 	"github.com/issue9/cmdopt"
 	"github.com/issue9/localeutil"
 	"golang.org/x/text/message"
-	"gopkg.in/yaml.v3"
 )
 
 const (

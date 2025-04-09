@@ -1,6 +1,7 @@
 languages:
     - zh-Hans
     - cmn-Hans
+    - zh-CN
 messages:
     - key: watcher.Errors：%s
       message:
