@@ -1,59 +1,56 @@
 languages:
-    - zh-Hant
+- zh-Hant
 messages:
-    - key: 初始化项目
-      message:
-        msg: |
-            初始化項目
-
-            這將在當前目錄下創建項目文件夾，並在項目文件夾下生成的必要的文件，
-            比如 gobuild 的配置文件 .gobuild.yaml，go.mod 文件，以及默認的 main 入口文件。
-            如果已經存在同名的文件夾，則僅在該目錄下創建 .gobuild.yaml 文件。
-
-            語法：gobuild init {mod}
-
-            mod
-              為模塊的名稱，與 go.mod 中的模塊名稱相同，名稱的最後一個路徑元素
-              會被作為項目文件名稱。可以為空，表示當前目錄作為項目文件夾。
-    - key: 是否显示被标记为 IGNORE 的日志内容
-      message:
-        msg: 是否顯示不重要的提示信息
-    - key: 显示完整的版本号
-      message:
-        msg: 顯示完整的版本號
-    - key: 显示帮助信息
-      message:
-        msg: 顯示幫助信息
-    - key: 显示帮助信息
-      message:
-        msg: |
-            顯示幫助信息
-    - key: 显示版本信息
-      message:
-        msg: |
-            顯示版本信息
-    - key: 显示版本信息 usage
-      message:
-        msg: 显示版本信息 usage
-    - key: 未找到子命令 %s
-      message:
-        msg: 未找到子命令 %s
-    - key: 本地环境 %s
-      message:
-        msg: 本地環境：%s
-    - key: 热编译代码
-      message:
-        msg: |
-            熱編譯代碼
-
-            根據當前目錄下的 .gobuild.yaml 初始化熱編譯監視器，
-            對代碼進行熱編譯，不會監視隱藏文件和隱藏目錄下的文件。
-
-            語法：
-            gobuild watch {options}
-    - key: 热编译代码 usage
-      message:
-        msg: 热编译代码 usage
-    - key: 获取本地环境出错：%s
-      message:
-        msg: 獲取本地環境出錯：%s
+- key: 初始化项目
+  message:
+    msg: |
+      初始化項目
+      
+      這將在當前目錄下創建項目文件夾，並在項目文件夾下生成的必要的文件，
+      比如 gobuild 的配置文件 .gobuild.yaml，go.mod 文件，以及默認的 main 入口文件。
+      如果已經存在同名的文件夾，則僅在該目錄下創建 .gobuild.yaml 文件。
+      
+      語法：gobuild init {mod}
+      
+      mod
+        為模塊的名稱，與 go.mod 中的模塊名稱相同，名稱的最後一個路徑元素
+        會被作為項目文件名稱。可以為空，表示當前目錄作為項目文件夾。
+- key: 是否显示被标记为 IGNORE 的日志内容
+  message:
+    msg: 是否顯示不重要的提示信息
+- key: 显示帮助信息
+  message:
+    msg: 顯示幫助信息
+- key: 显示帮助信息
+  message:
+    msg: |
+      顯示幫助信息
+- key: 显示版本信息
+  message:
+    msg: |
+      顯示版本信息
+- key: 显示版本信息 usage
+  message:
+    msg: 显示版本信息 usage
+- key: 未找到子命令 %s
+  message:
+    msg: 未找到子命令 %s
+- key: 本地环境 %s
+  message:
+    msg: 本地環境：%s
+- key: 热编译代码
+  message:
+    msg: |
+      熱編譯代碼
+      
+      根據當前目錄下的 .gobuild.yaml 初始化熱編譯監視器，
+      對代碼進行熱編譯，不會監視隱藏文件和隱藏目錄下的文件。
+      
+      語法：
+      gobuild watch {options}
+- key: 热编译代码 usage
+  message:
+    msg: 热编译代码 usage
+- key: 获取本地环境出错：%s
+  message:
+    msg: 獲取本地環境出錯：%s

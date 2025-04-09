@@ -1,62 +1,59 @@
 languages:
-    - zh-Hans
-    - cmn-Hans
-    - zh-CN
+- zh-Hans
+- cmn-Hans
+- zh-CN
 messages:
-    - key: 初始化项目
-      message:
-        msg: |
-            初始化项目
-
-            这将在当前目录下创建项目文件夹，并在项目文件夹下生成的必要的文件，
-            比如 gobuild 的配置文件 .gobuild.yaml，go.mod 文件，以及默认的 main 入口文件。
-            如果已经存在同名的文件夹，则仅在该目录下创建 .gobuild.yaml 文件。
-
-            语法：
-            gobuild init {mod}
-
-            mod
-              为模块的名称，与 go.mod 中的模块名称相同，名称的最后一个路径元素
-              会被作为项目文件名称。可以为空，表示当前目录作为项目文件夹。
-    - key: 是否显示被标记为 IGNORE 的日志内容
-      message:
-        msg: 是否显示不重要的提示信息
-    - key: 显示完整的版本号
-      message:
-        msg: 显示完整的版本号
-    - key: 显示帮助信息
-      message:
-        msg: 显示帮助信息
-    - key: 显示帮助信息
-      message:
-        msg: |
-            显示帮助信息
-    - key: 显示版本信息
-      message:
-        msg: |
-            显示版本信息
-    - key: 显示版本信息 usage
-      message:
-        msg: 显示版本信息 usage
-    - key: 未找到子命令 %s
-      message:
-        msg: 未找到子命令 %s
-    - key: 本地环境 %s
-      message:
-        msg: 本地环境：%s
-    - key: 热编译代码
-      message:
-        msg: |
-            热编译代码
-
-            根据当前目录下的 .gobuild.yaml 初始化热编译监视器，
-            对代码进行热编译，不会监视隐藏文件和隐藏目录下的文件。
-
-            语法：
-            gobuild watch {options}
-    - key: 热编译代码 usage
-      message:
-        msg: 热编译代码 usage
-    - key: 获取本地环境出错：%s
-      message:
-        msg: 获取本地环境出错：%s
+- key: 初始化项目
+  message:
+    msg: |
+      初始化项目
+      
+      这将在当前目录下创建项目文件夹，并在项目文件夹下生成的必要的文件，
+      比如 gobuild 的配置文件 .gobuild.yaml，go.mod 文件，以及默认的 main 入口文件。
+      如果已经存在同名的文件夹，则仅在该目录下创建 .gobuild.yaml 文件。
+      
+      语法：
+      gobuild init {mod}
+      
+      mod
+        为模块的名称，与 go.mod 中的模块名称相同，名称的最后一个路径元素
+        会被作为项目文件名称。可以为空，表示当前目录作为项目文件夹。
+- key: 是否显示被标记为 IGNORE 的日志内容
+  message:
+    msg: 是否显示不重要的提示信息
+- key: 显示帮助信息
+  message:
+    msg: 显示帮助信息
+- key: 显示帮助信息
+  message:
+    msg: |
+      显示帮助信息
+- key: 显示版本信息
+  message:
+    msg: |
+      显示版本信息
+- key: 显示版本信息 usage
+  message:
+    msg: 显示版本信息 usage
+- key: 未找到子命令 %s
+  message:
+    msg: 未找到子命令 %s
+- key: 本地环境 %s
+  message:
+    msg: 本地环境：%s
+- key: 热编译代码
+  message:
+    msg: |
+      热编译代码
+      
+      根据当前目录下的 .gobuild.yaml 初始化热编译监视器，
+      对代码进行热编译，不会监视隐藏文件和隐藏目录下的文件。
+      
+      语法：
+      gobuild watch {options}
+- key: 热编译代码 usage
+  message:
+    msg: 热编译代码 usage
+- key: 获取本地环境出错：%s
+  message:
+    msg: 获取本地环境出错：%s

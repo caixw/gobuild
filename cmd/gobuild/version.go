@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2015-2024 caixw
+// SPDX-FileCopyrightText: 2015-2025 caixw
 //
 // SPDX-License-Identifier: MIT
 
@@ -11,6 +11,7 @@ import (
 	"io"
 	"os/exec"
 	"runtime"
+	"runtime/debug"
 	"strings"
 
 	"github.com/issue9/cmdopt"
@@ -18,34 +19,17 @@ import (
 	"golang.org/x/text/message"
 )
 
-var (
-	mainVersion = "1.8.5"
-	metadata    string
-	fullVersion = mainVersion
-
-	versionFull bool
-)
-
 const (
 	showVersion      = localeutil.StringPhrase("显示版本信息")
 	showVersionUsage = localeutil.StringPhrase("显示版本信息 usage")
-	fullVersionUsage = localeutil.StringPhrase("显示完整的版本号")
 )
-
-func init() {
-	if metadata != "" {
-		fullVersion += "+" + metadata
-	}
-}
 
 func initVersion(o *cmdopt.CmdOpt, p *message.Printer) {
 	o.New("version", showVersion.LocaleString(p), showVersionUsage.LocaleString(p), func(fs *flag.FlagSet) cmdopt.DoFunc {
-		fs.BoolVar(&versionFull, "f", false, fullVersionUsage.LocaleString(p))
-
 		return func(w io.Writer) error {
-			version := mainVersion
-			if versionFull {
-				version = fullVersion
+			version := "unknown"
+			if info, ok := debug.ReadBuildInfo(); ok {
+				version = info.Main.Version
 			}
 			fmt.Fprintf(w, "gobuild %s build with %s\n", version, runtime.Version())
 

@@ -1,84 +1,84 @@
 languages:
-    - zh-Hant
+- zh-Hant
 messages:
-    - key: watcher.Errors：%s
-      message:
-        msg: 監視器錯誤：%s
-    - key: watcher.Events:%s 事件触发了编译
-      message:
-        msg: '%s 事件觸發了編譯'
-    - key: watcher.Events:忽略 %s 事件
-      message:
-        msg: 忽略 %s 事件
-    - key: watcher.Events:忽略不被监视的文件：%s
-      message:
-        msg: 忽略不被監視的文件：%s
-    - key: watcher.Events:忽略短期内频繁修改的文件：%s
-      message:
-        msg: 忽略短期內頻繁修改的文件：%s
-    - key: 中止旧的编译进程
-      message:
-        msg: 中止舊的編譯進程
-    - key: 中止旧的编译进程失败：%s
-      message:
-        msg: 中止舊的編譯進程失敗：%s
-    - key: 中止旧进程失败：%s
-      message:
-        msg: 中止舊進程失敗：%s
-    - key: 中止旧进程：%s
-      message:
-        msg: 中止舊進程：%s
-    - key: 以下路径或是文件将被监视：%s
-      message:
-        msg: 以下路徑或是文件將被監視：%s
-    - key: 初始化监视器...
-      message:
-        msg: 初始化監視器...
-    - key: 启动新进程：%s
-      message:
-        msg: 啟動新進程：%s
-    - key: 启动进程时出错：%s
-      message:
-        msg: 啟動進程時出錯：%s
-    - key: 将 ext 设置为空值，意味着不监视任何文件的改变！
-      message:
-        msg: 將 ext 設置為空值，意味著不監視任何文件的改變！
-    - key: 当前环境参数如下：%s
-      message:
-        msg: 當前環境參數如下：%s
-    - key: 旧的编译进程被终止!
-      message:
-        msg: 舊的編譯進程被終止!
-    - key: 旧进程被终止!
-      message:
-        msg: 舊進程被終止!
-    - key: 用户取消
-      message:
-        msg: 用戶取消
-    - key: 系统将监视以下类型的文件：%s
-      message:
-        msg: 系統將監視以下類型的文件：%s
-    - key: 给程序传递了以下参数：%s
-      message:
-        msg: 給程序傳遞了以下參數：%s
-    - key: 编译代码...
-      message:
-        msg: 開始編譯代碼...
-    - key: 编译失败：%s
-      message:
-        msg: 編譯失敗：%s
-    - key: 编译成功!
-      message:
-        msg: 編譯成功!
-    - key: 被中止编译进程非正常退出：%s
-      message:
-        msg: 被中止編譯進程非正常退出：%s
-    - key: 被中止进程非正常退出：%s
-      message:
-        msg: 被中止進程非正常退出：%s
-    - key: 输出文件为：%s
-      message:
-        msg: 输出文件为：%s
-    - key: 重启失败：%s
-      message:
-        msg: 重啟失敗：%s
+- key: watcher.Errors：%s
+  message:
+    msg: 監視器錯誤：%s
+- key: watcher.Events:%s 事件触发了编译
+  message:
+    msg: "%s 事件觸發了編譯"
+- key: watcher.Events:忽略 %s 事件
+  message:
+    msg: 忽略 %s 事件
+- key: watcher.Events:忽略不被监视的文件：%s
+  message:
+    msg: 忽略不被監視的文件：%s
+- key: watcher.Events:忽略短期内频繁修改的文件：%s
+  message:
+    msg: 忽略短期內頻繁修改的文件：%s
+- key: 中止旧的编译进程
+  message:
+    msg: 中止舊的編譯進程
+- key: 中止旧的编译进程失败：%s
+  message:
+    msg: 中止舊的編譯進程失敗：%s
+- key: 中止旧进程失败：%s
+  message:
+    msg: 中止舊進程失敗：%s
+- key: 中止旧进程：%s
+  message:
+    msg: 中止舊進程：%s
+- key: 以下路径或是文件将被监视：%s
+  message:
+    msg: 以下路徑或是文件將被監視：%s
+- key: 初始化监视器...
+  message:
+    msg: 初始化監視器...
+- key: 启动新进程：%s
+  message:
+    msg: 啟動新進程：%s
+- key: 启动进程时出错：%s
+  message:
+    msg: 啟動進程時出錯：%s
+- key: 将 ext 设置为空值，意味着不监视任何文件的改变！
+  message:
+    msg: 將 ext 設置為空值，意味著不監視任何文件的改變！
+- key: 当前环境参数如下：%s
+  message:
+    msg: 當前環境參數如下：%s
+- key: 旧的编译进程被终止!
+  message:
+    msg: 舊的編譯進程被終止!
+- key: 旧进程被终止!
+  message:
+    msg: 舊進程被終止!
+- key: 用户取消
+  message:
+    msg: 用戶取消
+- key: 系统将监视以下类型的文件：%s
+  message:
+    msg: 系統將監視以下類型的文件：%s
+- key: 给程序传递了以下参数：%s
+  message:
+    msg: 給程序傳遞了以下參數：%s
+- key: 编译代码...
+  message:
+    msg: 開始編譯代碼...
+- key: 编译失败：%s
+  message:
+    msg: 編譯失敗：%s
+- key: 编译成功!
+  message:
+    msg: 編譯成功!
+- key: 被中止编译进程非正常退出：%s
+  message:
+    msg: 被中止編譯進程非正常退出：%s
+- key: 被中止进程非正常退出：%s
+  message:
+    msg: 被中止進程非正常退出：%s
+- key: 输出文件为：%s
+  message:
+    msg: 输出文件为：%s
+- key: 重启失败：%s
+  message:
+    msg: 重啟失敗：%s
