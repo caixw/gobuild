@@ -6,12 +6,12 @@ jobs:
   test:
     name: Test
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        go: ['1.23.x', '1.24.x']
-        
+        go: ['1.25.x', '1.24.x']
+
     steps:
 
       - name: Set git to use LF
@@ -30,7 +30,7 @@ jobs:
 
       - name: Vet
         run: go vet -v ./...
-        
+
       - name: Test
         run: go test -v -coverprofile='coverage.txt' -covermode=atomic ./...
 
