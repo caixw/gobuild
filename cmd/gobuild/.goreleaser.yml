@@ -1,3 +1,4 @@
+version: 2
 project_name: gobuild
 
 release:
@@ -32,11 +33,12 @@ builds:
   ldflags:
   - -s -w -X main.metadata={{time "20060102"}}.{{.FullCommit}} -X main.version={{.Tag}}
 
-brews:
+homebrew_casks:
 - repository:
     owner: caixw
     name: homebrew-brew
-  url_template: "https://github.com/caixw/gobuild/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+  url:
+    template: "https://github.com/caixw/gobuild/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
   commit_author:
     name: goreleaserbot
@@ -47,11 +49,12 @@ brews:
   license: MIT
 
 archives:
-- builds:
+- ids:
   - gobuild
   format_overrides:
   - goos: windows
-    format: zip
+    formats:
+      - zip
   files:
   - licence*
   - LICENCE*
